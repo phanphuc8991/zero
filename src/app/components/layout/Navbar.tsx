@@ -1,13 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
+import { MobileSidebar } from "./MobileSidebar";
+import DarkLogo from "@/assets/images/logo/dark-logo.svg";
+import LightLogo from "@/assets/images/logo/light-logo.svg";
+import SunIcon from "@/assets/images/dark-light-icon/sun-icon.svg";
+import MoonIcon from "@/assets/images/dark-light-icon/moon-icon.svg";
 export function Navbar() {
   return (
-    <nav className="py-3.5 flex justify-between transition-all duration-300 ease-in-out">
+    <nav className="py-3.5 flex justify-between navbar">
       <div className="flex items-center">
         <Link href="/">
           <Image
             alt="logo"
-            src="/images/logo/light-logo.svg"
+            src={LightLogo}
             width={190}
             height={34}
             className="dark:hidden"
@@ -16,7 +21,7 @@ export function Navbar() {
           />
           <Image
             alt="logo"
-            src="/images/logo/dark-logo.svg"
+            src={DarkLogo}
             width={190}
             height={34}
             className="hidden dark:block"
@@ -30,7 +35,7 @@ export function Navbar() {
           <li className="cursor-pointer">
             <Link
               href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-bold"
+              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Home
             </Link>
@@ -38,15 +43,7 @@ export function Navbar() {
           <li className="cursor-pointer">
             <Link
               href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-bold"
-            >
-              About us
-            </Link>
-          </li>
-          <li className="cursor-pointer">
-            <Link
-              href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-bold"
+              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               About us
             </Link>
@@ -54,7 +51,7 @@ export function Navbar() {
           <li className="cursor-pointer">
             <Link
               href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-bold"
+              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Courses
             </Link>
@@ -62,7 +59,7 @@ export function Navbar() {
           <li className="cursor-pointer">
             <Link
               href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-bold"
+              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Benefits
             </Link>
@@ -70,7 +67,7 @@ export function Navbar() {
           <li className="cursor-pointer">
             <Link
               href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-bold"
+              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Pricing
             </Link>
@@ -78,7 +75,7 @@ export function Navbar() {
           <li className="cursor-pointer">
             <Link
               href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-bold"
+              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Blog
             </Link>
@@ -86,7 +83,7 @@ export function Navbar() {
           <li className="cursor-pointer">
             <Link
               href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-bold"
+              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Docs
             </Link>
@@ -99,7 +96,7 @@ export function Navbar() {
               href=""
               className="group border border-primary py-2 px-5 rounded-full cursor-pointer dark:border-creamwhite dark:hover:border-primary hover:bg-secondary"
             >
-              <span className="text-base font-bold text-primary dark:text-creamwhite dark:group-hover:text-primary">
+              <span className="text-base font-semibold text-primary dark:text-creamwhite dark:group-hover:text-primary">
                 Sign in
               </span>
             </Link>
@@ -107,28 +104,32 @@ export function Navbar() {
               href=""
               className="border border-primary py-2 px-5 rounded-full cursor-pointer bg-secondary hover:bg-transparent dark:hover:bg-creamwhite"
             >
-              <span className="text-primary text-base font-bold">Sign up</span>
+              <span className="text-primary text-base font-semibold">
+                Sign up
+              </span>
             </Link>
           </div>
-          <button className="flex justify-center items-center w-8 h-8 transition-transform duration-700 ease-in-out">
-            <span>
+          <button className="group flex justify-center items-center w-8 h-8">
+            <span className="group-hover:rotate-180 transition-transform duration-700 ease-in-out cursor-pointer">
               <Image
                 alt="icon"
-                src="/images/dark-light-icon/sun-icon.svg"
+                src={SunIcon}
                 width={25}
                 height={25}
+                className="hidden dark:block"
               />
               <Image
                 alt="icon"
-                src="/images/dark-light-icon/moon-icon.svg"
+                src={MoonIcon}
                 width={25}
                 height={25}
+                className="dark:hidden"
               />
             </span>
           </button>
         </div>
       </div>
-      <div className="lg:hidden">3</div>
+      <MobileSidebar />
     </nav>
   );
 }

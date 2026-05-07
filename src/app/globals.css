@@ -37,3 +37,22 @@
     padding-inline: calc(var(--spacing) * 7);
   }
 }
+
+@keyframes navbar-change {
+  from {
+  }
+  to {
+    border-radius: 9999px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    background-color: var(--creamwhite);
+    padding-inline: 16px;
+  }
+}
+
+.navbar {
+  animation-name: navbar-change;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-timeline: scroll(root);
+  animation-range: 0px 105px;
+}

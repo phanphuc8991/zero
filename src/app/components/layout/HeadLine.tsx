@@ -1,5 +1,5 @@
 import DownArrow from "@/assets/images/icon/down-arrow.svg";
-import Image from "next/image";
+import { PillButton } from "../ui/PillButton";
 
 export function HeadLine() {
   return (
@@ -15,21 +15,7 @@ export function HeadLine() {
               top 1% fast, career-focused, and effectively.
             </p>
           </div>
-
-          <a
-            href=""
-            className="shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-4 px-7 rounded-full border border-black w-fit transition-all duration-300 ease-in-out"
-          >
-            <span className="font-semibold dark:group-hover:text-primary">
-              Explore Courses
-            </span>
-            <Image
-              alt="down-arrow-icon"
-              src={DownArrow}
-              width={20}
-              height={20}
-            />
-          </a>
+          <PillButton label="Explore courses" icon={DownArrow} />
         </div>
       </div>
     </div>

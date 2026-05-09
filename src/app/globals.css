@@ -80,10 +80,26 @@
   }
 }
 
-.navbar {
+.animation-navbar {
   animation-name: navbar-change;
   animation-timing-function: linear;
   animation-fill-mode: both;
   animation-timeline: scroll(root);
   animation-range: 0px 105px;
+}
+
+@keyframes slider-logo {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-350px * 5));
+  }
+}
+
+.animation-slider-log {
+  animation-name: slider-logo;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-duration: 40s;
 }

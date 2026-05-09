@@ -7,7 +7,7 @@ import SunIcon from "@/assets/images/dark-light-icon/sun-icon.svg";
 import MoonIcon from "@/assets/images/dark-light-icon/moon-icon.svg";
 export function Navbar() {
   return (
-    <nav className="py-3.5 flex justify-between navbar">
+    <nav className="py-3.5 flex justify-between animation-navbar">
       <div className="flex items-center">
         <Link href="/">
           <Image
@@ -17,7 +17,6 @@ export function Navbar() {
             height={34}
             className="dark:hidden"
             style={{ width: "auto", height: "auto" }}
-            priority
           />
           <Image
             alt="logo"
@@ -26,7 +25,6 @@ export function Navbar() {
             height={34}
             className="hidden dark:block"
             style={{ width: "auto", height: "auto" }}
-            priority
           />
         </Link>
       </div>

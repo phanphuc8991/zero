@@ -2,6 +2,11 @@ import { CardMarquee } from "@/app/components/layout/CardMarquee";
 import { HeadLine } from "@/app/components/layout/HeadLine";
 import { Statistic } from "@/app/components/ui/Statistic";
 import { SectionHeader } from "@/app/components/ui/SectionHeader";
+import { PillButton } from "./components/ui/PillButton";
+import ArrowUpRight from "@/assets/images/icon/arrow-up-right.svg";
+import CourseItemImage1 from "@/assets/images/courses/courses_img-2.jpeg";
+import image_4 from "@/assets/images/home/profile-img-4.png";
+import { CardCourse } from "@/app/components/ui/CardCourse";
 
 const list = [
   {
@@ -22,9 +27,68 @@ const list = [
   },
 ];
 
-const label = "About us";
-const heading =
-  "Empowering learners with expert-led courses, fostering growth, building confidence, and unlocking career opportunities.";
+const listCourse = [
+  {
+    coverImage: CourseItemImage1,
+    title: "Ultimate Content Creation Mastery",
+    duration: "12",
+    instructor: {
+      name: "Ethan Walker",
+      title: "AI Content Strategist",
+      avatar: image_4,
+    },
+  },
+  {
+    coverImage: CourseItemImage1,
+    title: "Ultimate Content Creation Mastery",
+    duration: "12",
+    instructor: {
+      name: "Ethan Walker",
+      title: "AI Content Strategist",
+      avatar: image_4,
+    },
+  },
+  {
+    coverImage: CourseItemImage1,
+    title: "Ultimate Content Creation Mastery",
+    duration: "12",
+    instructor: {
+      name: "Ethan Walker",
+      title: "AI Content Strategist",
+      avatar: image_4,
+    },
+  },
+  {
+    coverImage: CourseItemImage1,
+    title: "Ultimate Content Creation Mastery",
+    duration: "12",
+    instructor: {
+      name: "Ethan Walker",
+      title: "AI Content Strategist",
+      avatar: image_4,
+    },
+  },
+  {
+    coverImage: CourseItemImage1,
+    title: "Ultimate Content Creation Mastery",
+    duration: "12",
+    instructor: {
+      name: "Ethan Walker",
+      title: "AI Content Strategist",
+      avatar: image_4,
+    },
+  },
+  {
+    coverImage: CourseItemImage1,
+    title: "Ultimate Content Creation Mastery",
+    duration: "12",
+    instructor: {
+      name: "Ethan Walker",
+      title: "AI Content Strategist",
+      avatar: image_4,
+    },
+  },
+];
 
 export default function HomePage() {
   return (
@@ -36,9 +100,10 @@ export default function HomePage() {
       <section>
         <div className="container">
           <div className="py-11 md:py-20 flex flex-col gap-10 md:gap-12">
-            <div className="flex flex-col gap-4">
-              <SectionHeader label={label} heading={heading} />
-            </div>
+            <SectionHeader
+              label="About us"
+              heading="Empowering learners with expert-led courses, fostering growth, building confidence, and unlocking career opportunities."
+            />
             <div className="grid md:grid-cols-4 xsm:grid-cols-2 grid-cols-1 md:pt-6 gap-5 lg:gap-6 text-center md:text-left">
               {list.map((item, index) => (
                 <Statistic data={item} key={index} />
@@ -48,11 +113,20 @@ export default function HomePage() {
         </div>
       </section>
       <section id="courses">
-        <div className="contaier">
-          <div>
-            <div></div>
-            <div></div>
-            <div></div>
+        <div className="container">
+          <div className="py-11 md:py-20 flex flex-col gap-10 md:gap-12">
+            <SectionHeader
+              label="Courses"
+              heading="Discover Your Path Shape Your Future"
+            />
+            <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6">
+              {listCourse.map((data, index) => (
+                <CardCourse data={data} key={index} />
+              ))}
+            </div>
+            <div className="flex justify-center">
+              <PillButton label="Explore courses" icon={ArrowUpRight} />
+            </div>
           </div>
         </div>
       </section>

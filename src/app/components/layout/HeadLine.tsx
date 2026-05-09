@@ -1,4 +1,4 @@
-import DownArrow from "@/assets/images/icon/down-arrow.svg";
+import ArrowDown from "@/assets/images/icon/arrow-down.svg";
 import { PillButton } from "../ui/PillButton";
 
 export function HeadLine() {
@@ -15,7 +15,7 @@ export function HeadLine() {
               top 1% fast, career-focused, and effectively.
             </p>
           </div>
-          <PillButton label="Explore courses" icon={DownArrow} />
+          <PillButton label="Explore courses" icon={ArrowDown} />
         </div>
       </div>
     </div>

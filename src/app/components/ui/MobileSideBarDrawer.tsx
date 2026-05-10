@@ -28,14 +28,14 @@ export function MobileSidebarDrawer({
               src={SunIcon}
               width={25}
               height={25}
-              className="hidden dark:block"
+              className="hidden dark:block w-[25px] h-[25px]"
             />
             <Image
               alt="icon"
               src={MoonIcon}
               width={25}
               height={25}
-              className="dark:hidden"
+              className="dark:hidden w-[25px] h-[25px]"
             />
           </span>
         </button>
@@ -45,9 +45,15 @@ export function MobileSidebarDrawer({
             src={DarkMenuIcon}
             width={30}
             height={30}
-            className="hidden dark:block"
+            className="hidden dark:block w-[30px] h-[30px]"
           />
-          <Image alt="menu-icon" src={LightMenuIcon} width={30} height={30} />
+          <Image
+            alt="menu-icon"
+            src={LightMenuIcon}
+            width={30}
+            height={30}
+            className="w-[30px] h-[30px]"
+          />
         </button>
       </div>
 
@@ -58,20 +64,23 @@ export function MobileSidebarDrawer({
         )}
       >
         <div className="flex justify-between items-center px-5 py-4">
-          <span className="text-primary font-bold dark:creamwhite leading-[140%] text-lg">Menu</span>
+          <span className="text-primary font-bold dark:creamwhite leading-[140%] text-lg">
+            Menu
+          </span>
           <button className="cursor-pointer" onClick={onClose}>
             <Image
               alt="menu-close-icon"
               src={DarkCloseIcon}
               width={25}
               height={25}
-              className="hidden dark:block"
+              className="hidden dark:block w-[25px] h-[25px]"
             />
             <Image
               alt="menu-close-icon"
               src={LightCloseIcon}
               width={25}
               height={25}
+              className="w-[25px] h-[25px]"
             />
           </button>
         </div>

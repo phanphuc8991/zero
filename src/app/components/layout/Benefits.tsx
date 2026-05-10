@@ -21,7 +21,7 @@ export function Benefits() {
     <div className="container">
       <div className="py-11 md:py-20 flex flex-col gap-10 md:gap-12">
         <SectionHeader
-          label="Testimonials"
+          label="Benefits"
           heading="Success Stories That Inspire"
         />
         <div className="flex flex-col gap-12">
@@ -31,12 +31,19 @@ export function Benefits() {
               src={BannerImg}
               width={1140}
               height={660}
-              className="rounded-2xl"
+              className="rounded-2xl w-[1140px] h-[660px]"
+              unoptimized
             />
           </div>
           <div className="grid md:grid-cols-2 grid-cols-1 gap-5 sm:gap-6">
             <div className="flex items-start gap-6">
-              <Image alt="image" src={Icon1} width={40} height={40} />
+              <Image
+                alt="image"
+                src={Icon1}
+                width={40}
+                height={40}
+                className="w-[40px] h-[40px]"
+              />
               <div className="flex flex-col sm:gap-2">
                 <h5>Team Coaching</h5>
                 <h6 className="text-primary/70 dark:text-creamwhite/70">
@@ -46,7 +53,13 @@ export function Benefits() {
               </div>
             </div>
             <div className="flex items-start gap-6">
-              <Image alt="image" src={Icon2} width={40} height={40} />
+              <Image
+                alt="image"
+                src={Icon2}
+                width={40}
+                height={40}
+                className="w-[40px] h-[40px]"
+              />
               <div className="flex flex-col sm:gap-2">
                 <h5>Lifetime Access</h5>
                 <h6 className="text-primary/70 dark:text-creamwhite/70">
@@ -56,7 +69,13 @@ export function Benefits() {
               </div>
             </div>
             <div className="flex items-start gap-6">
-              <Image alt="image" src={Icon3} width={40} height={40} />
+              <Image
+                alt="image"
+                src={Icon3}
+                width={40}
+                height={40}
+                className="w-[40px] h-[40px]"
+              />
               <div className="flex flex-col sm:gap-2">
                 <h5>Completion Certificate</h5>
                 <h6 className="text-primary/70 dark:text-creamwhite/70">
@@ -66,7 +85,13 @@ export function Benefits() {
               </div>
             </div>
             <div className="flex items-start gap-6">
-              <Image alt="image" src={Icon4} width={40} height={40} />
+              <Image
+                alt="image"
+                src={Icon4}
+                width={40}
+                height={40}
+                className="w-[40px] h-[40px]"
+              />
               <div className="flex flex-col sm:gap-2">
                 <h5>Community Connection</h5>
                 <h6 className="text-primary/70 dark:text-creamwhite/70">
@@ -80,21 +105,21 @@ export function Benefits() {
         <div className="mt-6 flex flex-col gap-5 md:gap-8">
           <h5>Brands in Collaboration</h5>
           <div className="w-full h-auto overflow-hidden">
-            <div className="flex w-[3300px] animation-slider-brand">
+            <div className="flex w-[2500px] animation-slider-brand">
               <div className="w-[200px]">
                 <Image
                   alt="image"
                   src={BrandLightIcon1}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon1}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
               <div className="w-[200px]">
@@ -103,14 +128,14 @@ export function Benefits() {
                   src={BrandLightIcon2}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon2}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
               <div className="w-[200px]">
@@ -119,14 +144,14 @@ export function Benefits() {
                   src={BrandLightIcon3}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon3}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
               <div className="w-[200px]">
@@ -135,14 +160,14 @@ export function Benefits() {
                   src={BrandLightIcon4}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon4}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
               <div className="w-[200px]">
@@ -151,14 +176,14 @@ export function Benefits() {
                   src={BrandLightIcon5}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon5}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
 
@@ -168,14 +193,14 @@ export function Benefits() {
                   src={BrandLightIcon1}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon1}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
               <div className="w-[200px]">
@@ -184,14 +209,14 @@ export function Benefits() {
                   src={BrandLightIcon2}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon2}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
               <div className="w-[200px]">
@@ -200,14 +225,14 @@ export function Benefits() {
                   src={BrandLightIcon3}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon3}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
               <div className="w-[200px]">
@@ -216,14 +241,14 @@ export function Benefits() {
                   src={BrandLightIcon4}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon4}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
               <div className="w-[200px]">
@@ -232,14 +257,14 @@ export function Benefits() {
                   src={BrandLightIcon5}
                   width={155}
                   height={40}
-                  className="dark:hidden"
+                  className="dark:hidden w-[155px] h-[40px]"
                 />
                 <Image
                   alt="image"
                   src={BrandDarkIcon5}
                   width={155}
                   height={40}
-                  className="hidden dark:block"
+                  className="hidden dark:block w-[155px] h-[40px]"
                 />
               </div>
             </div>

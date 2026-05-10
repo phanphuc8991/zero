@@ -31,14 +31,14 @@ export function CardCourse(props: any) {
               alt="play-light-icon"
               width={20}
               height={20}
-              className="dark:hidden"
+              className="dark:hidden w-[20px] h-[20px]"
             />
             <Image
               src={PlayDarkIcon}
               alt="play-dark-icon"
               width={20}
               height={20}
-              className="hidden dark:block"
+              className="hidden dark:block w-[20px] h-[20px]"
             />
             <p className="text-primary/70 dark:text-creamwhite/70">
               <span>{data.duration}</span>
@@ -56,6 +56,7 @@ export function CardCourse(props: any) {
               width={40}
               height={40}
               alt="course-owner"
+              className="w-[40px] h-[40px]"
             />
           </Link>
           <div className="flex flex-col justify-center">

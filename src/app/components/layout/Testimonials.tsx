@@ -23,7 +23,13 @@ export function Testimonials() {
                 className="object-cover"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl cursor-pointer transition duration-300 hover:opacity-90 z-10">
-                <Image alt="YouTube" src={YoutubeIcon} width={64} height={64} />
+                <Image
+                  alt="YouTube"
+                  src={YoutubeIcon}
+                  width={64}
+                  height={64}
+                  className="w-[64px] h-[64px]"
+                />
               </div>
             </div>
             <div>
@@ -50,7 +56,7 @@ export function Testimonials() {
                   src={YoutubeIcon}
                   width={64}
                   height={64}
-                  className="h-auto"
+                  className="w-[64px] h-[64px]"
                 />
               </div>
             </div>
@@ -65,7 +71,13 @@ export function Testimonials() {
           </div>
         </div>
         <div className="flex flex-col md:flex-row item-start gap-8 md:gap-16">
-          <Image alt="image" src={Comma} width={96} height={96} />
+          <Image
+            alt="image"
+            src={Comma}
+            width={96}
+            height={96}
+            className="w-[96px] h-[96px]"
+          />
           <div className="flex flex-col gap-6">
             <h4>
               This masterclass boosted my marketing strategies with actionable

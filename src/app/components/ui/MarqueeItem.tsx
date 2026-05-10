@@ -6,15 +6,16 @@ export function MarqueeItem(props: any) {
     <div className="w-[350px] h-auto group relative">
       <Link
         href={data.link}
-        className="rounded-3xl overflow-hidden block w-80 h-105 relative overflow-hidden"
+        className="rounded-3xl overflow-hidden flex w-80 h-105 relative overflow-hidden"
       >
         <Image
           alt="Ethan Walker"
           src={data.src}
           fill
-          sizes="350px"
+          sizes="600px"
           className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
-          priority
+          unoptimized
+          loading="eager"
         />
       </Link>
       <div className="absolute flex flex-col gap-4 p-6 bottom-0">

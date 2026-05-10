@@ -15,14 +15,14 @@ export function Navbar() {
             src={LightLogo}
             width={190}
             height={34}
-            className="dark:hidden h-auto"
+            className="dark:hidden h-auto w-auto"
           />
           <Image
             alt="logo"
             src={DarkLogo}
             width={190}
             height={34}
-            className="hidden dark:block"
+            className="hidden dark:block h-auto w-auto"
           />
         </Link>
       </div>
@@ -112,14 +112,14 @@ export function Navbar() {
                 src={SunIcon}
                 width={25}
                 height={25}
-                className="hidden dark:block"
+                className="hidden dark:block w-[25px] h-[25px] "
               />
               <Image
                 alt="icon"
                 src={MoonIcon}
                 width={25}
                 height={25}
-                className="dark:hidden"
+                className="dark:hidden w-[25px] h-[25px] "
               />
             </span>
           </button>

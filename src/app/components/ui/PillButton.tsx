@@ -9,7 +9,13 @@ export function PillButton(props: any) {
       <span className="font-semibold dark:group-hover:text-primary">
         {label}
       </span>
-      <Image alt="down-arrow-icon" src={icon} width={20} height={20} />
+      <Image
+        alt="down-arrow-icon"
+        src={icon}
+        width={20}
+        height={20}
+        className="w-[20px] h-[20px]"
+      />
     </a>
   );
 }

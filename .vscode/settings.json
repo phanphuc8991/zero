@@ -1,3 +1,44 @@
 {
-  "css.lint.unknownAtRules": "ignore"
+  "workbench.colorTheme": "One Dark Pro",
+
+  // ─── Editor Font ───────────────────────────
+  "editor.fontFamily": "Fira Code, JetBrains Mono, monospace",
+  "editor.fontSize": 13,
+  "editor.lineHeight": 24,
+  "editor.fontLigatures": true,
+  "editor.fontWeight": "400",
+  "editor.letterSpacing": 0.3,
+
+  // ─── Editor UI ─────────────────────────────
+  "editor.cursorStyle": "line",
+  "editor.cursorBlinking": "smooth",
+  "editor.cursorWidth": 2,
+  "editor.smoothScrolling": true,
+  "editor.minimap.enabled": false,
+  "editor.scrollbar.vertical": "hidden",
+  "editor.lineNumbers": "relative",
+  "editor.renderLineHighlight": "all",
+  "editor.guides.indentation": false,
+  "editor.wordWrap": "on",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+
+  // ─── One Dark Pro ──────────────────────────
+  "oneDarkPro.italic": false,
+  "oneDarkPro.vivid": true,
+  "oneDarkPro.editorTheme": "VS Code",
+
+  // ─── Workbench ─────────────────────────────
+  "workbench.editor.enablePreview": false,
+  "workbench.sideBar.location": "left",
+  "workbench.startupEditor": "none",
+
+  // ─── Terminal ──────────────────────────────
+  "terminal.integrated.fontFamily": "Fira Code",
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.cursorStyle": "line",
+
+  // ─── Misc ──────────────────────────────────
+  "css.lint.unknownAtRules": "ignore",
+  "typescript.preferences.importModuleSpecifier": "non-relative"
 }

@@ -8,7 +8,7 @@ export function CardCourse(props: any) {
   return (
     <div className="group border border-primary/20 dark:border-creamwhite/20 border rounded-2xl flex flex-col overflow-hidden">
       <div className="overflow-hidden">
-        <Link href="" className="h-52 relative block">
+        <Link href="" className="h-52 w-full relative block">
           <Image
             src={data.coverImage}
             alt="course-item-image"
@@ -56,7 +56,6 @@ export function CardCourse(props: any) {
               width={40}
               height={40}
               alt="course-owner"
-              className="object-cover"
             />
           </Link>
           <div className="flex flex-col justify-center">

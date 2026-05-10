@@ -15,8 +15,7 @@ export function Navbar() {
             src={LightLogo}
             width={190}
             height={34}
-            className="dark:hidden"
-            style={{ width: "auto", height: "auto" }}
+            className="dark:hidden h-auto"
           />
           <Image
             alt="logo"
@@ -24,7 +23,6 @@ export function Navbar() {
             width={190}
             height={34}
             className="hidden dark:block"
-            style={{ width: "auto", height: "auto" }}
           />
         </Link>
       </div>

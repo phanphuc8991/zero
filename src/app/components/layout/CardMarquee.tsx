@@ -39,9 +39,9 @@ const list = [
 
 export function CardMarquee() {
   return (
-    <div className="relative w-full h-auto overflow-hidden">
-      <div className="flex animation-slider-log w-[5250px] hover:[animation-play-state:paused]">
-        {[...list, ...list].map((data,index) => (
+    <div className="w-full h-auto overflow-hidden">
+      <div className="flex animation-slider-logo w-[5250px] hover:[animation-play-state:paused]">
+        {[...list, ...list].map((data, index) => (
           <MarqueeItem data={data} key={index} />
         ))}
       </div>

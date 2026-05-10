@@ -25,13 +25,14 @@ export function Benefits() {
           heading="Success Stories That Inspire"
         />
         <div className="flex flex-col gap-12">
-          <div>
+          <div className="w-[1140px] h-[660px]">
             <Image
               alt="image"
               src={BannerImg}
               width={1140}
               height={660}
-              className="rounded-2xl w-[1140px] h-[660px]"
+              className="rounded-2xl "
+              style={{ width: "100%", height: "auto" }}
               unoptimized
             />
           </div>

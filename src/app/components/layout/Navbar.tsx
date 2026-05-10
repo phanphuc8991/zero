@@ -16,6 +16,7 @@ export function Navbar() {
             width={190}
             height={34}
             className="dark:hidden h-auto w-auto"
+            loading="eager"
           />
           <Image
             alt="logo"
@@ -23,6 +24,7 @@ export function Navbar() {
             width={190}
             height={34}
             className="hidden dark:block h-auto w-auto"
+            loading="eager"
           />
         </Link>
       </div>

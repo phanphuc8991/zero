@@ -15,6 +15,7 @@ export function CardCourse(props: any) {
             fill
             sizes="400px"
             className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+            loading="eager"
           />
         </Link>
       </div>

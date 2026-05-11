@@ -117,14 +117,14 @@ const CardPricing = (props: any) => {
           src={data.iconLight}
           width={40}
           height={40}
-          className="dark:hidden w-[40px] h-[40px]"
+          className="dark:hidden w-6 h-6"
         />
         <Image
           alt="icon"
           src={data.iconDark}
           width={40}
           height={40}
-          className="hidden dark:block w-[40px] h-[40px]"
+          className="hidden dark:block w-6 h-6"
         />
       </div>
       <div className="flex flex-col gap-2">
@@ -146,14 +146,14 @@ const CardPricing = (props: any) => {
               src={data.iconLight}
               width={40}
               height={40}
-              className="dark:hidden w-[24px] h-[24px]"
+              className="dark:hidden w-6 h-6"
             />
             <Image
               alt="icon"
               src={data.iconDark}
               width={24}
               height={24}
-              className="hidden dark:block w-[24px] h-[24px]"
+              className="hidden dark:block w-6 h-6"
             />
             <span className="text-lg">{data.text}</span>
           </li>

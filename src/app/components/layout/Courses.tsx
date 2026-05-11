@@ -91,7 +91,7 @@ export function Courses() {
             <CardCourse data={data} key={index} />
           ))}
         </div>
-        <div className="flex justify-center">
+        <div className="self-start">
           <PillButton label="Explore courses" icon={ArrowUpRight} />
         </div>
       </div>

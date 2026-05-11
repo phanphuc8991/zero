@@ -4,6 +4,7 @@ import { AboutUs } from "@/app/components/layout/AboutUs";
 import { Courses } from "./components/layout/Courses";
 import { Testimonials } from "./components/layout/Testimonials";
 import { Benefits } from "@/app/components/layout/Benefits";
+import { Pricing } from "@/app/components/layout/Pricing";
 
 export default function HomePage() {
   return (
@@ -23,6 +24,9 @@ export default function HomePage() {
       </section>
       <section id="benifits">
         <Benefits />
+      </section>
+      <section id="pricing">
+        <Pricing />
       </section>
     </>
   );

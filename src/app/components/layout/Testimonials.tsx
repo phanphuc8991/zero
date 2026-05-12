@@ -14,7 +14,7 @@ export function Testimonials() {
         />
         <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
           <div className="relative flex flex-col gap-6">
-            <div className="relative h-[430px] w-full rounded-2xl overflow-hidden">
+            <div className="relative h-107.5 w-full rounded-2xl overflow-hidden">
               <Image
                 alt="Video thumbnail"
                 src={ThumbNailImage1}
@@ -28,7 +28,7 @@ export function Testimonials() {
                   src={YoutubeIcon}
                   width={64}
                   height={64}
-                  className="w-[64px] h-[64px]"
+                  className="w-16 h-16"
                 />
               </div>
             </div>
@@ -42,7 +42,7 @@ export function Testimonials() {
             </div>
           </div>
           <div className="relative flex flex-col gap-6">
-            <div className="relative h-[430px] w-full rounded-2xl overflow-hidden">
+            <div className="relative h-107.5 w-full rounded-2xl overflow-hidden">
               <Image
                 alt="Video thumbnail"
                 src={ThumbNailImage2}
@@ -56,7 +56,7 @@ export function Testimonials() {
                   src={YoutubeIcon}
                   width={64}
                   height={64}
-                  className="w-[64px] h-[64px]"
+                  className="w-16 h-16"
                 />
               </div>
             </div>
@@ -76,7 +76,7 @@ export function Testimonials() {
             src={Comma}
             width={96}
             height={96}
-            className="w-[96px] h-[96px]"
+            className="w-24 h-24"
           />
           <div className="flex flex-col gap-6">
             <h4>

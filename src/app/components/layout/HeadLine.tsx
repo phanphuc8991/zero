@@ -15,7 +15,7 @@ export function HeadLine() {
               top 1% fast, career-focused, and effectively.
             </p>
           </div>
-          <div className="self-start">
+          <div className="w-fit">
             <PillButton label="Explore courses" icon={ArrowDown} />
           </div>
         </div>

@@ -6,7 +6,7 @@ import Image from "next/image";
 export function CardCourse(props: any) {
   const { data } = props;
   return (
-    <div className="group border border-primary/20 dark:border-creamwhite/20 border rounded-2xl flex flex-col overflow-hidden">
+    <div className="group border-primary/20 dark:border-creamwhite/20 border rounded-2xl flex flex-col overflow-hidden">
       <div className="overflow-hidden">
         <Link href="" className="h-52 w-full relative block">
           <Image
@@ -32,14 +32,14 @@ export function CardCourse(props: any) {
               alt="play-light-icon"
               width={20}
               height={20}
-              className="dark:hidden w-[20px] h-[20px]"
+              className="dark:hidden w-5 h-5"
             />
             <Image
               src={PlayDarkIcon}
               alt="play-dark-icon"
               width={20}
               height={20}
-              className="hidden dark:block w-[20px] h-[20px]"
+              className="hidden dark:block w-5 h-5"
             />
             <p className="text-primary/70 dark:text-creamwhite/70">
               <span>{data.duration}</span>
@@ -57,7 +57,7 @@ export function CardCourse(props: any) {
               width={40}
               height={40}
               alt="course-owner"
-              className="w-[40px] h-[40px]"
+              className="w-10 h-10"
             />
           </Link>
           <div className="flex flex-col justify-center">

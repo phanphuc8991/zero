@@ -3,10 +3,10 @@ import Image from "next/image";
 export function MarqueeItem(props: any) {
   const { data } = props;
   return (
-    <div className="w-[350px] h-auto group relative">
+    <div className="w-87.5 h-auto group relative">
       <Link
         href={data.link}
-        className="rounded-3xl overflow-hidden flex w-80 h-105 relative overflow-hidden"
+        className="rounded-3xl flex w-80 h-105 relative overflow-hidden"
       >
         <Image
           alt="Ethan Walker"

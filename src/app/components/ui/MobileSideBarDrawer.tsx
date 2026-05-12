@@ -28,14 +28,14 @@ export function MobileSidebarDrawer({
               src={SunIcon}
               width={25}
               height={25}
-              className="hidden dark:block w-[25px] h-[25px]"
+              className="hidden dark:block w-6.25 h-6.25"
             />
             <Image
               alt="icon"
               src={MoonIcon}
               width={25}
               height={25}
-              className="dark:hidden w-[25px] h-[25px]"
+              className="dark:hidden w-6.25 h-6.25"
             />
           </span>
         </button>
@@ -45,14 +45,14 @@ export function MobileSidebarDrawer({
             src={DarkMenuIcon}
             width={30}
             height={30}
-            className="hidden dark:block w-[30px] h-[30px]"
+            className="hidden dark:block w-7.5 h-7.5"
           />
           <Image
             alt="menu-icon"
             src={LightMenuIcon}
             width={30}
             height={30}
-            className="w-[30px] h-[30px]"
+            className="w-7.5 h-7.5"
           />
         </button>
       </div>
@@ -73,14 +73,14 @@ export function MobileSidebarDrawer({
               src={DarkCloseIcon}
               width={25}
               height={25}
-              className="hidden dark:block w-[25px] h-[25px]"
+              className="hidden dark:block w-6.25 h-6.25"
             />
             <Image
               alt="menu-close-icon"
               src={LightCloseIcon}
               width={25}
               height={25}
-              className="w-[25px] h-[25px]"
+              className="w-6.25 h-6.25"
             />
           </button>
         </div>

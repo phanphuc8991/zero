@@ -89,20 +89,20 @@ const listBrand = [
 const CardBrand = (props: any) => {
   const { data } = props;
   return (
-    <div className="w-[200px]">
+    <div className="w-50">
       <Image
         alt="image"
         src={data.light}
         width={155}
         height={40}
-        className="dark:hidden w-[155px] h-[40px]"
+        className="dark:hidden w-38.75 h-10"
       />
       <Image
         alt="image"
         src={data.dark}
         width={155}
         height={40}
-        className="hidden dark:block w-[155px] h-[40px]"
+        className="hidden dark:block w-38.75 h-10"
       />
     </div>
   );
@@ -116,7 +116,7 @@ const CardBenefit = (props: any) => {
         src={data.src}
         width={40}
         height={40}
-        className="w-[40px] h-[40px]"
+        className="w-10 h-10"
       />
       <div className="flex flex-col sm:gap-2">
         <h5>{data.title}</h5>
@@ -137,14 +137,12 @@ export function Benefits() {
           heading="Success Stories That Inspire"
         />
         <div className="flex flex-col gap-12">
-          <div className="w-[1140px] h-[660px]">
+          <div className="w-full h-165 relative">
             <Image
               alt="image"
               src={BannerImg}
-              width={1140}
-              height={660}
-              className="rounded-2xl "
-              style={{ width: "100%", height: "auto" }}
+              fill
+              className="rounded-2xl object-cover "
               unoptimized
             />
           </div>
@@ -157,7 +155,7 @@ export function Benefits() {
         <div className="mt-6 flex flex-col gap-5 md:gap-8">
           <h5>Brands in Collaboration</h5>
           <div className="w-full h-auto overflow-hidden">
-            <div className="flex w-[2500px] animation-slider-brand">
+            <div className="flex w-625 animation-slider-brand">
               {listBrand.map((data, index) => (
                 <CardBrand key={index} data={data} />
               ))}

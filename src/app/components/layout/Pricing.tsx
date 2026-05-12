@@ -159,7 +159,7 @@ const CardPricing = (props: any) => {
           </li>
         ))}
       </ul>
-      <div className="w-full mt-auto">
+      <div className="mt-auto">
         <PillButton label="Get Started" />
       </div>
     </div>

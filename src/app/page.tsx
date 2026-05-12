@@ -6,6 +6,7 @@ import { Testimonials } from "./components/layout/Testimonials";
 import { Benefits } from "@/app/components/layout/Benefits";
 import { Pricing } from "@/app/components/layout/Pricing";
 import { FrequentlyAskedQuestions } from "@/app/components/layout/FrequentlyAskedQuestions";
+import { Blogs } from "@/app/components/layout/Blogs";
 
 export default function HomePage() {
   return (
@@ -29,8 +30,11 @@ export default function HomePage() {
       <section id="pricing">
         <Pricing />
       </section>
-      <section id="Faqs">
+      <section>
         <FrequentlyAskedQuestions />
+      </section>
+      <section>
+        <Blogs />
       </section>
     </>
   );

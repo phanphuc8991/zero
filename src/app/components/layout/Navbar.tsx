@@ -114,14 +114,14 @@ export function Navbar() {
                 src={SunIcon}
                 width={25}
                 height={25}
-                className="hidden dark:block w-[25px] h-[25px] "
+                className="hidden dark:block w-6.25 h-6.25 "
               />
               <Image
                 alt="icon"
                 src={MoonIcon}
                 width={25}
                 height={25}
-                className="dark:hidden w-[25px] h-[25px] "
+                className="dark:hidden w-6.25 h-6.25 "
               />
             </span>
           </button>

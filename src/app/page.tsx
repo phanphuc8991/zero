@@ -7,6 +7,7 @@ import { Benefits } from "@/app/components/layout/Benefits";
 import { Pricing } from "@/app/components/layout/Pricing";
 import { FrequentlyAskedQuestions } from "@/app/components/layout/FrequentlyAskedQuestions";
 import { Blogs } from "@/app/components/layout/Blogs";
+import { LearnGrowSuccess } from "@/app/components/layout/LearnGrowSuccess";
 
 export default function HomePage() {
   return (
@@ -35,6 +36,9 @@ export default function HomePage() {
       </section>
       <section>
         <Blogs />
+      </section>
+      <section>
+        <LearnGrowSuccess />
       </section>
     </>
   );

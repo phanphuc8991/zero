@@ -204,3 +204,20 @@
 .accordion-content[data-state="open"] {
   height: var(--radix-accordion-content-height);
 }
+
+@keyframes reveal-btn {
+  from {
+  }
+  to {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+#back-to-top {
+  animation-name: reveal-btn;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-timeline: scroll(root);
+  animation-range: 0px 350px;
+}

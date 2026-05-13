@@ -101,7 +101,7 @@ export function LearnGrowSuccess() {
             {listCourse.map((data, index) => (
               <div
                 key={index}
-                className={`hover:z-20 hover:rotate-0 ${index % 2 ? "sm:sm:rotate-[-5.36deg]" : "sm:rotate-6"} grou border-primary/20 shadow-lg dark:border-creamwhite/20 border rounded-2xl flex flex-col  transition-transform duration-500 ease-in-out bg-creamwhite dark:bg-middlegreen will-change-transform transform`}
+                className={`hover:z-20 hover:rotate-0 ${index % 2 ? "sm:rotate-6" : "sm:sm:rotate-[-5.36deg]"} grou border-primary/20 shadow-lg dark:border-creamwhite/20 border rounded-2xl flex flex-col  transition-transform duration-500 ease-in-out bg-creamwhite dark:bg-middlegreen will-change-transform transform`}
               >
                 <div className="">
                   <Link href="" className="h-48 block">

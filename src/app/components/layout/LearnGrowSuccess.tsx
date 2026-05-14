@@ -29,8 +29,8 @@ const listCourse = [
   },
   {
     coverImage: CourseItemImage2,
-    title: "Ultimate Content Creation Mastery",
-    duration: "12",
+    title: "Automate Job Flow With AI",
+    duration: "10",
     instructor: {
       name: "Ethan Walker",
       title: "AI Content Strategist",
@@ -39,8 +39,8 @@ const listCourse = [
   },
   {
     coverImage: CourseItemImage3,
-    title: "Ultimate Content Creation Mastery",
-    duration: "12",
+    title: "Framer Website Design Mastery",
+    duration: "15",
     instructor: {
       name: "Ethan Walker",
       title: "AI Content Strategist",
@@ -49,8 +49,8 @@ const listCourse = [
   },
   {
     coverImage: CourseItemImage4,
-    title: "Ultimate Content Creation Mastery",
-    duration: "12",
+    title: "Advanced Data Visualization",
+    duration: "8",
     instructor: {
       name: "Ethan Walker",
       title: "AI Content Strategist",
@@ -101,7 +101,7 @@ export function LearnGrowSuccess() {
             {listCourse.map((data, index) => (
               <div
                 key={index}
-                className={`hover:z-20 hover:rotate-0 ${index % 2 ? "sm:rotate-6" : "sm:sm:rotate-[-5.36deg]"} grou border-primary/20 shadow-lg dark:border-creamwhite/20 border rounded-2xl flex flex-col  transition-transform duration-500 ease-in-out bg-creamwhite dark:bg-middlegreen will-change-transform transform`}
+                className={`hover:z-20 hover:rotate-0 ${index % 2 ? "sm:rotate-6" : "sm:sm:rotate-[-5.36deg]"} grou border-primary/20 shadow-lg dark:border-creamwhite/20 border rounded-2xl flex flex-col  transition-transform duration-500 ease-in-out bg-creamwhite dark:bg-middlegreen will-change-transform transform overflow-hidden`}
               >
                 <div className="">
                   <Link href="" className="h-48 block">
@@ -110,7 +110,7 @@ export function LearnGrowSuccess() {
                       alt="course-item-image"
                       width={364}
                       height={210}
-                      className="object-cover w-full h-full rounded-2xl"
+                      className="object-cover w-full h-full"
                       loading="eager"
                     />
                   </Link>

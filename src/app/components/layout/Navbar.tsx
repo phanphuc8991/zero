@@ -7,7 +7,7 @@ import SunIcon from "@/assets/images/dark-light-icon/sun-icon.svg";
 import MoonIcon from "@/assets/images/dark-light-icon/moon-icon.svg";
 export function Navbar() {
   return (
-    <nav className="py-3.5 flex justify-between animation-navbar">
+    <nav className="py-3.5 flex justify-between animation-navbar bg-creamwhite">
       <div className="flex items-center">
         <Link href="/">
           <Image
@@ -40,7 +40,7 @@ export function Navbar() {
           </li>
           <li className="cursor-pointer">
             <Link
-              href="/"
+              href="/#about-us"
               className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               About us
@@ -48,7 +48,7 @@ export function Navbar() {
           </li>{" "}
           <li className="cursor-pointer">
             <Link
-              href="/"
+              href="/courses"
               className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Courses
@@ -56,7 +56,7 @@ export function Navbar() {
           </li>{" "}
           <li className="cursor-pointer">
             <Link
-              href="/"
+              href="/#benefits"
               className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Benefits
@@ -64,7 +64,7 @@ export function Navbar() {
           </li>{" "}
           <li className="cursor-pointer">
             <Link
-              href="/"
+              href="/#pricing"
               className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Pricing
@@ -72,7 +72,7 @@ export function Navbar() {
           </li>
           <li className="cursor-pointer">
             <Link
-              href="/"
+              href="/blog"
               className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
             >
               Blog

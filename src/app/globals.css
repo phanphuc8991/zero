@@ -8,6 +8,7 @@
 
 @layer base {
   h1 {
+    --tw-leading: 1;
     font-weight: var(--font-weight-semibold);
     letter-spacing: var(--tracking-tight);
     color: var(--primary);
@@ -16,12 +17,12 @@
 
     @media (min-width: 40rem) {
       font-size: var(--text-5xl);
-      line-height: var(--text-5xl--line-height);
+      line-height: var(--tw-leading, var(--text-5xl--line-height));
     }
 
     @media (min-width: 48rem) {
       font-size: var(--text-6xl);
-      line-height: var(--text-6xl--line-height);
+      line-height: var(--tw-leading, var(--text-6xl--line-height));
     }
 
     @media (min-width: 96rem) {
@@ -52,6 +53,7 @@
   }
 
   h3 {
+    --tw-leading: 1.2;
     font-size: 30px;
     line-height: 1.2;
     font-weight: var(--font-weight-semibold);
@@ -59,24 +61,25 @@
 
     @media (min-width: 48rem) {
       font-size: var(--text-4xl);
-      line-height: var(--text-4xl--line-height);
+      line-height: var(--tw-leading, var(--text-4xl--line-height));
     }
 
     @media (min-width: 80rem) {
       font-size: var(--text-5xl);
-      line-height: var(--text-5xl--line-height);
+      line-height: var(--tw-leading, var(--text-5xl--line-height));
     }
   }
 
   h4 {
+    --tw-leading: 120%;
     font-size: var(--text-2xl);
     line-height: var(--text-2xl--line-height);
-    line-height: 120%;
+    line-height: 1.2;
     font-weight: var(--font-weight-semibold);
     color: var(--color-primary);
     @media (min-width: 64rem) {
       font-size: var(--text-3xl);
-      line-height: var(--text-3xl--line-height);
+      line-height: var(--tw-leading, var(--text-3xl--line-height));
     }
     @media (min-width: 80rem) {
       font-size: 32px;
@@ -159,7 +162,7 @@
   animation-timing-function: linear;
   animation-fill-mode: both;
   animation-timeline: scroll(root);
-  animation-range: 0px 105px;
+  animation-range: 0px 250px;
 }
 
 @keyframes slider-logo {

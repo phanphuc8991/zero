@@ -25,7 +25,7 @@ export default function HomePage() {
       <section id="testimonials">
         <Testimonials />
       </section>
-      <section id="benifits">
+      <section id="benefits">
         <Benefits />
       </section>
       <section id="pricing">

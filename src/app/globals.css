@@ -254,3 +254,8 @@
 .animate-overlayShow {
   animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+.shadow-boxshadow {
+  --tw-shadow: 0px 7px 29px 0px var(--tw-shadow-color, #64646f33);
+  box-shadow: var(--tw-shadow);
+}

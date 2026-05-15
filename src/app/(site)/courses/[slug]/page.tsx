@@ -15,6 +15,15 @@ import DarkCloseIcon from "@/assets/images/icon/close-dark-icon.svg";
 import LightCloseIcon from "@/assets/images/icon/close-light-icon.svg";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
+import LightArrowUpIcon from "@/assets/images/icon/light-arrow-up-icon.svg";
+import DarkArrowUpIcon from "@/assets/images/icon/dark-arrow-up-icon.svg";
+import DarkLogo from "@/assets/images/logo/dark-logo.svg";
+import LightLogo from "@/assets/images/logo/light-logo.svg";
+import { Pricing } from "@/app/components/layout/Pricing";
+import { FrequentlyAskedQuestions } from "@/app/components/layout/FrequentlyAskedQuestions";
+import { Blogs } from "@/app/components/layout/Blogs";
+import { LearnGrowSuccess } from "@/app/components/layout/LearnGrowSuccess";
+
 const listSkills = [
   "AI Marketing Basics",
   "Customer Data Insights ",
@@ -94,6 +103,14 @@ const listCourseContent = [
     duration: "03:15",
     link: "/",
   },
+];
+
+const listBenefit = [
+  "Digital Marketing Managers",
+  "Performance Marketers & Analysts",
+  "Content Creators & Copywriters",
+  "Startup Founders & Entrepreneurs",
+  "Professionals shifting into AI roles",
 ];
 
 export default function Page({
@@ -341,6 +358,94 @@ export default function Page({
                     </Dialog.Portal>
                   </Dialog.Root>
                 </div>
+                <div className="flex flex-col gap-4">
+                  <h5>Who Will Benefit From This Course?</h5>
+                  <div className="grid grid-cols-1 xl:grid-cols-2 rounded-2xl bg-warm-ivory dark:bg-middlegreen p-4 md:p-6 gap-4">
+                    {listBenefit.map((text, index) => (
+                      <div key={index} className="flex gap-3 items-center ">
+                        <Image
+                          alt="icon"
+                          src={ListSecondaryIcon}
+                          width={24}
+                          height={24}
+                          className="w-6 h-6"
+                        />
+                        <p className="text-lg">{text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-4">
+                  <h5>Professional Certificate</h5>
+                  <div className="relative p-7 md:p-12 border border-primary/20 rounded-2xl shadow-boxshadow overflow-hidden z-10">
+                    <div className="flex flex-col gap-24">
+                      <div className="flex flex-col gap-16">
+                        <div className="grid grid-cols-2">
+                          <div className="flex flex-col gap-6">
+                            <div className="flex items-center">
+                              <Link href="/">
+                                <Image
+                                  alt="logo"
+                                  src={LightLogo}
+                                  width={190}
+                                  height={34}
+                                  className="dark:hidden h-auto w-auto"
+                                  loading="eager"
+                                />
+                                <Image
+                                  alt="logo"
+                                  src={DarkLogo}
+                                  width={190}
+                                  height={34}
+                                  className="hidden dark:block h-auto w-auto"
+                                  loading="eager"
+                                />
+                              </Link>
+                            </div>
+                            <p className="text-primary/60 dark:creamwhite/60">
+                              Certificate of completion
+                            </p>
+                          </div>
+                          <div className="flex justify-end">
+                            <p className="text-primary/60 dark:creamwhite/60">
+                              25.01.2025
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <h4 className="text-secondary">
+                            AI-Driven Marketing Mastery
+                          </h4>
+                          <h4>Your name</h4>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-primary/60 dark:creamwhite/60">
+                          Successfully completed all
+                        </p>
+                        <p className="text-primary/60 dark:creamwhite/60">
+                          masterclass with material
+                        </p>
+                      </div>
+                    </div>
+                    <div className="absolute w-79 h-80.75 bottom-0 right-0">
+                      <Image
+                        alt="arrow-image"
+                        src={LightArrowUpIcon}
+                        width={316}
+                        height={323}
+                        className="w-full h-auto dark:hidden"
+                      />
+                      <Image
+                        alt="arrow-image"
+                        src={DarkArrowUpIcon}
+                        width={316}
+                        height={323}
+                        className="w-full h-auto hidden dark:block"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="max-w-sm w-full hidden lg:block">
                 <div className="bg-warm-ivory dark:bg-middlegreen p-6 w-full rounded-2xl flex flex-col gap-6 h-fit sticky top-28">
@@ -355,7 +460,7 @@ export default function Page({
                         src={ListSecondaryIcon}
                         width={24}
                         height={24}
-                        className="w-8 h-8"
+                        className="w-6 h-6"
                       />
                       <h6 className="text-primary dark:text-creamwhite">
                         Professional certificate
@@ -367,7 +472,7 @@ export default function Page({
                         src={ListSecondaryIcon}
                         width={24}
                         height={24}
-                        className="w-8 h-8"
+                        className="w-6 h-6"
                       />
                       <h6 className="text-primary dark:text-creamwhite">
                         Flexible learning path
@@ -379,7 +484,7 @@ export default function Page({
                         src={ListSecondaryIcon}
                         width={24}
                         height={24}
-                        className="w-8 h-8"
+                        className="w-6 h-6"
                       />
                       <h6 className="text-primary dark:text-creamwhite">
                         24/7 support
@@ -391,7 +496,7 @@ export default function Page({
                         src={ListSecondaryIcon}
                         width={24}
                         height={24}
-                        className="w-8 h-8"
+                        className="w-6 h-6"
                       />
                       <h6 className="text-primary dark:text-creamwhite">
                         Downloadable materials
@@ -404,6 +509,18 @@ export default function Page({
             </div>
           </div>
         </div>
+        <section>
+          <Pricing />
+        </section>
+        <section>
+          <FrequentlyAskedQuestions />
+        </section>
+        <section>
+          <Blogs />
+        </section>
+        <section>
+          <LearnGrowSuccess />
+        </section>
       </div>
     </section>
   );

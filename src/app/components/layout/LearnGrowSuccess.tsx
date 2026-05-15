@@ -80,7 +80,7 @@ export function LearnGrowSuccess() {
             />
             <h2>Learn, Grow, and Succeed.</h2>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-5  w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-center gap-5  w-full">
             <div className="w-full sm:w-fit">
               <PillButton label="Join for Free" />
             </div>

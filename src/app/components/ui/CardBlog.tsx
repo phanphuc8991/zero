@@ -16,6 +16,7 @@ export function CardBlog(props: any) {
           fill
           className="object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
           unoptimized
+          priority
         />
       </Link>
 

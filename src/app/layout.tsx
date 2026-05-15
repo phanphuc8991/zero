@@ -29,7 +29,8 @@ export default function RootLayout({
     <html
       lang="en"
       // data-theme="dark"
-      className={`${geistSans.variable} ${geistMono.variable} text-foreground bg-background font-sans h-full antialiased scroll-smooth`}
+      className={`${geistSans.variable} ${geistMono.variable} text-foreground bg-background font-sans h-full antialiased`}
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-full">
         <div id="top"></div>

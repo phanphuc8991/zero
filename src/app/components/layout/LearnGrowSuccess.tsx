@@ -82,11 +82,11 @@ export function LearnGrowSuccess() {
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-center gap-5  w-full">
             <div className="w-full sm:w-fit">
-              <PillButton label="Join for Free" />
+              <PillButton label="Join for Free" href="/" />
             </div>
             <div>
               <a
-                href=""
+                href="/courses"
                 className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-transparent dark:bg-middlegreen dark:hover:bg-creamwhit py-4 px-7 rounded-full border border-black w-full sm:w-fit transition-all duration-300 ease-in-out"
               >
                 <span className="font-semibold dark:group-hover:text-primary">

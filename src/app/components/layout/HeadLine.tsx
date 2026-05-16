@@ -16,7 +16,11 @@ export function HeadLine() {
             </p>
           </div>
           <div className="w-fit">
-            <PillButton label="Explore courses" icon={ArrowDown} />
+            <PillButton
+              label="Explore courses"
+              icon={ArrowDown}
+              href="/courses"
+            />
           </div>
         </div>
       </div>

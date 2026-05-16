@@ -1,11 +1,47 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
-import { MobileSidebar } from "./MobileSidebar";
 import DarkLogo from "@/assets/images/logo/dark-logo.svg";
 import LightLogo from "@/assets/images/logo/light-logo.svg";
 import SunIcon from "@/assets/images/dark-light-icon/sun-icon.svg";
 import MoonIcon from "@/assets/images/dark-light-icon/moon-icon.svg";
+import { MobileSidebarDrawer } from "@/app/components/ui/MobileSideBarDrawer";
+
+import { NavItem } from "@/app/components/layout/NavItem";
+import { useState } from "react";
+
+const navItem = [
+  {
+    href: "/",
+    text: "Home",
+  },
+  {
+    href: "/#about-us",
+    text: "About us",
+  },
+  {
+    href: "/courses",
+    text: "Courses",
+  },
+  {
+    href: "/#benefits",
+    text: "Benefits",
+  },
+  {
+    href: "/#pricing",
+    text: "Pricing",
+  },
+  {
+    href: "/blog",
+    text: "Blog",
+  },
+  {
+    href: "/docs",
+    text: "Docs",
+  },
+];
 export function Navbar() {
+  const [mounted, setMounted] = useState(false);
   return (
     <nav className="py-3.5 flex justify-between animation-navbar bg-creamwhite">
       <div className="flex items-center">
@@ -29,63 +65,14 @@ export function Navbar() {
         </Link>
       </div>
       <div className="hidden lg:flex items-center gap-6">
-        <ul className="flex items-center gap-5">
-          <li className="cursor-pointer">
-            <Link
-              href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
-            >
-              Home
-            </Link>
-          </li>
-          <li className="cursor-pointer">
-            <Link
-              href="/#about-us"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
-            >
-              About us
-            </Link>
-          </li>{" "}
-          <li className="cursor-pointer">
-            <Link
-              href="/courses"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
-            >
-              Courses
-            </Link>
-          </li>{" "}
-          <li className="cursor-pointer">
-            <Link
-              href="/#benefits"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
-            >
-              Benefits
-            </Link>
-          </li>{" "}
-          <li className="cursor-pointer">
-            <Link
-              href="/#pricing"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
-            >
-              Pricing
-            </Link>
-          </li>
-          <li className="cursor-pointer">
-            <Link
-              href="/blog"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
-            >
-              Blog
-            </Link>
-          </li>
-          <li className="cursor-pointer">
-            <Link
-              href="/"
-              className="dark:text-creamwhite text-base text-primary hover:text-secondary font-semibold"
-            >
-              Docs
-            </Link>
-          </li>
+        <ul
+          className={`flex items-center gap-5 transition-opacity  duration-450 ${mounted ? "opacity-100" : "opacity-0"}`}
+        >
+          {navItem.map((data, index) => (
+            <li key={index} className="cursor-pointer">
+              <NavItem data={data} onMounted={() => setMounted(true)} />
+            </li>
+          ))}
         </ul>
 
         <div className="flex items-center gap-3">
@@ -126,8 +113,11 @@ export function Navbar() {
             </span>
           </button>
         </div>
-      </div>
-      <MobileSidebar />
+      </div>{" "}
+      <MobileSidebarDrawer
+        mounted={mounted}
+        onMounted={() => setMounted(true)}
+      />{" "}
     </nav>
   );
 }

@@ -160,7 +160,7 @@ const CardPricing = (props: any) => {
         ))}
       </ul>
       <div className="mt-auto">
-        <PillButton label="Get Started" />
+        <PillButton label="Get Started" href="/" />
       </div>
     </div>
   );

@@ -9,12 +9,15 @@ import DarkCloseIcon from "@/assets/images/icon/close-dark-icon.svg";
 import LightCloseIcon from "@/assets/images/icon/close-light-icon.svg";
 import SunIcon from "@/assets/images/dark-light-icon/sun-icon.svg";
 import MoonIcon from "@/assets/images/dark-light-icon/moon-icon.svg";
+import { MobileSidebar } from "@/app/components/layout/MobileSidebar";
 
 export function MobileSidebarDrawer({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+  onMounted,
+  mounted,
+}: {
+  mounted: any;
+  onMounted: any;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   const onOpen = () => setIsOpen(true);
@@ -84,7 +87,11 @@ export function MobileSidebarDrawer({
             />
           </button>
         </div>
-        {children}
+        <MobileSidebar
+          onClose={onClose}
+          onMounted={onMounted}
+          mounted={mounted}
+        />
       </div>
 
       <div

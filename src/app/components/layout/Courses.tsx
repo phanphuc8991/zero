@@ -93,7 +93,11 @@ export function Courses() {
         </div>
         <div className="flex justify-center">
           <div className="w-fit">
-            <PillButton label="View All Coursess" icon={ArrowUpRight} />
+            <PillButton
+              href="/courses"
+              label="View All Coursess"
+              icon={ArrowUpRight}
+            />
           </div>
         </div>
       </div>

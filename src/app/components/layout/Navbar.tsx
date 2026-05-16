@@ -78,7 +78,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3">
             <Link
-              href="/sign-up"
+              href="/sign-in"
               className="group border border-primary py-2 px-5 rounded-full cursor-pointer dark:border-creamwhite dark:hover:border-primary hover:bg-secondary"
             >
               <span className="text-base font-semibold text-primary dark:text-creamwhite dark:group-hover:text-primary">
@@ -86,7 +86,7 @@ export function Navbar() {
               </span>
             </Link>
             <Link
-              href=""
+              href="sign-up"
               className="border border-primary py-2 px-5 rounded-full cursor-pointer bg-secondary hover:bg-transparent dark:hover:bg-creamwhite"
             >
               <span className="text-primary text-base font-semibold">

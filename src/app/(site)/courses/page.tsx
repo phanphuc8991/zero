@@ -1,4 +1,3 @@
-import { SectionHeader } from "@/app/components/ui/SectionHeader";
 import Image from "next/image";
 import CourseIcon from "@/assets/images/icon/course-icon.svg";
 import { CardCourse } from "@/app/components/ui/CardCourse";

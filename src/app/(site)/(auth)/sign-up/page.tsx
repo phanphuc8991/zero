@@ -1,7 +1,193 @@
-export function Signup() {
+"use client";
+import Link from "next/link";
+import Image from "next/image";
+import DarkLogo from "@/assets/images/logo/dark-logo.svg";
+import LightLogo from "@/assets/images/logo/light-logo.svg";
+import GoogleIcon from "@/assets/images/icon/google-icon.svg";
+import GitHubIcon from "@/assets/images/icon/github-icon.svg";
+import * as Form from "@radix-ui/react-form";
+export default function Signup() {
   return (
-    <div>
-      <div>Signup</div>
-    </div>
+    <section>
+      <div className="container">
+        <div className="pt-32 sm:pt-44 pb-16 sm:pb-28 flex justify-center items-center">
+          <div className="max-w-lg shadow-2xl rounded-2xl bg-creamwhite dark:bg-primary px-6 py-12 sm:px-12 md:px-16 flex-1">
+            <div className="mb-10 flex justify-center">
+              <Link href="/">
+                <Image
+                  alt="logo"
+                  src={LightLogo}
+                  width={190}
+                  height={34}
+                  className="dark:hidden h-auto w-auto"
+                  loading="eager"
+                />
+                <Image
+                  alt="logo"
+                  src={DarkLogo}
+                  width={190}
+                  height={34}
+                  className="hidden dark:block h-auto w-auto"
+                  loading="eager"
+                />
+              </Link>
+            </div>
+            <div className="flex flex-col gap-4 md:flex-row items-center">
+              <button className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full">
+                <span>Sign Up</span>
+                <Image
+                  alt="google-icon"
+                  src={GoogleIcon}
+                  width={22}
+                  height={22}
+                  className="w-5.5 h-5.5"
+                />
+              </button>
+              <button className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full">
+                <span>Sign Up</span>
+                <Image
+                  alt="google-icon"
+                  src={GitHubIcon}
+                  width={22}
+                  height={22}
+                  className="w-5.5 h-5.5"
+                />
+              </button>
+            </div>
+            <div className="relative my-8 text-center">
+              <span className="z-1 absolute left-0 top-1/2 w-full block h-px bg-primary/20 dark:bg-creamwhite/20"></span>
+              <span className="relative text-sm text-primary/40 dark:text-creamwhite/40 inline-block px-3 bg-creamwhite dark:bg-primary z-10">
+                OR
+              </span>
+            </div>
+            <Form.Root className="">
+              <Form.Field className="mb-5" name="name">
+                <div className="flex items-baseline justify-between">
+                  <Form.Label className="text-[15px] font-medium leading-8.75 text-primary">
+                    Name
+                  </Form.Label>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="valueMissing"
+                  >
+                    Please enter your name
+                  </Form.Message>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="typeMismatch"
+                  >
+                    Please provide a valid name
+                  </Form.Message>
+                </div>
+                <Form.Control asChild>
+                  <input
+                    className="w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 data-[invalid=true]:border-red-500"
+                    type="text"
+                    required
+                    id="name"
+                    name="name"
+                    autoComplete="off"
+                  />
+                </Form.Control>
+              </Form.Field>
+              <Form.Field className="mb-5" name="email">
+                <div className="flex items-baseline justify-between">
+                  <Form.Label className="text-[15px] font-medium leading-8.75 text-primary">
+                    Email
+                  </Form.Label>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="valueMissing"
+                  >
+                    Please enter your email
+                  </Form.Message>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="typeMismatch"
+                  >
+                    Please provide a valid email
+                  </Form.Message>
+                </div>
+                <Form.Control asChild>
+                  <input
+                    className="w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 data-[invalid=true]:border-red-500"
+                    type="text"
+                    required
+                    id="email"
+                    name="email"
+                    autoComplete="off"
+                  />
+                </Form.Control>
+              </Form.Field>
+              <Form.Field className="mb-5" name="password">
+                <div className="flex items-baseline justify-between">
+                  <Form.Label className="text-[15px] font-medium leading-8.75 text-primary">
+                    Password
+                  </Form.Label>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="valueMissing"
+                  >
+                    Please enter your password
+                  </Form.Message>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="typeMismatch"
+                  >
+                    Please provide a valid password
+                  </Form.Message>
+                </div>
+                <Form.Control asChild>
+                  <input
+                    className="w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 data-[invalid=true]:border-red-500"
+                    type="text"
+                    required
+                    id="password"
+                    name="password"
+                    autoComplete="off"
+                  />
+                </Form.Control>
+              </Form.Field>
+
+              <Form.Submit asChild className="mb-9">
+                <button className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out">
+                  <span>Sign Up</span>
+                </button>
+              </Form.Submit>
+            </Form.Root>
+
+            <div className="flex flex-col justify-center items-center gap-2">
+              <p className="flex flex-wrap justify-center max-w-xs">
+                <span>By creating an account, you agree with our</span>
+
+                <Link
+                  href="/privacy-policy"
+                  className="block text-primary dark:text-creamwhite hover:text-secondary"
+                >
+                  Privacy
+                </Link>
+                <span className="mx-1">&</span>
+                <Link
+                  href="/privacy-policy"
+                  className="block text-primary dark:text-creamwhite hover:text-secondary"
+                >
+                  Policy.
+                </Link>
+              </p>
+
+              <p className="text-primary dark:text-creamwhite">
+                <span className="pr-1">Already have an account?</span>
+                <Link
+                  className="text-primary dark:text-creamwhite hover:text-secondary"
+                  href="sign-in"
+                >
+                  Sign In
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

@@ -63,18 +63,20 @@ export default function Signin() {
             </div>
             <Form.Root className="">
               <Form.Field className="mb-5" name="email">
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "baseline",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Form.Label className="FormLabel">Email</Form.Label>
-                  <Form.Message className="FormMessage" match="valueMissing">
+                <div className="flex items-baseline justify-between">
+                  <Form.Label className="text-[15px] font-medium leading-8.75 text-primary">
+                    Email
+                  </Form.Label>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="valueMissing"
+                  >
                     Please enter your email
                   </Form.Message>
-                  <Form.Message className="FormMessage" match="typeMismatch">
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="typeMismatch"
+                  >
                     Please provide a valid email
                   </Form.Message>
                 </div>
@@ -83,7 +85,6 @@ export default function Signin() {
                     className="w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 data-[invalid=true]:border-red-500"
                     type="text"
                     required
-                    placeholder="Email"
                     id="email"
                     name="email"
                     autoComplete="off"
@@ -91,12 +92,28 @@ export default function Signin() {
                 </Form.Control>
               </Form.Field>
               <Form.Field className="mb-5" name="password">
+                <div className="flex items-baseline justify-between">
+                  <Form.Label className="text-[15px] font-medium leading-8.75 text-primary">
+                    Password
+                  </Form.Label>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="valueMissing"
+                  >
+                    Please enter your password
+                  </Form.Message>
+                  <Form.Message
+                    className="text-[13px] text-primary opacity-80"
+                    match="typeMismatch"
+                  >
+                    Please provide a valid password
+                  </Form.Message>
+                </div>
                 <Form.Control asChild>
                   <input
                     className="w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 data-[invalid=true]:border-red-500"
                     type="text"
                     required
-                    placeholder="Password"
                     id="password"
                     name="password"
                     autoComplete="off"

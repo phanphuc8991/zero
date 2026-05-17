@@ -2,7 +2,7 @@
 import { NavItem } from "@/app/components/layout/NavItem";
 import Link from "next/link";
 import * as Avatar from "@radix-ui/react-avatar";
-
+import { Suspense } from "react";
 const navItem = [
   {
     href: "/",
@@ -55,7 +55,9 @@ export function MobileSidebar({
               onClose();
             }}
           >
-            <NavItem data={data} onMounted={onMounted} />
+            <Suspense fallback={null}>
+              <NavItem data={data} onMounted={onMounted} />
+            </Suspense>
           </li>
         ))}
       </ul>

@@ -10,6 +10,7 @@ import { NavItem } from "@/app/components/layout/NavItem";
 import { useState } from "react";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import { Suspense } from "react";
 const navItem = [
   {
     href: "/",
@@ -70,7 +71,9 @@ export function Navbar() {
         >
           {navItem.map((data, index) => (
             <li key={index} className="cursor-pointer">
-              <NavItem data={data} onMounted={() => setMounted(true)} />
+              <Suspense fallback={null}>
+                <NavItem data={data} onMounted={() => setMounted(true)} />
+              </Suspense>
             </li>
           ))}
         </ul>

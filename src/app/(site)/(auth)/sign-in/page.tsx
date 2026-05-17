@@ -7,7 +7,7 @@ import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import GitHubIcon from "@/assets/images/icon/github-icon.svg";
 import * as Form from "@radix-ui/react-form";
 
-export default function Signin() {
+export default function Page() {
   return (
     <section>
       <div className="container">
@@ -130,7 +130,7 @@ export default function Signin() {
 
             <div className="flex flex-col justify-center items-center gap-0.5">
               <Link
-                href="/"
+                href="/forgot-password"
                 className="block text-primary dark:text-creamwhite hover:text-secondary"
               >
                 Forget Password?

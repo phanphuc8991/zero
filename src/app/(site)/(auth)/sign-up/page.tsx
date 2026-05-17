@@ -6,7 +6,7 @@ import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import GitHubIcon from "@/assets/images/icon/github-icon.svg";
 import * as Form from "@radix-ui/react-form";
-export default function Signup() {
+export default function Page() {
   return (
     <section>
       <div className="container">

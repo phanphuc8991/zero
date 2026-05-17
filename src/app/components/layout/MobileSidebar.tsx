@@ -1,7 +1,8 @@
 "use client";
 import { NavItem } from "@/app/components/layout/NavItem";
 import Link from "next/link";
-import { useState } from "react";
+import * as Avatar from "@radix-ui/react-avatar";
+
 const navItem = [
   {
     href: "/",
@@ -58,21 +59,52 @@ export function MobileSidebar({
           </li>
         ))}
       </ul>
+      {false && (
+        <div className="flex flex-col gap-3 my-2">
+          <Link
+            href="/"
+            className="group border border-primary dark:hover:border-primary dark:border-creamwhite hover:bg-secondary py-2 px-5 rounded-full cursor-pointer"
+          >
+            <span className="text-primary dark:text-creamwhite dark:group-hover:text-primary text-base font-semibold">
+              Sign in
+            </span>
+          </Link>
+
+          <Link
+            href="/"
+            className="border border-primary bg-secondary hover:bg-transparent dark:hover:bg-creamwhtie py-2 px-5 rounded-full cursor-pointer"
+          >
+            <span className="text-primary text-base font-semibold">
+              Sign up
+            </span>
+          </Link>
+        </div>
+      )}
       <div className="flex flex-col gap-3 my-2">
-        <Link
-          href="/"
-          className="group border border-primary dark:hover:border-primary dark:border-creamwhite hover:bg-secondary py-2 px-5 rounded-full cursor-pointer"
-        >
-          <span className="text-primary dark:text-creamwhite dark:group-hover:text-primary text-base font-semibold">
-            Sign in
-          </span>
-        </Link>
         <Link
           href="/"
           className="border border-primary bg-secondary hover:bg-transparent dark:hover:bg-creamwhtie py-2 px-5 rounded-full cursor-pointer"
         >
-          <span className="text-primary text-base font-semibold">Sign up</span>
+          <span className="text-primary text-base font-semibold">Sign Out</span>
         </Link>
+        <div className="flex pr-2 pl-2 py-1.5 rounded-full justify-start gap-1 items-center border border-primary">
+          <Avatar.Root className="inline-flex h-8 select-none items-center justify-center rounded-full bg-blackA1 align-middle flex-1">
+            <Avatar.Image
+              className="size-full rounded-[inherit] object-cover"
+              src="./avatar_1.jpg"
+              alt="Colm Tuite"
+            />
+            <Avatar.Fallback
+              className="leading-1 flex size-full items-center justify-center bg-white text-[15px] font-medium text-violet11"
+              delayMs={600}
+            >
+              CT
+            </Avatar.Fallback>
+          </Avatar.Root>
+          <span className="text-sm flex flex-wrap font-semibold text-black dark:text-creamwhite  w-58">
+            phanhoangphuc8991@gmail.com
+          </span>
+        </div>
       </div>
     </div>
   );

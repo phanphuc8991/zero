@@ -2,10 +2,10 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/db";
-import authConfig from "@/auth.config";
+import { db } from "@/lib/db";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/signin",
@@ -21,16 +21,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!email || !password) return null;
 
-        const user = await prisma.user.findUnique({
+        const user = await db.user.findUnique({
           where: { email },
         });
-
         if (!user || !user.password) return null;
-        console.log("user.password", user.password);
-        console.log("password", password);
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) return null;
-
         return user;
       },
     }),

@@ -5,24 +5,22 @@ import DarkLogo from "@/assets/images/logo/dark-logo.svg";
 import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import GitHubIcon from "@/assets/images/icon/github-icon.svg";
-import { authenticate } from "@/features/auth/actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { signupAction } from "@/features/auth/actions";
 import { type RegisterForm, registerSchema } from "@/features/auth/constants";
-const SUCCESS_MESSAGES: Record<string, string> = {
-  verified: "Email verified! Please sign in.",
-};
+import * as Dialog from "@radix-ui/react-dialog";
+import { CheckCircle2 } from "lucide-react";
+import DarkCloseIcon from "@/assets/images/icon/close-dark-icon.svg";
+import LightCloseIcon from "@/assets/images/icon/close-light-icon.svg";
+import { PillButton } from "@/app/components/ui/PillButton";
 
-export function SignIn() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const success = searchParams.get("success");
+export default function SignUp() {
   const [serverError, setServerError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
   const {
     register,
@@ -35,20 +33,12 @@ export function SignIn() {
 
   async function onSubmit(data: RegisterForm) {
     setServerError("");
-
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setServerError("Invalid email or password");
-      return;
-    }
-
-    router.push("/dashboard");
+    const result = await signupAction(data);
+    if (result?.error) return setServerError(result?.error);
+    setIsModalOpen(true);
+    setRegisteredEmail(data.email);
   }
+
   return (
     <section>
       <div className="container">
@@ -76,7 +66,7 @@ export function SignIn() {
             </div>
             <div className="flex flex-col gap-4 md:flex-row items-center">
               <button className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full">
-                <span>Sign In</span>
+                <span>Sign Up</span>
                 <Image
                   alt="google-icon"
                   src={GoogleIcon}
@@ -86,7 +76,7 @@ export function SignIn() {
                 />
               </button>
               <button className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full">
-                <span>Sign In</span>
+                <span>Sign Up</span>
                 <Image
                   alt="google-icon"
                   src={GitHubIcon}
@@ -102,14 +92,37 @@ export function SignIn() {
                 OR
               </span>
             </div>
-            {success && SUCCESS_MESSAGES[success] && (
-              <p className="text-green-500 text-sm mb-4">
-                {SUCCESS_MESSAGES[success]}
-              </p>
-            )}
-
             <form className="" onSubmit={handleSubmit(onSubmit)}>
-              <div className="mb-5">
+              <div className="mb-2">
+                <div className="flex items-baseline justify-between">
+                  <label
+                    htmlFor="name"
+                    className="text-[15px] font-medium leading-8.75 text-primary"
+                  >
+                    Name
+                  </label>
+                  {errors.name && (
+                    <p className="text-[13px] text-red-500 opacity-80">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <input
+                    {...register("name")}
+                    className={`w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 ${
+                      errors.name && "border-red-500 focus:border-red-500"
+                    }`}
+                    type="text"
+                    name="name"
+                    id="name"
+                    autoComplete="off"
+                    placeholder="Your name"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-2">
                 <div className="flex items-baseline justify-between">
                   <label
                     htmlFor="email"
@@ -136,7 +149,7 @@ export function SignIn() {
                 </div>
               </div>
 
-              <div className="mb-5">
+              <div className="mb-4">
                 <div className="flex items-baseline justify-between">
                   <label
                     htmlFor="password"
@@ -162,37 +175,112 @@ export function SignIn() {
                   />
                 </div>
               </div>
-              <div className="mb-9">
+
+              <div className="mb-4">
                 <button
+                  className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
                   type="submit"
                   disabled={isSubmitting}
-                  className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
                 >
-                  {isSubmitting ? "Processing..." : "Sign in"}
+                  {isSubmitting ? "Creating account..." : "Sign up"}
                 </button>
               </div>
             </form>
 
-            <div className="flex flex-col justify-center items-center gap-0.5">
-              <Link
-                href="/forgot-password"
-                className="block text-primary dark:text-creamwhite hover:text-secondary"
-              >
-                Forget Password?
-              </Link>
+            <div className="flex flex-col justify-center items-center gap-2">
+              <p className="flex flex-wrap justify-center max-w-xs">
+                <span>By creating an account, you agree with our</span>
+
+                <Link
+                  href="/privacy-policy"
+                  className="block text-primary dark:text-creamwhite hover:text-secondary"
+                >
+                  Privacy
+                </Link>
+                <span className="mx-1">&</span>
+                <Link
+                  href="/privacy-policy"
+                  className="block text-primary dark:text-creamwhite hover:text-secondary"
+                >
+                  Policy.
+                </Link>
+              </p>
+
               <p className="text-primary dark:text-creamwhite">
-                <span className="pr-1">Not a member yet?</span>
+                <span className="pr-1">Already have an account?</span>
                 <Link
                   className="text-primary dark:text-creamwhite hover:text-secondary"
-                  href="sign-up"
+                  href="sign-in"
                 >
-                  Sign Up
+                  Sign In
                 </Link>
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" />
+          <Dialog.Content
+            onPointerDownOutside={(e) => {
+              e.preventDefault();
+            }}
+            className="fixed left-1/2 top-1/2 bg-warm-ivory dark:bg-primary p-6 rounded-2xl max-w-lg  -translate-x-1/2 -translate-y-1/2 focus:outline-none z-60 w-[calc(100%-2rem)]"
+          >
+            <Dialog.Title className="flex justify-center">
+              <div className="p-4 rounded-full bg-secondary items-center justify-center mb-5 inline-block">
+                <CheckCircle2
+                  size={36}
+                  className="text-black/80"
+                  strokeWidth={2}
+                />
+              </div>
+            </Dialog.Title>
+
+            <Dialog.Description className="font-bold mb-2 text-center">
+              Check your email
+            </Dialog.Description>
+            <Dialog.Description className="font-medium text-center">
+              We sent a link to {registeredEmail}
+            </Dialog.Description>
+
+            <div className="h-36 flex flex-col gap-5 mt-10">
+              <div className="">
+                <PillButton label="Open Gmail" href="https://mail.google.com" />
+              </div>
+
+              <Link
+                href="/"
+                className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-transparent hover:bg-secondar py-4 px-7 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
+              >
+                <span className="font-semibold dark:group-hover:text-primary">
+                  Maybe later
+                </span>
+              </Link>
+            </div>
+            <Dialog.Close asChild className="cursor-pointer">
+              <div className="absolute right-2.5 top-2.5">
+                <Image
+                  src={LightCloseIcon}
+                  alt="icon"
+                  width={22}
+                  height={22}
+                  className="w-5.5 h-5.5 dark:hidden"
+                />
+                <Image
+                  src={DarkCloseIcon}
+                  alt="icon"
+                  width={22}
+                  height={22}
+                  className="w-5.5 h-5.5 hidden dark:block"
+                />
+              </div>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </section>
   );
 }

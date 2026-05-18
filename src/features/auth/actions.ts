@@ -1,12 +1,10 @@
 "use server";
+import type { RegisterForm } from "./constants";
 
-import NextAuth from "next-auth";
-import authConfig from "@/auth.config"; // 🟢 Import bản config siêu nhẹ (Không có Prisma)
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
-
-// 🔥 KHỞI TẠO HÀM signIn ĐỘC LẬP CHO SERVER ACTION TẠI ĐÂY
-const { signIn } = NextAuth(authConfig);
+import { signIn } from "@/auth";
+import { registerService } from "@/features/auth/services";
 
 export type FormState = {
   error?: string;
@@ -18,7 +16,6 @@ export async function authenticate(
   formData: FormData,
 ): Promise<FormState> {
   try {
-    // Chạy hàm đăng nhập một cách an toàn thông qua cấu hình authConfig
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     await signIn("credentials", {
@@ -36,7 +33,17 @@ export async function authenticate(
           return { error: "Đã có lỗi xác thực xảy ra." };
       }
     }
-    // 🔴 CỰC KỲ QUAN TRỌNG: Phải throw lỗi redirect của Next.js ra ngoài, không được nuốt!
     throw error;
+  }
+}
+
+export async function signupAction(data: RegisterForm) {
+  try {
+    return await registerService(data);
+  } catch (error) {
+    console.log("error action register");
+    return {
+      error: error instanceof Error ? error.message : "Something went wrong",
+    };
   }
 }

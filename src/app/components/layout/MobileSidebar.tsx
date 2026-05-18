@@ -61,28 +61,26 @@ export function MobileSidebar({
           </li>
         ))}
       </ul>
-      {false && (
-        <div className="flex flex-col gap-3 my-2">
-          <Link
-            href="/"
-            className="group border border-primary dark:hover:border-primary dark:border-creamwhite hover:bg-secondary py-2 px-5 rounded-full cursor-pointer"
-          >
-            <span className="text-primary dark:text-creamwhite dark:group-hover:text-primary text-base font-semibold">
-              Sign in
-            </span>
-          </Link>
 
-          <Link
-            href="/"
-            className="border border-primary bg-secondary hover:bg-transparent dark:hover:bg-creamwhtie py-2 px-5 rounded-full cursor-pointer"
-          >
-            <span className="text-primary text-base font-semibold">
-              Sign up
-            </span>
-          </Link>
-        </div>
-      )}
       <div className="flex flex-col gap-3 my-2">
+        <Link
+          href="/"
+          className="group border border-primary dark:hover:border-primary dark:border-creamwhite hover:bg-secondary py-2 px-5 rounded-full cursor-pointer"
+        >
+          <span className="text-primary dark:text-creamwhite dark:group-hover:text-primary text-base font-semibold">
+            Sign in
+          </span>
+        </Link>
+
+        <Link
+          href="/"
+          className="border border-primary bg-secondary hover:bg-transparent dark:hover:bg-creamwhtie py-2 px-5 rounded-full cursor-pointer"
+        >
+          <span className="text-primary text-base font-semibold">Sign up</span>
+        </Link>
+      </div>
+
+      {/* <div className="flex flex-col gap-3 my-2">
         <Link
           href="/"
           className="border border-primary bg-secondary hover:bg-transparent dark:hover:bg-creamwhtie py-2 px-5 rounded-full cursor-pointer"
@@ -107,7 +105,7 @@ export function MobileSidebar({
             phanhoangphuc8991@gmail.com
           </span>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

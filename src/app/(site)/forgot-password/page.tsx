@@ -5,7 +5,6 @@ import DarkLogo from "@/assets/images/logo/dark-logo.svg";
 import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import GitHubIcon from "@/assets/images/icon/github-icon.svg";
-import * as Form from "@radix-ui/react-form";
 
 export default function Page() {
   return (
@@ -33,26 +32,20 @@ export default function Page() {
                 />
               </Link>
             </div>
-            <Form.Root className="">
-              <Form.Field className="mb-5" name="email">
+            <div className="">
+              <div className="mb-5">
                 <div className="flex items-baseline justify-between">
-                  <Form.Label className="text-[15px] font-medium leading-8.75 text-primary">
+                  <div className="text-[15px] font-medium leading-8.75 text-primary">
                     Email
-                  </Form.Label>
-                  <Form.Message
-                    className="text-[13px] text-primary opacity-80"
-                    match="valueMissing"
-                  >
+                  </div>
+                  <div className="text-[13px] text-primary opacity-80">
                     Please enter your email
-                  </Form.Message>
-                  <Form.Message
-                    className="text-[13px] text-primary opacity-80"
-                    match="typeMismatch"
-                  >
+                  </div>
+                  <div className="text-[13px] text-primary opacity-80">
                     Please provide a valid email
-                  </Form.Message>
+                  </div>
                 </div>
-                <Form.Control asChild>
+                <div>
                   <input
                     className="w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 data-[invalid=true]:border-red-500"
                     type="text"
@@ -61,15 +54,15 @@ export default function Page() {
                     name="email"
                     autoComplete="off"
                   />
-                </Form.Control>
-              </Form.Field>
+                </div>
+              </div>
 
-              <Form.Submit asChild className="mb-9">
+              <div className="mb-9">
                 <button className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out">
                   <span>Send Email</span>
                 </button>
-              </Form.Submit>
-            </Form.Root>
+              </div>
+            </div>
           </div>
         </div>
       </div>

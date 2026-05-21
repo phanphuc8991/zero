@@ -9,7 +9,6 @@ import { registerSchema } from "@/features/auth/constants";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("body", body);
     const parsed = registerSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
@@ -24,10 +23,7 @@ export async function POST(req: Request) {
       where: { email },
     });
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Email already in use" },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "EMAIL_IN_USE" }, { status: 409 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -50,10 +46,7 @@ export async function POST(req: Request) {
         db.user.delete({ where: { email } }),
         db.verificationToken.delete({ where: { token } }),
       ]);
-      return NextResponse.json(
-        { error: "Failed to send verification email, please try again" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "EMAIL_SEND_FAILED" }, { status: 500 });
     }
 
     return NextResponse.json(
@@ -62,9 +55,6 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error("error route api register", error);
-    return NextResponse.json(
-      { error: "Server error, please try again" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "SERVER_ERROR" }, { status: 500 });
   }
 }

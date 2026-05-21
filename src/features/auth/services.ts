@@ -1,20 +1,40 @@
-import type { RegisterForm } from "@/features/auth/constants";
+import { signIn } from "@/auth";
+import {
+  CustomAuthError,
+  type RegisterForm,
+  type SignInForm,
+} from "@/features/auth/constants";
+import { AuthError } from "next-auth";
 
-export async function registerService(data: RegisterForm) {
+export async function signInService(data: SignInForm) {
   try {
-    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+    await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
     });
-    const result = await res.json();
-    if (!res.ok) {
-      throw new Error(result?.error);
-    }
-    return result;
+    return { success: true };
   } catch (error) {
-    console.log("error service register", error);
+    if (error instanceof CustomAuthError) {
+      throw new Error(error.customType);
+    }
+
+    throw new Error("SERVER_ERROR");
   }
+}
+export async function registerService(data: RegisterForm) {
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result?.error ?? "Something went wrong");
+  }
+
+  return result as { message: string };
 }

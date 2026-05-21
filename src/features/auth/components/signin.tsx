@@ -5,15 +5,20 @@ import DarkLogo from "@/assets/images/logo/dark-logo.svg";
 import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import GitHubIcon from "@/assets/images/icon/github-icon.svg";
-import { authenticate } from "@/features/auth/actions";
+import { signInAction } from "@/features/auth/actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { type RegisterForm, registerSchema } from "@/features/auth/constants";
-import { Suspense, useState } from "react";
+import {
+  AUTH_ERRORS,
+  AuthErrorType,
+  type SignInForm,
+  signInSchema,
+} from "@/features/auth/constants";
+import { useState } from "react";
+import { useAction } from "next-safe-action/hooks";
+
 const SUCCESS_MESSAGES: Record<string, string> = {
   verified: "Email verified! Please sign in.",
 };
@@ -22,33 +27,21 @@ export function SignIn() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const success = searchParams.get("success");
-  const [serverError, setServerError] = useState("");
+  const { execute, result, isExecuting } = useAction(signInAction, {
+    onSuccess: () => {
+      router.push("/");
+    },
+  });
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<RegisterForm>({
+    formState: { errors },
+  } = useForm<SignInForm>({
     mode: "onBlur",
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(signInSchema),
   });
 
-  async function onSubmit(data: RegisterForm) {
-    setServerError("");
-
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setServerError("Invalid email or password");
-      return;
-    }
-
-    router.push("/dashboard");
-  }
   return (
     <section>
       <div className="container">
@@ -108,7 +101,13 @@ export function SignIn() {
               </p>
             )}
 
-            <form className="" onSubmit={handleSubmit(onSubmit)}>
+            <form
+              className=""
+              onSubmit={handleSubmit((data) => {
+                console.log("data", data);
+                execute(data);
+              })}
+            >
               <div className="mb-5">
                 <div className="flex items-baseline justify-between">
                   <label
@@ -136,7 +135,7 @@ export function SignIn() {
                 </div>
               </div>
 
-              <div className="mb-5">
+              <div className="mb-4">
                 <div className="flex items-baseline justify-between">
                   <label
                     htmlFor="password"
@@ -162,13 +161,21 @@ export function SignIn() {
                   />
                 </div>
               </div>
+              {result?.serverError && (
+                <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
+                  {result?.serverError &&
+                    (AUTH_ERRORS[result.serverError as AuthErrorType] ||
+                      result.serverError)}
+                </div>
+              )}
+
               <div className="mb-9">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isExecuting}
                   className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
                 >
-                  {isSubmitting ? "Processing..." : "Sign in"}
+                  {isExecuting ? "Processing..." : "Sign in"}
                 </button>
               </div>
             </form>

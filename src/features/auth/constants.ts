@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AuthError } from "next-auth";
 
 export const registerSchema = z.object({
   name: z
@@ -22,4 +23,43 @@ export const registerSchema = z.object({
     ),
 });
 
+export const signInSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .pipe(z.email({ message: "Invalid email" }).toLowerCase()),
+
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .max(100, "Password is too long")
+    .regex(
+      /^(?=.*[A-Za-z])(?=.*\d).{6,}$/,
+      "Password must contain both letters and numbers",
+    ),
+});
+
 export type RegisterForm = z.infer<typeof registerSchema>;
+export type SignInForm = z.infer<typeof signInSchema>;
+
+export const AUTH_ERRORS = {
+  MISSING_FIELDS: "Missing fields.",
+  INVALID_FIELDS: "Invalid data.",
+
+  EMAIL_IN_USE: "Email unavailable.",
+  INVALID_CREDENTIALS: "Wrong email or password.",
+  ACCOUNT_INACTIVE: "Account is inactive.",
+
+  EMAIL_SEND_FAILED: "Email sending failed.",
+  SERVER_ERROR: "Server error.",
+  UNKNOWN_ERROR: "Something went wrong.",
+} as const;
+
+export type AuthErrorType = keyof typeof AUTH_ERRORS;
+
+export class CustomAuthError extends AuthError {
+  constructor(public customType: AuthErrorType) {
+    super(customType);
+    this.name = "CustomAuthError";
+  }
+}

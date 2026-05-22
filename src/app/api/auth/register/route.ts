@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const token = randomUUID();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expires = new Date(Date.now() + 3600000);
 
     await db.$transaction([
       db.user.create({

@@ -53,6 +53,8 @@ export const AUTH_ERRORS = {
   EMAIL_SEND_FAILED: "Email sending failed.",
   SERVER_ERROR: "Server error.",
   UNKNOWN_ERROR: "Something went wrong.",
+  VERIFICATION_SENT_GENERIC:
+    "If the email is valid, a verification link has been sent.",
 } as const;
 
 export type AuthErrorType = keyof typeof AUTH_ERRORS;

@@ -6,7 +6,6 @@ import { db } from "@/lib/db";
 import { CustomAuthError } from "@/features/auth/constants";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/signin",

@@ -22,6 +22,7 @@ export async function signInService(data: SignInForm) {
     throw new Error("SERVER_ERROR");
   }
 }
+
 export async function registerService(data: RegisterForm) {
   const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/register`, {
     method: "POST",
@@ -34,6 +35,27 @@ export async function registerService(data: RegisterForm) {
 
   if (!res.ok) {
     throw new Error(result?.error ?? "Something went wrong");
+  }
+
+  return result as { message: string };
+}
+
+export async function resendVerifyEmailService(email: string) {
+  const res = await fetch(
+    `${process.env.NEXTAUTH_URL}/api/auth/resend-verify`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    },
+  );
+
+  const result = await res.json();
+
+  if (!res.ok) {
+    throw new Error(result?.error ?? "SERVER_ERROR");
   }
 
   return result as { message: string };

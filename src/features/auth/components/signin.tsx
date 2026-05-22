@@ -5,43 +5,55 @@ import DarkLogo from "@/assets/images/logo/dark-logo.svg";
 import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import GitHubIcon from "@/assets/images/icon/github-icon.svg";
-import { signInAction } from "@/features/auth/actions";
+import {
+  signInAction,
+  resendVerificationAction,
+} from "@/features/auth/actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   AUTH_ERRORS,
   AuthErrorType,
   type SignInForm,
   signInSchema,
 } from "@/features/auth/constants";
-import { useState } from "react";
 import { useAction } from "next-safe-action/hooks";
-
-const SUCCESS_MESSAGES: Record<string, string> = {
-  verified: "Email verified! Please sign in.",
-};
+import { SuccessMessage } from "@/app/components/ui/SigninSuccessMessage";
 
 export function SignIn() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const success = searchParams.get("success");
+  const { update } = useSession();
   const { execute, result, isExecuting } = useAction(signInAction, {
     onSuccess: () => {
       router.push("/");
+      setTimeout(async () => {
+        await update();
+      }, 200);
     },
   });
 
   const {
+    execute: executeResend,
+    result: resendResult,
+    isExecuting: isResendExecuting,
+  } = useAction(resendVerificationAction);
+  console.log("resendResult", resendResult);
+  const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<SignInForm>({
     mode: "onBlur",
     resolver: zodResolver(signInSchema),
   });
-
+  const handleResend = () => {
+    const email = getValues("email");
+    if (!email) return;
+    executeResend(email);
+  };
   return (
     <section>
       <div className="container">
@@ -95,19 +107,8 @@ export function SignIn() {
                 OR
               </span>
             </div>
-            {success && SUCCESS_MESSAGES[success] && (
-              <p className="text-green-500 text-sm mb-4">
-                {SUCCESS_MESSAGES[success]}
-              </p>
-            )}
-
-            <form
-              className=""
-              onSubmit={handleSubmit((data) => {
-                console.log("data", data);
-                execute(data);
-              })}
-            >
+            <SuccessMessage />
+            <form className="" onSubmit={handleSubmit((data) => execute(data))}>
               <div className="mb-5">
                 <div className="flex items-baseline justify-between">
                   <label
@@ -161,12 +162,36 @@ export function SignIn() {
                   />
                 </div>
               </div>
-              {result?.serverError && (
+
+              {!isResendExecuting && result?.serverError && (
                 <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
-                  {result?.serverError &&
-                    (AUTH_ERRORS[result.serverError as AuthErrorType] ||
-                      result.serverError)}
+                  <span>
+                    {AUTH_ERRORS[result.serverError as AuthErrorType] ||
+                      result.serverError}
+                  </span>
+                  <span
+                    className="pl-2 cursor-pointer underline"
+                    onClick={handleResend}
+                  >
+                    Resend link.
+                  </span>
                 </div>
+              )}
+
+              {isResendExecuting && (
+                <span className="animate-pulse">
+                  Sending verification link...
+                </span>
+              )}
+
+              {!isResendExecuting && resendResult?.serverError ? (
+                <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
+                  <span>
+                    {AUTH_ERRORS[resendResult.serverError as AuthErrorType]}
+                  </span>
+                </div>
+              ) : (
+                <></>
               )}
 
               <div className="mb-9">

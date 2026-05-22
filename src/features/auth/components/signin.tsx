@@ -11,8 +11,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
-  AUTH_ERRORS,
-  AuthErrorType,
+  AUTH_MESSAGES,
+  AuthMessageType,
   type SignInForm,
   signInSchema,
 } from "@/features/auth/constants";
@@ -151,7 +151,7 @@ export function SignIn() {
               {result?.serverError && (
                 <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
                   <span>
-                    {AUTH_ERRORS[result.serverError as AuthErrorType] ||
+                    {AUTH_MESSAGES[result.serverError as AuthMessageType] ||
                       result.serverError}
                   </span>
                   {result.serverError === "ACCOUNT_INACTIVE" && (

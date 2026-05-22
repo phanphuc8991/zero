@@ -5,6 +5,7 @@ import { sendVerificationEmail } from "@/lib/mail/mailer";
 import { randomUUID } from "crypto";
 
 import { registerSchema } from "@/features/auth/constants";
+import { apiResponse } from "@/lib/api-response";
 
 export async function POST(req: Request) {
   try {
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
       where: { email },
     });
     if (existingUser) {
-      return NextResponse.json({ error: "EMAIL_IN_USE" }, { status: 409 });
+      return apiResponse.error("EMAIL_IN_USE", 409);
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -46,12 +47,12 @@ export async function POST(req: Request) {
         db.user.delete({ where: { email } }),
         db.verificationToken.delete({ where: { token } }),
       ]);
-      return NextResponse.json({ error: "EMAIL_SEND_FAILED" }, { status: 500 });
+      return apiResponse.error("EMAIL_SEND_FAILED", 500);
     }
 
-    return NextResponse.json({ message: "success" }, { status: 201 });
+    return NextResponse.json({ message: "REGISTER_SUCCESS" }, { status: 201 });
   } catch (error) {
     console.error("error route api register", error);
-    return NextResponse.json({ error: "SERVER_ERROR" }, { status: 500 });
+    return apiResponse.error("UNKNOWN_ERROR", 500);
   }
 }

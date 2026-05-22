@@ -7,9 +7,14 @@ import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import GitHubIcon from "@/assets/images/icon/github-icon.svg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signupAction } from "@/features/auth/actions";
-import { type RegisterForm, registerSchema } from "@/features/auth/constants";
+import {
+  AUTH_MESSAGES,
+  AuthMessageType,
+  type RegisterForm,
+  registerSchema,
+} from "@/features/auth/constants";
 import * as Dialog from "@radix-ui/react-dialog";
 import { CheckCircle2 } from "lucide-react";
 import DarkCloseIcon from "@/assets/images/icon/close-dark-icon.svg";
@@ -20,7 +25,9 @@ import { useAction } from "next-safe-action/hooks";
 export default function SignUp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const [serverError, setServerError] = useState("");
   const {
+    watch,
     register,
     handleSubmit,
     getValues,
@@ -35,11 +42,15 @@ export default function SignUp() {
       setIsModalOpen(true);
       setRegisteredEmail(getValues("email"));
     },
-    // onError: ({ error }) => {
-    //   // console.error(error);
-    // },
+    onError: ({ error }) => {
+      setServerError(error?.serverError as string);
+    },
   });
-
+  useEffect(() => {
+    if (serverError) {
+      setServerError("");
+    }
+  }, [watch("email"), watch("password")]);
   return (
     <section>
       <div className="container">
@@ -177,9 +188,9 @@ export default function SignUp() {
                   />
                 </div>
               </div>
-              {result?.serverError && (
+              {serverError && (
                 <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
-                  {result?.serverError}
+                  {AUTH_MESSAGES[serverError as AuthMessageType]}
                 </div>
               )}
 
@@ -248,7 +259,9 @@ export default function SignUp() {
               </Dialog.Title>
               <div>
                 <Dialog.Description className="font-bold mb-2 text-center">
-                  {result?.data?.message}
+                  <span>
+                    {AUTH_MESSAGES[result?.data?.message as AuthMessageType]}
+                  </span>
                 </Dialog.Description>
                 <Dialog.Description className="font-medium text-center">
                   We sent a link to {registeredEmail}

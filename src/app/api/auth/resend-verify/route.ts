@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import crypto from "crypto";
 import { sendVerificationEmail } from "@/lib/mail/mailer";
+import { apiResponse } from "@/lib/api-response";
 
 const RATE_LIMIT_THRESHOLD_MS = 55 * 60 * 1000;
 
@@ -10,7 +11,7 @@ export async function POST(req: Request) {
     const { email } = await req.json();
 
     if (!email || !email.trim()) {
-      return NextResponse.json({ error: "MISSING_FIELDS" }, { status: 400 });
+      return apiResponse.error("MISSING_FIELDS", 400);
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -53,12 +54,15 @@ export async function POST(req: Request) {
           expires,
         },
       });
-
       return { status: "success", token } as const;
     });
-
+    if (result.status === "not_found") {
+      return NextResponse.json(
+        { message: "EMAIL_NOT_FOUND." },
+        { status: 200 },
+      );
+    }
     if (
-      result.status === "not_found" ||
       result.status === "already_verified" ||
       result.status === "rate_limited"
     ) {
@@ -69,22 +73,19 @@ export async function POST(req: Request) {
     }
 
     if (result.status !== "success" || !result.token) {
-      return NextResponse.json({ error: "UNKNOWN_ERROR" }, { status: 500 });
+      return apiResponse.error("UNKNOWN_ERROR", 500);
     }
 
     try {
       await sendVerificationEmail(normalizedEmail, result.token);
     } catch (mailError) {
       console.error("Mail send crash inside resend-verify:", mailError);
-      return NextResponse.json({ error: "EMAIL_SEND_FAILED" }, { status: 500 });
+      return apiResponse.error("EMAIL_SEND_FAILED", 500);
     }
 
-    return NextResponse.json(
-      { message: "A new verification link has been sent to your email!" },
-      { status: 200 },
-    );
+    return apiResponse.success({}, 201);
   } catch (error) {
     console.error("Resend token error:", error);
-    return NextResponse.json({ error: "UNKNOWN_ERROR" }, { status: 500 });
+    return apiResponse.error("UNKNOWN_ERROR", 500);
   }
 }

@@ -45,11 +45,10 @@ export type SignInForm = z.infer<typeof signInSchema>;
 export const AUTH_ERRORS = {
   MISSING_FIELDS: "Missing fields.",
   INVALID_FIELDS: "Invalid data.",
-
   EMAIL_IN_USE: "Email unavailable.",
   INVALID_CREDENTIALS: "Wrong email or password.",
   ACCOUNT_INACTIVE: "Account is inactive.",
-
+  EMAIL_NOT_FOUND: "Email address not found. Please check and try again.",
   EMAIL_SEND_FAILED: "Email sending failed.",
   SERVER_ERROR: "Server error.",
   UNKNOWN_ERROR: "Something went wrong.",

@@ -49,10 +49,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "EMAIL_SEND_FAILED" }, { status: 500 });
     }
 
-    return NextResponse.json(
-      { message: "Registration successful! Please check your email." },
-      { status: 201 },
-    );
+    return NextResponse.json({ message: "success" }, { status: 201 });
   } catch (error) {
     console.error("error route api register", error);
     return NextResponse.json({ error: "SERVER_ERROR" }, { status: 500 });

@@ -19,11 +19,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           password: string;
         };
         const user = await db.user.findUnique({ where: { email } });
+
         const dbPassword =
           user?.password || "$2a$10$FakeHashToPreventTimingAttacksDoNotUseThis";
         const passwordMatch = await bcrypt.compare(password, dbPassword);
-        console.log("user", user);
-        console.log("user.password", passwordMatch);
         if (!user || !user.password || !passwordMatch) {
           throw new CustomAuthError("INVALID_CREDENTIALS");
         }

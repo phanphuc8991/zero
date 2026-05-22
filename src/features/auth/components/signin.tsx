@@ -5,10 +5,7 @@ import DarkLogo from "@/assets/images/logo/dark-logo.svg";
 import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import GitHubIcon from "@/assets/images/icon/github-icon.svg";
-import {
-  signInAction,
-  resendVerificationAction,
-} from "@/features/auth/actions";
+import { signInAction } from "@/features/auth/actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -20,6 +17,7 @@ import {
   signInSchema,
 } from "@/features/auth/constants";
 import { useAction } from "next-safe-action/hooks";
+
 export function SignIn() {
   const router = useRouter();
   const { update } = useSession();
@@ -33,11 +31,6 @@ export function SignIn() {
   });
 
   const {
-    execute: executeResend,
-    result: resendResult,
-    isExecuting: isResendExecuting,
-  } = useAction(resendVerificationAction);
-  const {
     register,
     handleSubmit,
     getValues,
@@ -46,11 +39,7 @@ export function SignIn() {
     mode: "onBlur",
     resolver: zodResolver(signInSchema),
   });
-  const handleResend = () => {
-    const email = getValues("email");
-    if (!email) return;
-    executeResend(email);
-  };
+
   return (
     <section>
       <div className="container">
@@ -159,18 +148,23 @@ export function SignIn() {
                 </div>
               </div>
 
-              {!isResendExecuting && result?.serverError && (
+              {result?.serverError && (
                 <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
                   <span>
                     {AUTH_ERRORS[result.serverError as AuthErrorType] ||
                       result.serverError}
                   </span>
-                  <span
-                    className="pl-2 cursor-pointer underline"
-                    onClick={handleResend}
-                  >
-                    Resend link.
-                  </span>
+                  {result.serverError === "ACCOUNT_INACTIVE" && (
+                    <span
+                      className="pl-2 cursor-pointer underline"
+                      onClick={() => {
+                        const link = `verify-email/resend?email=${getValues("email")}`;
+                        router.push(link);
+                      }}
+                    >
+                      Resend link.
+                    </span>
+                  )}
                 </div>
               )}
               <div className="mb-9">

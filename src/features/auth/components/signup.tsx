@@ -35,9 +35,9 @@ export default function SignUp() {
       setIsModalOpen(true);
       setRegisteredEmail(getValues("email"));
     },
-    onError: ({ error }) => {
-      // console.error(error);
-    },
+    // onError: ({ error }) => {
+    //   // console.error(error);
+    // },
   });
 
   return (

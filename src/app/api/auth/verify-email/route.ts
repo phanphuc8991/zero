@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   try {
     // 1. Validate token
     if (!token?.trim()) {
-      return redirect("/verify-email?error=invalid");
+      return redirect("/verify-email/result?status=invalid");
     }
 
     // 2. Use transaction to avoid race conditions
@@ -69,22 +69,17 @@ export async function GET(req: Request) {
       return { status: "success" as const };
     });
 
-    // 8. Unified response handling (avoid leaking internal state)
     switch (result.status) {
       case "success":
-        return redirect("/sign-in?success=verified");
-
       case "already_verified":
-        return redirect("/sign-in?success=verified");
-
+        return redirect("/verify-email/result?status=verified");
       case "expired":
-        return redirect("/verify-email?error=expired");
-
+        return redirect("/verify-email/result?status=expired");
       default:
-        return redirect("/verify-email?error=invalid");
+        return redirect("/verify-email/result?status=invalid");
     }
   } catch (error) {
     console.error("Verify email error:", error);
-    return redirect("/verify-email?error=server");
+    return redirect("/verify-email/result?status=server");
   }
 }

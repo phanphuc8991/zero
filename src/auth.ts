@@ -8,7 +8,7 @@ import { CustomAuthError } from "@/features/auth/constants";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: {
-    signIn: "/signin",
+    signIn: "/sign-in",
   },
 
   providers: [

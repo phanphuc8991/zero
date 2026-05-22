@@ -20,8 +20,6 @@ import {
   signInSchema,
 } from "@/features/auth/constants";
 import { useAction } from "next-safe-action/hooks";
-import { SuccessMessage } from "@/app/components/ui/SigninSuccessMessage";
-
 export function SignIn() {
   const router = useRouter();
   const { update } = useSession();
@@ -39,7 +37,6 @@ export function SignIn() {
     result: resendResult,
     isExecuting: isResendExecuting,
   } = useAction(resendVerificationAction);
-  console.log("resendResult", resendResult);
   const {
     register,
     handleSubmit,
@@ -107,7 +104,6 @@ export function SignIn() {
                 OR
               </span>
             </div>
-            <SuccessMessage />
             <form className="" onSubmit={handleSubmit((data) => execute(data))}>
               <div className="mb-5">
                 <div className="flex items-baseline justify-between">
@@ -177,23 +173,6 @@ export function SignIn() {
                   </span>
                 </div>
               )}
-
-              {isResendExecuting && (
-                <span className="animate-pulse">
-                  Sending verification link...
-                </span>
-              )}
-
-              {!isResendExecuting && resendResult?.serverError ? (
-                <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
-                  <span>
-                    {AUTH_ERRORS[resendResult.serverError as AuthErrorType]}
-                  </span>
-                </div>
-              ) : (
-                <></>
-              )}
-
               <div className="mb-9">
                 <button
                   type="submit"

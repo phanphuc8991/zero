@@ -236,37 +236,36 @@ export default function SignUp() {
             }}
             className="fixed left-1/2 top-1/2 bg-warm-ivory dark:bg-primary p-6 rounded-2xl max-w-lg  -translate-x-1/2 -translate-y-1/2 focus:outline-none z-60 w-[calc(100%-2rem)]"
           >
-            <Dialog.Title className="flex justify-center">
-              <div className="p-4 rounded-full bg-secondary items-center justify-center mb-5 inline-block">
-                <CheckCircle2
-                  size={36}
-                  className="text-black/80"
-                  strokeWidth={2}
-                />
-              </div>
-            </Dialog.Title>
-
-            <Dialog.Description className="font-bold mb-2 text-center">
-              {result?.data?.message}
-            </Dialog.Description>
-            <Dialog.Description className="font-medium text-center">
-              We sent a link to {registeredEmail}
-            </Dialog.Description>
-
-            <div className="h-36 flex flex-col gap-5 mt-10">
-              <div className="">
-                <PillButton label="Open Gmail" href="https://mail.google.com" />
+            <div className="flex flex-col justify-center gap-6 pt-5 pb-10">
+              <Dialog.Title className="flex justify-center">
+                <div className="p-4 rounded-full bg-secondary items-center justify-centerinline-block">
+                  <CheckCircle2
+                    size={36}
+                    className="text-black/80"
+                    strokeWidth={2}
+                  />
+                </div>
+              </Dialog.Title>
+              <div>
+                <Dialog.Description className="font-bold mb-2 text-center">
+                  {result?.data?.message}
+                </Dialog.Description>
+                <Dialog.Description className="font-medium text-center">
+                  We sent a link to {registeredEmail}
+                </Dialog.Description>
               </div>
 
-              <Link
-                href="/"
-                className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-transparent hover:bg-secondar py-4 px-7 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
-              >
-                <span className="font-semibold dark:group-hover:text-primary">
-                  Maybe later
-                </span>
-              </Link>
+              <div className="flex justify-center">
+                <div className="w-[70%]">
+                  <PillButton
+                    label="Open Gmail"
+                    href="https://mail.google.com"
+                    target="_blank"
+                  />
+                </div>
+              </div>
             </div>
+
             <Dialog.Close asChild className="cursor-pointer">
               <div className="absolute right-2.5 top-2.5">
                 <Image

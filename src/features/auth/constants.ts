@@ -43,8 +43,8 @@ export type RegisterForm = z.infer<typeof registerSchema>;
 export type SignInForm = z.infer<typeof signInSchema>;
 
 export const AUTH_MESSAGES = {
-  MISSING_FIELDS: "Missing fields.",
-  INVALID_FIELDS: "Invalid data.",
+  EMAIL_INVALID:
+    "The provided email address is invalid. Please verify and try again.",
   EMAIL_IN_USE: "Email unavailable.",
   INVALID_CREDENTIALS: "Wrong email or password.",
   ACCOUNT_INACTIVE: "Account is inactive.",
@@ -55,6 +55,7 @@ export const AUTH_MESSAGES = {
   VERIFICATION_SENT_GENERIC:
     "If the email is valid, a verification link has been sent.",
   REGISTER_SUCCESS: "Registration successful! Please check your email.",
+  LOGIN_SUCCESS: "Login successful!",
 } as const;
 
 export type AuthMessageType = keyof typeof AUTH_MESSAGES;

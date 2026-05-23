@@ -6,6 +6,7 @@ import { randomUUID } from "crypto";
 
 import { registerSchema } from "@/features/auth/constants";
 import { apiResponse } from "@/lib/api-response";
+const RATE_LIMIT_THRESHOLD_MS = 60 * 1000 * 2;
 
 export async function POST(req: Request) {
   try {
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const token = randomUUID();
-    const expires = new Date(Date.now() + 3600000);
+    const expires = new Date(Date.now() + RATE_LIMIT_THRESHOLD_MS);
 
     await db.$transaction([
       db.user.create({
@@ -53,6 +54,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "REGISTER_SUCCESS" }, { status: 201 });
   } catch (error) {
     console.error("error route api register", error);
-    return apiResponse.error("UNKNOWN_ERROR", 500);
+    return apiResponse.error("SERVER_ERROR", 500);
   }
 }

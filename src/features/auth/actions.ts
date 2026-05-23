@@ -13,7 +13,7 @@ export const resendVerificationAction = actionClient
     z
       .string()
       .trim()
-      .pipe(z.email({ message: "Invalid email" }).toLowerCase()),
+      .pipe(z.email({ message: "EMAIL_INVALID" }).toLowerCase()),
   )
   .action(async ({ parsedInput }) => {
     return resendVerifyEmailService(parsedInput);

@@ -50,7 +50,7 @@ export default function SignUp() {
     if (serverError) {
       setServerError("");
     }
-  }, [watch("email"), watch("password")]);
+  }, [watch("email"), watch("password"), watch("name")]);
   return (
     <section>
       <div className="container">

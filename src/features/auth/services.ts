@@ -13,7 +13,7 @@ export async function signInService(data: SignInForm) {
       password: data.password,
       redirect: false,
     });
-    return { success: true };
+    return { message: "LOGIN_SUCCESS" };
   } catch (error) {
     if (error instanceof CustomAuthError) {
       throw new Error(error.customType);
@@ -53,7 +53,6 @@ export async function resendVerifyEmailService(email: string) {
   );
 
   const result = await res.json();
-
   if (!res.ok) {
     throw new Error(result?.error ?? "SERVER_ERROR");
   }

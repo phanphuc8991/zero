@@ -17,9 +17,11 @@ import {
   signInSchema,
 } from "@/features/auth/constants";
 import { useAction } from "next-safe-action/hooks";
+import { useEffect, useState } from "react";
 
 export function SignIn() {
   const router = useRouter();
+  const [serverError, setServerError] = useState("");
   const { update } = useSession();
   const { execute, result, isExecuting } = useAction(signInAction, {
     onSuccess: () => {
@@ -28,9 +30,13 @@ export function SignIn() {
         await update();
       }, 200);
     },
+    onError: ({ error }) => {
+      setServerError(error?.serverError as string);
+    },
   });
 
   const {
+    watch,
     register,
     handleSubmit,
     getValues,
@@ -39,7 +45,13 @@ export function SignIn() {
     mode: "onBlur",
     resolver: zodResolver(signInSchema),
   });
+  console.log("result?.serverError", result?.serverError);
 
+  useEffect(() => {
+    if (serverError) {
+      setServerError("");
+    }
+  }, [watch("email"), watch("password")]);
   return (
     <section>
       <div className="container">
@@ -148,22 +160,26 @@ export function SignIn() {
                 </div>
               </div>
 
-              {result?.serverError && (
+              {serverError && (
                 <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
                   <span>
-                    {AUTH_MESSAGES[result.serverError as AuthMessageType] ||
-                      result.serverError}
+                    {AUTH_MESSAGES[serverError as AuthMessageType] ||
+                      serverError}
                   </span>
-                  {result.serverError === "ACCOUNT_INACTIVE" && (
-                    <span
+                  {serverError === "ACCOUNT_INACTIVE" && (
+                    <button
                       className="pl-2 cursor-pointer underline"
                       onClick={() => {
-                        const link = `verify-email/resend?email=${getValues("email")}`;
+                        const link = "verify-email/resend";
+                        localStorage.setItem(
+                          "pending_verify_email",
+                          getValues("email"),
+                        );
                         router.push(link);
                       }}
                     >
                       Resend link.
-                    </span>
+                    </button>
                   )}
                 </div>
               )}

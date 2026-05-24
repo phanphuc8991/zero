@@ -33,7 +33,7 @@ export function VerifyEmailResult() {
 
   useEffect(() => {
     setEmail(refStoredEmail.current);
-    execute(refStoredEmail.current);
+    execute({ email: refStoredEmail.current });
     localStorage.removeItem("pending_verify_email");
   }, []);
   return (

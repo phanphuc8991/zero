@@ -39,8 +39,17 @@ export const signInSchema = z.object({
     ),
 });
 
+export const emailSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .pipe(z.email({ message: "EMAIL_INVALID" }).toLowerCase()),
+});
+
 export type RegisterForm = z.infer<typeof registerSchema>;
 export type SignInForm = z.infer<typeof signInSchema>;
+
+export type ForgotPasswordForm = z.infer<typeof emailSchema>;
 
 export const AUTH_MESSAGES = {
   EMAIL_INVALID:
@@ -50,12 +59,14 @@ export const AUTH_MESSAGES = {
   ACCOUNT_INACTIVE: "Account is inactive.",
   EMAIL_NOT_FOUND: "Email address not found. Please check and try again.",
   EMAIL_SEND_FAILED: "Email sending failed. Please check and try again.",
+  EMAIL_SEND_SUCCESS: "Email sent successfully! Please check your inbox.",
   SERVER_ERROR: "Server error.",
   UNKNOWN_ERROR: "Something went wrong.",
   VERIFICATION_SENT_GENERIC:
     "If the email is valid, a verification link has been sent.",
   REGISTER_SUCCESS: "Registration successful! Please check your email.",
   LOGIN_SUCCESS: "Login successful!",
+  CHECK_YOUR_EMAIL: "Please check your email.",
 } as const;
 
 export type AuthMessageType = keyof typeof AUTH_MESSAGES;
@@ -66,3 +77,5 @@ export class CustomAuthError extends AuthError {
     this.name = "CustomAuthError";
   }
 }
+
+export const RATE_LIMIT_THRESHOLD_MS = 60 * 1000 * 2;

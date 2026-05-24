@@ -1,17 +1,17 @@
 import { Resend } from "resend";
-import { getVerificationHtml } from "./email-template";
+import { getAuthEmailHtml } from "./email-template";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendVerificationEmail(email: string, token: string) {
-  const verifyUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${token}`;
+export async function sendForgotPasswordEmail(email: string, token: string) {
+  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/new-password?token=${token}`;
 
   try {
     const { data, error } = await resend.emails.send({
       from: "Acme <onboarding@resend.dev>",
       to: email,
-      subject: "Account Verification",
-      html: getVerificationHtml(verifyUrl, "#4f46e5"),
+      subject: "Reset your password",
+      html: getAuthEmailHtml(resetUrl),
     });
 
     if (error) return Response.json({ error }, { status: 500 });

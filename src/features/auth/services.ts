@@ -4,7 +4,6 @@ import {
   type RegisterForm,
   type SignInForm,
 } from "@/features/auth/constants";
-import { AuthError } from "next-auth";
 
 export async function signInService(data: SignInForm) {
   try {
@@ -40,7 +39,7 @@ export async function registerService(data: RegisterForm) {
   return result as { message: string };
 }
 
-export async function resendVerifyEmailService(email: string) {
+export async function resendVerifyEmailService(data: { email: string }) {
   const res = await fetch(
     `${process.env.NEXTAUTH_URL}/api/auth/resend-verify`,
     {
@@ -48,7 +47,27 @@ export async function resendVerifyEmailService(email: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify(data),
+    },
+  );
+
+  const result = await res.json();
+  if (!res.ok) {
+    throw new Error(result?.error ?? "SERVER_ERROR");
+  }
+
+  return result as { message: string };
+}
+
+export async function forgotEmailService(data: { email: string }) {
+  const res = await fetch(
+    `${process.env.NEXTAUTH_URL}/api/auth/forgot-password`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     },
   );
 

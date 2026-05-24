@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { sendVerificationEmail } from "@/lib/mail/mailer";
+import { sendVerificationEmail } from "@/lib/mail/verification-mailer";
 import { randomUUID } from "crypto";
 
-import { registerSchema } from "@/features/auth/constants";
+import {
+  RATE_LIMIT_THRESHOLD_MS,
+  registerSchema,
+} from "@/features/auth/constants";
 import { apiResponse } from "@/lib/api-response";
-const RATE_LIMIT_THRESHOLD_MS = 60 * 1000 * 2;
 
 export async function POST(req: Request) {
   try {
@@ -50,8 +52,7 @@ export async function POST(req: Request) {
       ]);
       return apiResponse.error("EMAIL_SEND_FAILED", 500);
     }
-
-    return NextResponse.json({ message: "REGISTER_SUCCESS" }, { status: 201 });
+    return apiResponse.success({ message: "REGISTER_SUCCESS" }, 201);
   } catch (error) {
     console.error("error route api register", error);
     return apiResponse.error("SERVER_ERROR", 500);

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import crypto from "crypto";
-import { sendVerificationEmail } from "@/lib/mail/mailer";
+import { sendVerificationEmail } from "@/lib/mail/verification-mailer";
 import { apiResponse } from "@/lib/api-response";
+import { RATE_LIMIT_THRESHOLD_MS } from "@/features/auth/constants";
 
 // const RATE_LIMIT_THRESHOLD_MS = 55 * 60 * 1000;
-const RATE_LIMIT_THRESHOLD_MS = 60 * 1000 * 2;
 
 export async function POST(req: Request) {
   try {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       const recentToken = await tx.verificationToken.findFirst({
         where: {
           identifier: normalizedEmail,
-          expires: { gt: new Date(Date.now()) },
+          expires: { gt: new Date() },
         },
       });
       if (recentToken) {
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json(
         { message: "VERIFICATION_SENT_GENERIC" },
-        { status: 200 },
+        { status: 429 },
       );
     }
 

@@ -4,7 +4,7 @@ import { getAuthEmailHtml } from "./email-template";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendForgotPasswordEmail(email: string, token: string) {
-  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/new-password?token=${token}`;
+  const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 
   try {
     const { data, error } = await resend.emails.send({

@@ -12,11 +12,10 @@ import { useAction } from "next-safe-action/hooks";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
 export function ForgotPassword() {
   const [serverError, setServerError] = useState("");
-
   const { execute, result, isExecuting } = useAction(forgotPasswordAction, {
     onSuccess: () => {},
     onError: ({ error }) => {
@@ -48,7 +47,12 @@ export function ForgotPassword() {
           <div className="shadow-2xl rounded-2xl bg-creamwhite dark:bg-primary  max-w-lg sm:min-h-162 min-h-178.5 justify-center flex flex-col flex-1 items-center">
             <div className="w-full px-6 py-12 sm:px-12 md:px-16 flex flex-col items-center">
               <div className="flex flex-col gap-2 items-center mb-10">
-                <div className="mb-10 flex justify-center"></div>
+                <div className="mb-2 flex justify-center items-center">
+                  <span className="bg-middlegreen rounded-full p-3">
+                    {" "}
+                    <ArrowUp size={18} color="#33c375" />
+                  </span>
+                </div>
                 <h4>Forgot password?</h4>
                 <p className="text-center text-sm">
                   Enter your email address below and we'll send you a link to

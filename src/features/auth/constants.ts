@@ -46,10 +46,33 @@ export const emailSchema = z.object({
     .pipe(z.email({ message: "EMAIL_INVALID" }).toLowerCase()),
 });
 
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .max(100, "Password is too long")
+      .regex(
+        /^(?=.*[A-Za-z])(?=.*\d).{6,}$/,
+        "Password must contain both letters and numbers",
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export const resetPasswordActionSchema = resetPasswordSchema.extend({
+  token: z.string({ message: "INVALID_TOKEN" }),
+});
+
 export type RegisterForm = z.infer<typeof registerSchema>;
 export type SignInForm = z.infer<typeof signInSchema>;
 
 export type ForgotPasswordForm = z.infer<typeof emailSchema>;
+
+export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export const AUTH_MESSAGES = {
   EMAIL_INVALID:
@@ -67,6 +90,9 @@ export const AUTH_MESSAGES = {
   REGISTER_SUCCESS: "Registration successful! Please check your email.",
   LOGIN_SUCCESS: "Login successful!",
   CHECK_YOUR_EMAIL: "Please check your email.",
+  INVALID_TOKEN: "Invalid reset link.",
+  EXPIRED_TOKEN: "Reset link has expired, please try again.",
+  RESET_PASSWORD_SUCCESS: "Password reset successfully.",
 } as const;
 
 export type AuthMessageType = keyof typeof AUTH_MESSAGES;

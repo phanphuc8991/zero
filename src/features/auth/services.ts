@@ -59,9 +59,33 @@ export async function resendVerifyEmailService(data: { email: string }) {
   return result as { message: string };
 }
 
-export async function forgotEmailService(data: { email: string }) {
+export async function forgotPasswordService(data: { email: string }) {
   const res = await fetch(
     `${process.env.NEXTAUTH_URL}/api/auth/forgot-password`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  const result = await res.json();
+  if (!res.ok) {
+    throw new Error(result?.error ?? "SERVER_ERROR");
+  }
+
+  return result as { message: string };
+}
+
+export async function resetPasswordService(data: {
+  newPassword: string;
+  confirmPassword: string;
+  token: string;
+}) {
+  const res = await fetch(
+    `${process.env.NEXTAUTH_URL}/api/auth/reset-password`,
     {
       method: "POST",
       headers: {

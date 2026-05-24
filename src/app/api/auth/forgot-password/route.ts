@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { randomUUID } from "crypto";
 import { apiResponse } from "@/lib/api-response";
 import { RATE_LIMIT_THRESHOLD_MS } from "@/features/auth/constants";
-import { sendForgotPasswordEmail } from "@/lib/mail/forgotpassword-mailer";
+import { sendForgotPasswordEmail } from "@/lib/mail/forgot-password-mailer";
 
 export async function POST(req: Request) {
   try {

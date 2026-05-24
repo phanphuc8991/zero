@@ -1,13 +1,18 @@
 "use server";
-import { registerSchema, signInSchema, emailSchema } from "./constants";
+import {
+  registerSchema,
+  signInSchema,
+  emailSchema,
+  resetPasswordActionSchema,
+} from "./constants";
 import { actionClient } from "@/lib/safe-action";
 import {
   registerService,
   signInService,
   resendVerifyEmailService,
-  forgotEmailService,
+  forgotPasswordService,
+  resetPasswordService,
 } from "@/features/auth/services";
-import { z } from "zod";
 
 export const resendVerificationAction = actionClient
   .inputSchema(emailSchema)
@@ -30,5 +35,11 @@ export const signupAction = actionClient
 export const forgotPasswordAction = actionClient
   .inputSchema(emailSchema)
   .action(async ({ parsedInput }) => {
-    return await forgotEmailService(parsedInput);
+    return await forgotPasswordService(parsedInput);
+  });
+
+export const resetPasswordAction = actionClient
+  .inputSchema(resetPasswordActionSchema)
+  .action(async ({ parsedInput }) => {
+    return await resetPasswordService(parsedInput);
   });

@@ -35,7 +35,7 @@ export function ResetPassword({ token }: { token: string | undefined }) {
     handleSubmit,
     formState: { errors },
   } = useForm<ResetPasswordForm>({
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(resetPasswordSchema),
   });
 

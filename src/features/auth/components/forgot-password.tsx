@@ -30,7 +30,7 @@ export function ForgotPassword() {
     handleSubmit,
     formState: { errors },
   } = useForm<ForgotPasswordForm>({
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(emailSchema),
   });
 

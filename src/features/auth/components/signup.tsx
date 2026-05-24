@@ -4,7 +4,6 @@ import Image from "next/image";
 import DarkLogo from "@/assets/images/logo/dark-logo.svg";
 import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
-import GitHubIcon from "@/assets/images/icon/github-icon.svg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -33,7 +32,7 @@ export default function SignUp() {
     getValues,
     formState: { errors },
   } = useForm<RegisterForm>({
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(registerSchema),
   });
 
@@ -83,16 +82,6 @@ export default function SignUp() {
                 <Image
                   alt="google-icon"
                   src={GoogleIcon}
-                  width={22}
-                  height={22}
-                  className="w-5.5 h-5.5"
-                />
-              </button>
-              <button className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full">
-                <span>Sign Up</span>
-                <Image
-                  alt="google-icon"
-                  src={GitHubIcon}
                   width={22}
                   height={22}
                   className="w-5.5 h-5.5"
@@ -196,7 +185,7 @@ export default function SignUp() {
 
               <div className="mb-4">
                 <button
-                  className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
+                  className="cursor-pointer h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
                   type="submit"
                   disabled={isExecuting}
                 >

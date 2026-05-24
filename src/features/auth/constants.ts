@@ -10,33 +10,51 @@ export const registerSchema = z.object({
 
   email: z
     .string()
-    .trim()
-    .pipe(z.email({ message: "Invalid email" }).toLowerCase()),
+    .min(1, "Email is required")
+    .max(254, "Email is too long")
+    .regex(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Invalid email address",
+    ),
 
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters")
+    .min(1, "Password is required")
+    .min(8, "At least 8 characters")
     .max(100, "Password is too long")
+    .regex(/(?=.*[a-z])/, "Must contain a lowercase letter")
+    .regex(/(?=.*[A-Z])/, "Must contain an uppercase letter")
+    .regex(/(?=.*\d)/, "Must contain a number")
     .regex(
-      /^(?=.*[A-Za-z])(?=.*\d).{6,}$/,
-      "Password must contain both letters and numbers",
-    ),
+      /(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
+      "Must contain a special character",
+    )
+    .regex(/^[^\s]+$/, "No spaces allowed"),
 });
 
 export const signInSchema = z.object({
   email: z
     .string()
-    .trim()
-    .pipe(z.email({ message: "Invalid email" }).toLowerCase()),
+    .min(1, "Email is required")
+    .max(254, "Email is too long")
+    .regex(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Invalid email address",
+    ),
 
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters")
+    .min(1, "Password is required")
+    .min(8, "At least 8 characters")
     .max(100, "Password is too long")
+    .regex(/(?=.*[a-z])/, "Must contain a lowercase letter")
+    .regex(/(?=.*[A-Z])/, "Must contain an uppercase letter")
+    .regex(/(?=.*\d)/, "Must contain a number")
     .regex(
-      /^(?=.*[A-Za-z])(?=.*\d).{6,}$/,
-      "Password must contain both letters and numbers",
-    ),
+      /(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
+      "Must contain a special character",
+    )
+    .regex(/^[^\s]+$/, "No spaces allowed"),
 });
 
 export const emailSchema = z.object({
@@ -50,12 +68,17 @@ export const resetPasswordSchema = z
   .object({
     newPassword: z
       .string()
-      .min(6, "Password must be at least 6 characters")
+      .min(1, "Password is required")
+      .min(8, "At least 8 characters")
       .max(100, "Password is too long")
+      .regex(/(?=.*[a-z])/, "Must contain a lowercase letter")
+      .regex(/(?=.*[A-Z])/, "Must contain an uppercase letter")
+      .regex(/(?=.*\d)/, "Must contain a number")
       .regex(
-        /^(?=.*[A-Za-z])(?=.*\d).{6,}$/,
-        "Password must contain both letters and numbers",
-      ),
+        /(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/,
+        "Must contain a special character",
+      )
+      .regex(/^[^\s]+$/, "No spaces allowed"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {

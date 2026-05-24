@@ -4,12 +4,11 @@ import Image from "next/image";
 import DarkLogo from "@/assets/images/logo/dark-logo.svg";
 import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
-import GitHubIcon from "@/assets/images/icon/github-icon.svg";
 import { signInAction } from "@/features/auth/actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import {
   AUTH_MESSAGES,
   AuthMessageType,
@@ -17,7 +16,8 @@ import {
   signInSchema,
 } from "@/features/auth/constants";
 import { useAction } from "next-safe-action/hooks";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { GoogleAuthError } from "@/app/components/ui/GoogleAuthError";
 
 export function SignIn() {
   const router = useRouter();
@@ -40,12 +40,13 @@ export function SignIn() {
     register,
     handleSubmit,
     getValues,
+    clearErrors,
     formState: { errors },
   } = useForm<SignInForm>({
     mode: "onBlur",
+    reValidateMode: "onBlur",
     resolver: zodResolver(signInSchema),
   });
-  console.log("result?.serverError", result?.serverError);
 
   useEffect(() => {
     if (serverError) {
@@ -78,21 +79,14 @@ export function SignIn() {
               </Link>
             </div>
             <div className="flex flex-col gap-4 md:flex-row items-center">
-              <button className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full">
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full"
+              >
                 <span>Sign In</span>
                 <Image
                   alt="google-icon"
                   src={GoogleIcon}
-                  width={22}
-                  height={22}
-                  className="w-5.5 h-5.5"
-                />
-              </button>
-              <button className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full">
-                <span>Sign In</span>
-                <Image
-                  alt="google-icon"
-                  src={GitHubIcon}
                   width={22}
                   height={22}
                   className="w-5.5 h-5.5"
@@ -122,7 +116,11 @@ export function SignIn() {
                 </div>
                 <div>
                   <input
-                    {...register("email")}
+                    {...register("email", {
+                      onChange: () => {
+                        if (errors.email) clearErrors("email");
+                      },
+                    })}
                     className={`w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 ${errors.email && "border-red-500 focus:border-red-500"}`}
                     type="text"
                     name="email"
@@ -149,7 +147,11 @@ export function SignIn() {
                 </div>
                 <div>
                   <input
-                    {...register("password")}
+                    {...register("password", {
+                      onChange: () => {
+                        if (errors.password) clearErrors("password");
+                      },
+                    })}
                     className={`w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 ${errors.password && "border-red-500 focus:border-red-500"}`}
                     type="text"
                     id="password"
@@ -183,11 +185,17 @@ export function SignIn() {
                   )}
                 </div>
               )}
+              <Suspense fallback={null}>
+                <GoogleAuthError
+                  email={getValues("email")}
+                  password={getValues("password")}
+                />
+              </Suspense>
               <div className="mb-9">
                 <button
                   type="submit"
                   disabled={isExecuting}
-                  className="h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
+                  className="cursor-pointer h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
                 >
                   {isExecuting ? "Processing..." : "Sign in"}
                 </button>

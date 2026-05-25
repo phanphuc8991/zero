@@ -57,11 +57,23 @@ export const signInSchema = z.object({
     .regex(/^[^\s]+$/, "No spaces allowed"),
 });
 
-export const emailSchema = z.object({
+export const emailResendVerifySchema = z.object({
   email: z
     .string()
-    .trim()
-    .pipe(z.email({ message: "EMAIL_INVALID" }).toLowerCase()),
+    .min(1, "EMAIL_INVALID")
+    .max(254, "EMAIL_INVALID")
+    .regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "EMAIL_INVALID"),
+});
+
+export const emailForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .max(254, "Email is too long")
+    .regex(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      "Invalid email address",
+    ),
 });
 
 export const resetPasswordSchema = z
@@ -87,13 +99,13 @@ export const resetPasswordSchema = z
   });
 
 export const resetPasswordActionSchema = resetPasswordSchema.extend({
-  token: z.string({ message: "INVALID_TOKEN" }),
+  token: z.string().trim().length(36, { message: "INVALID_TOKEN" }),
 });
 
 export type RegisterForm = z.infer<typeof registerSchema>;
 export type SignInForm = z.infer<typeof signInSchema>;
 
-export type ForgotPasswordForm = z.infer<typeof emailSchema>;
+export type ForgotPasswordForm = z.infer<typeof emailForgotPasswordSchema>;
 
 export type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
@@ -116,6 +128,10 @@ export const AUTH_MESSAGES = {
   INVALID_TOKEN: "Invalid reset link.",
   EXPIRED_TOKEN: "Reset link has expired, please try again.",
   RESET_PASSWORD_SUCCESS: "Password reset successfully.",
+  INVALID_INPUT: "Please check your input.",
+  INVALID_BODY: "Invalid request body.",
+  GOOGLE_ACCOUNT_EXIST:
+    "This email is already registered with Google. Please sign in with Google.",
 } as const;
 
 export type AuthMessageType = keyof typeof AUTH_MESSAGES;

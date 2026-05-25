@@ -16,14 +16,17 @@ import {
   signInSchema,
 } from "@/features/auth/constants";
 import { useAction } from "next-safe-action/hooks";
-import { useEffect, useState, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { GoogleAuthError } from "@/app/components/ui/GoogleAuthError";
+import { InputField } from "@/app/components/ui/InputField";
+import { PasswordField } from "@/app/components/ui/PasswordField";
+import { SubmitButton } from "@/app/components/ui/SubmitButton";
 
 export function SignIn() {
   const router = useRouter();
   const [serverError, setServerError] = useState("");
   const { update } = useSession();
-  const { execute, result, isExecuting } = useAction(signInAction, {
+  const { execute, isExecuting } = useAction(signInAction, {
     onSuccess: () => {
       router.push("/");
       setTimeout(async () => {
@@ -48,11 +51,29 @@ export function SignIn() {
     resolver: zodResolver(signInSchema),
   });
 
-  useEffect(() => {
-    if (serverError) {
-      setServerError("");
-    }
-  }, [watch("email"), watch("password")]);
+  const renderServerError = () => {
+    if (!serverError) return null;
+    const message =
+      AUTH_MESSAGES[serverError as AuthMessageType] || serverError;
+    const handleResend = () => {
+      localStorage.setItem("pending_verify_email", getValues("email"));
+      router.push("verify-email/resend");
+    };
+    return (
+      <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2">
+        <span>{message}</span>
+        {serverError === "ACCOUNT_INACTIVE" && (
+          <button
+            className="pl-2 cursor-pointer underline"
+            onClick={handleResend}
+          >
+            Resend link.
+          </button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <section>
       <div className="container">
@@ -83,7 +104,7 @@ export function SignIn() {
                 onClick={() => signIn("google", { callbackUrl: "/" })}
                 className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full"
               >
-                <span>Sign In</span>
+                <span>Continue with</span>
                 <Image
                   alt="google-icon"
                   src={GoogleIcon}
@@ -99,106 +120,45 @@ export function SignIn() {
                 OR
               </span>
             </div>
-            <form className="" onSubmit={handleSubmit((data) => execute(data))}>
-              <div className="mb-5">
-                <div className="flex items-baseline justify-between">
-                  <label
-                    htmlFor="email"
-                    className="text-[15px] font-medium leading-8.75 text-primary"
-                  >
-                    Email
-                  </label>
-                  {errors.email && (
-                    <p className="text-[13px] text-red-500 opacity-80">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <input
-                    {...register("email", {
-                      onChange: () => {
-                        if (errors.email) clearErrors("email");
-                      },
-                    })}
-                    className={`w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 ${errors.email && "border-red-500 focus:border-red-500"}`}
-                    type="text"
-                    name="email"
-                    id="email"
-                    placeholder="you@example.com"
-                    autoComplete="off"
-                  />
-                </div>
+            <form
+              className="flex flex-col gap-3"
+              onSubmit={handleSubmit((data) => execute(data))}
+            >
+              <div>
+                <InputField
+                  register={register}
+                  name="email"
+                  label="Email"
+                  placeholder="you@example.com"
+                  error={errors.email}
+                  onChange={() => {
+                    if (errors.email) clearErrors("email");
+                    if (serverError) setServerError("");
+                  }}
+                />
               </div>
-
-              <div className="mb-4">
-                <div className="flex items-baseline justify-between">
-                  <label
-                    htmlFor="password"
-                    className="text-[15px] font-medium leading-8.75 text-primary"
-                  >
-                    Password
-                  </label>
-                  {errors.password && (
-                    <p className="text-[13px] text-red-500 opacity-80">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <input
-                    {...register("password", {
-                      onChange: () => {
-                        if (errors.password) clearErrors("password");
-                      },
-                    })}
-                    className={`w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 ${errors.password && "border-red-500 focus:border-red-500"}`}
-                    type="text"
-                    id="password"
-                    name="password"
-                    placeholder="••••••••"
-                    autoComplete="off"
-                  />
-                </div>
+              <div>
+                <PasswordField
+                  register={register}
+                  name="password"
+                  label="Password"
+                  error={errors.password}
+                  onChange={() => {
+                    if (errors.password) clearErrors("password");
+                    if (serverError) setServerError("");
+                  }}
+                />
               </div>
+              {renderServerError()}
 
-              {serverError && (
-                <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
-                  <span>
-                    {AUTH_MESSAGES[serverError as AuthMessageType] ||
-                      serverError}
-                  </span>
-                  {serverError === "ACCOUNT_INACTIVE" && (
-                    <button
-                      className="pl-2 cursor-pointer underline"
-                      onClick={() => {
-                        const link = "verify-email/resend";
-                        localStorage.setItem(
-                          "pending_verify_email",
-                          getValues("email"),
-                        );
-                        router.push(link);
-                      }}
-                    >
-                      Resend link.
-                    </button>
-                  )}
-                </div>
-              )}
               <Suspense fallback={null}>
                 <GoogleAuthError
-                  email={getValues("email")}
-                  password={getValues("password")}
+                  email={watch("email")}
+                  password={watch("password")}
                 />
               </Suspense>
-              <div className="mb-9">
-                <button
-                  type="submit"
-                  disabled={isExecuting}
-                  className="cursor-pointer h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
-                >
-                  {isExecuting ? "Processing..." : "Sign in"}
-                </button>
+              <div className="mb-9 mt-5">
+                <SubmitButton isLoading={isExecuting} label="Sign in" />
               </div>
             </form>
 

@@ -1,5 +1,6 @@
 import { signIn } from "@/auth";
 import {
+  AuthMessageType,
   CustomAuthError,
   type RegisterForm,
   type SignInForm,
@@ -36,7 +37,7 @@ export async function registerService(data: RegisterForm) {
     throw new Error(result?.error ?? "Something went wrong");
   }
 
-  return result as { message: string };
+  return result as { message: AuthMessageType };
 }
 
 export async function resendVerifyEmailService(data: { email: string }) {
@@ -56,7 +57,7 @@ export async function resendVerifyEmailService(data: { email: string }) {
     throw new Error(result?.error ?? "SERVER_ERROR");
   }
 
-  return result as { message: string };
+  return result as { message: AuthMessageType };
 }
 
 export async function forgotPasswordService(data: { email: string }) {
@@ -76,7 +77,7 @@ export async function forgotPasswordService(data: { email: string }) {
     throw new Error(result?.error ?? "SERVER_ERROR");
   }
 
-  return result as { message: string };
+  return result as { message: AuthMessageType };
 }
 
 export async function resetPasswordService(data: {
@@ -100,5 +101,5 @@ export async function resetPasswordService(data: {
     throw new Error(result?.error ?? "SERVER_ERROR");
   }
 
-  return result as { message: string };
+  return result as { message: AuthMessageType };
 }

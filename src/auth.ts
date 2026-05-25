@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
-import { CustomAuthError } from "@/features/auth/constants";
+import { CustomAuthError, signInSchema } from "@/features/auth/constants";
 import GoogleProvider from "next-auth/providers/google";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -15,12 +15,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       async authorize(credentials) {
-        const { email, password } = credentials as {
-          email: string;
-          password: string;
-        };
+        const validatedFields = signInSchema.safeParse(credentials);
+        if (!validatedFields.success) {
+          throw new CustomAuthError("INVALID_CREDENTIALS");
+        }
+        const { email, password } = validatedFields.data;
         const user = await db.user.findUnique({ where: { email } });
-
+        if (user && !user.password) {
+          throw new CustomAuthError("GOOGLE_ACCOUNT_EXIST");
+        }
         const dbPassword =
           user?.password || "$2a$10$FakeHashToPreventTimingAttacksDoNotUseThis";
         const passwordMatch = await bcrypt.compare(password, dbPassword);
@@ -30,8 +33,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user.emailVerified) {
           throw new CustomAuthError("ACCOUNT_INACTIVE");
         }
-
-        return user;
+        const { password: _, ...userWithoutPassword } = user;
+        return userWithoutPassword;
       },
     }),
     GoogleProvider({

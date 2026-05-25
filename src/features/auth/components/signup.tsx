@@ -6,7 +6,7 @@ import LightLogo from "@/assets/images/logo/light-logo.svg";
 import GoogleIcon from "@/assets/images/icon/google-icon.svg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { signupAction } from "@/features/auth/actions";
 import {
   AUTH_MESSAGES,
@@ -20,16 +20,20 @@ import DarkCloseIcon from "@/assets/images/icon/close-dark-icon.svg";
 import LightCloseIcon from "@/assets/images/icon/close-light-icon.svg";
 import { PillButton } from "@/app/components/ui/PillButton";
 import { useAction } from "next-safe-action/hooks";
+import { InputField } from "@/app/components/ui/InputField";
+import { PasswordField } from "@/app/components/ui/PasswordField";
+import { SubmitButton } from "@/app/components/ui/SubmitButton";
+import { signIn } from "next-auth/react";
 
 export default function SignUp() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [serverError, setServerError] = useState("");
   const {
-    watch,
     register,
     handleSubmit,
     getValues,
+    clearErrors,
     formState: { errors },
   } = useForm<RegisterForm>({
     mode: "onChange",
@@ -45,11 +49,16 @@ export default function SignUp() {
       setServerError(error?.serverError as string);
     },
   });
-  useEffect(() => {
-    if (serverError) {
-      setServerError("");
-    }
-  }, [watch("email"), watch("password"), watch("name")]);
+
+  const renderServerError = () => {
+    if (!serverError) return null;
+    return (
+      <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2">
+        {AUTH_MESSAGES[serverError as AuthMessageType] || serverError}
+      </div>
+    );
+  };
+
   return (
     <section>
       <div className="container">
@@ -77,8 +86,11 @@ export default function SignUp() {
             </div>
 
             <div className="flex flex-col gap-4 md:flex-row items-center">
-              <button className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full">
-                <span>Sign Up</span>
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="flex w-full items-center justify-center gap-2.5 p-3 border border-primary/20 dark:border-creamwhite/20 text-primary dark:text-creamwhite cursor-pointer duration-250 ease-in hover:bg-secondary/20 rounded-full"
+              >
+                <span>Continue with</span>
                 <Image
                   alt="google-icon"
                   src={GoogleIcon}
@@ -94,110 +106,57 @@ export default function SignUp() {
                 OR
               </span>
             </div>
-            <form className="" onSubmit={handleSubmit((data) => execute(data))}>
-              <div className="mb-2">
-                <div className="flex items-baseline justify-between">
-                  <label
-                    htmlFor="name"
-                    className="text-[15px] font-medium leading-8.75 text-primary"
-                  >
-                    Name
-                  </label>
-                  {errors.name && (
-                    <p className="text-[13px] text-red-500 opacity-80">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <input
-                    {...register("name")}
-                    className={`w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 ${
-                      errors.name && "border-red-500 focus:border-red-500"
-                    }`}
-                    type="text"
-                    name="name"
-                    id="name"
-                    autoComplete="off"
-                    placeholder="Your name"
-                  />
-                </div>
+            <form
+              className="flex flex-col gap-3"
+              onSubmit={handleSubmit((data) => execute(data))}
+            >
+              <div className="">
+                <InputField
+                  register={register}
+                  name="name"
+                  label="Name"
+                  placeholder="Your name"
+                  error={errors.name}
+                  onChange={() => {
+                    if (errors.email) clearErrors("email");
+                    if (serverError) setServerError("");
+                  }}
+                />
               </div>
 
-              <div className="mb-2">
-                <div className="flex items-baseline justify-between">
-                  <label
-                    htmlFor="email"
-                    className="text-[15px] font-medium leading-8.75 text-primary"
-                  >
-                    Email
-                  </label>
-                  {errors.email && (
-                    <p className="text-[13px] text-red-500 opacity-80">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <input
-                    {...register("email")}
-                    className={`w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 ${errors.email && "border-red-500 focus:border-red-500"}`}
-                    type="text"
-                    name="email"
-                    id="email"
-                    placeholder="you@example.com"
-                    autoComplete="off"
-                  />
-                </div>
+              <div>
+                <InputField
+                  register={register}
+                  name="email"
+                  label="Email"
+                  placeholder="you@example.com"
+                  error={errors.email}
+                  onChange={() => {
+                    if (errors.email) clearErrors("email");
+                    if (serverError) setServerError("");
+                  }}
+                />
               </div>
-
-              <div className="mb-4">
-                <div className="flex items-baseline justify-between">
-                  <label
-                    htmlFor="password"
-                    className="text-[15px] font-medium leading-8.75 text-primary"
-                  >
-                    Password
-                  </label>
-                  {errors.password && (
-                    <p className="text-[13px] text-red-500 opacity-80">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <input
-                    {...register("password")}
-                    className={`w-full rounded-full border border-primary/20 outline-none px-5 py-3 text-primary dark:text-creamwhite dark:border-stroke focus:border-primary/60 dark:focus:border-creamwhite/60 ${errors.password && "border-red-500 focus:border-red-500"}`}
-                    type="text"
-                    id="password"
-                    name="password"
-                    placeholder="••••••••"
-                    autoComplete="off"
-                  />
-                </div>
+              <div>
+                <PasswordField
+                  register={register}
+                  name="password"
+                  label="Password"
+                  error={errors.password}
+                  onChange={() => {
+                    if (errors.password) clearErrors("password");
+                    if (serverError) setServerError("");
+                  }}
+                />
               </div>
-              {serverError && (
-                <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
-                  {AUTH_MESSAGES[serverError as AuthMessageType]}
-                </div>
-              )}
-
-              <div className="mb-4">
-                <button
-                  className="cursor-pointer h-auto shadow-[0_6px_0_0_rgba(0,0,0,1)] hover:hover:shadow-[0_4px_0_0_rgba(0,0,0,1)] group flex items-center justify-center gap-2 bg-secondary hover:bg-transparent dark:hover:bg-creamwhite py-3 px-5 rounded-full border border-black w-full transition-all duration-300 ease-in-out"
-                  type="submit"
-                  disabled={isExecuting}
-                >
-                  {isExecuting ? "Creating account..." : "Sign up"}
-                </button>
+              {renderServerError()}
+              <div className="mb-9 mt-5">
+                <SubmitButton isLoading={isExecuting} label="Sign up" />
               </div>
             </form>
-
             <div className="flex flex-col justify-center items-center gap-2">
               <p className="flex flex-wrap justify-center max-w-xs">
                 <span>By creating an account, you agree with our</span>
-
                 <Link
                   href="/privacy-policy"
                   className="block text-primary dark:text-creamwhite hover:text-secondary"
@@ -212,7 +171,6 @@ export default function SignUp() {
                   Policy.
                 </Link>
               </p>
-
               <p className="text-primary dark:text-creamwhite">
                 <span className="pr-1">Already have an account?</span>
                 <Link
@@ -226,7 +184,6 @@ export default function SignUp() {
           </div>
         </div>
       </div>
-
       <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/80 flex items-center justify-center z-50" />
@@ -249,7 +206,9 @@ export default function SignUp() {
               <div>
                 <Dialog.Description className="font-bold mb-2 text-center">
                   <span>
-                    {AUTH_MESSAGES[result?.data?.message as AuthMessageType]}
+                    {result?.data?.message
+                      ? AUTH_MESSAGES[result.data.message]
+                      : ""}
                   </span>
                 </Dialog.Description>
                 <Dialog.Description className="font-medium text-center">
@@ -267,7 +226,6 @@ export default function SignUp() {
                 </div>
               </div>
             </div>
-
             <Dialog.Close asChild className="cursor-pointer">
               <div className="absolute right-2.5 top-2.5">
                 <Image

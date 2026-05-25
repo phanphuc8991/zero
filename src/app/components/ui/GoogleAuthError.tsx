@@ -23,7 +23,7 @@ export function GoogleAuthError({
   }, [email, password]);
   if (!error) return null;
   return (
-    <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2 mb-4">
+    <div className="text-center w-full dark:bg-red-900/30 dark:border-red-900 dark:text-red-200 bg-red-100 border border-red-300 text-red-800 rounded-xl p-2">
       <span>{ERROR_MESSAGES[error]}</span>
     </div>
   );

@@ -2,8 +2,9 @@
 import {
   registerSchema,
   signInSchema,
-  emailSchema,
+  emailForgotPasswordSchema,
   resetPasswordActionSchema,
+  emailResendVerifySchema,
 } from "./constants";
 import { actionClient } from "@/lib/safe-action";
 import {
@@ -15,7 +16,7 @@ import {
 } from "@/features/auth/services";
 
 export const resendVerificationAction = actionClient
-  .inputSchema(emailSchema)
+  .inputSchema(emailResendVerifySchema)
   .action(async ({ parsedInput }) => {
     return resendVerifyEmailService(parsedInput);
   });
@@ -33,7 +34,7 @@ export const signupAction = actionClient
   });
 
 export const forgotPasswordAction = actionClient
-  .inputSchema(emailSchema)
+  .inputSchema(emailForgotPasswordSchema)
   .action(async ({ parsedInput }) => {
     return await forgotPasswordService(parsedInput);
   });

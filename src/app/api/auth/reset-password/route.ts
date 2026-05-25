@@ -2,10 +2,19 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { apiResponse } from "@/lib/api-response";
+import { resetPasswordActionSchema } from "@/features/auth/constants";
 
 export async function POST(req: Request) {
   try {
-    const { newPassword, token } = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) {
+      return apiResponse.error("INVALID_BODY", 400);
+    }
+    const validatedFields = resetPasswordActionSchema.safeParse(body);
+    if (!validatedFields.success) {
+      return apiResponse.error("INVALID_INPUT", 400);
+    }
+    const { newPassword, token } = validatedFields.data;
     const result = await db.$transaction(async (tx: any) => {
       const record = await tx.passwordResetToken.findUnique({
         where: { token },

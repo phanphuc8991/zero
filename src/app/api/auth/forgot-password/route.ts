@@ -2,12 +2,24 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { randomUUID } from "crypto";
 import { apiResponse } from "@/lib/api-response";
-import { RATE_LIMIT_THRESHOLD_MS } from "@/features/auth/constants";
+import {
+  emailForgotPasswordSchema,
+  RATE_LIMIT_THRESHOLD_MS,
+} from "@/features/auth/constants";
 import { sendForgotPasswordEmail } from "@/lib/mail/forgot-password-mailer";
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body) {
+      return apiResponse.error("INVALID_BODY", 400);
+    }
+
+    const parsed = emailForgotPasswordSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiResponse.error("INVALID_INPUT", 400);
+    }
+    const { email } = parsed.data;
 
     const result = await db.$transaction(async (tx: any) => {
       const user = await tx.user.findUnique({ where: { email } });

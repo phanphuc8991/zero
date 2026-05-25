@@ -1,29 +1,27 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { resetPasswordActionSchema } from "@/features/auth/constants";
 
 export async function GET(req: Request) {
+  console.log("run....");
   const url = new URL(req.url);
-  const token = url.searchParams.get("token");
+  const rawToken = url.searchParams.get("token");
 
-  // Redirect helper
   const redirect = (path: string) => {
     return NextResponse.redirect(new URL(path, req.url));
   };
 
   try {
-    // 1. Validate token
-    if (!token?.trim()) {
+    const tokenParsed = resetPasswordActionSchema.safeParse(rawToken);
+    console.log("tokenParsed", tokenParsed);
+    if (!tokenParsed.success) {
       return redirect("/verify-email/result?status=invalid");
     }
-
-    // 2. Use transaction to avoid race conditions
+    const token = tokenParsed.data;
     const result = await db.$transaction(async (tx: any) => {
-      // Lock-like behavior: fetch token first
       const verificationToken = await tx.verificationToken.findUnique({
         where: { token },
       });
-
-      // Hide internal state (security best practice)
       if (!verificationToken) {
         return { status: "invalid" as const };
       }
@@ -37,7 +35,6 @@ export async function GET(req: Request) {
         return { status: "expired" as const };
       }
 
-      // 4. Check user existence (safe update)
       const user = await tx.user.findUnique({
         where: { email: verificationToken.identifier },
       });
@@ -45,8 +42,6 @@ export async function GET(req: Request) {
       if (!user) {
         return { status: "invalid" as const };
       }
-
-      // 5. If already verified → idempotent behavior
       if (user.emailVerified) {
         await tx.verificationToken.delete({
           where: { token },
@@ -55,13 +50,11 @@ export async function GET(req: Request) {
         return { status: "already_verified" as const };
       }
 
-      // 6. Verify user
       await tx.user.update({
         where: { email: user.email },
         data: { emailVerified: new Date() },
       });
 
-      // 7. Delete token
       await tx.verificationToken.delete({
         where: { token },
       });

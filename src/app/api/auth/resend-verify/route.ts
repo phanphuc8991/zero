@@ -3,14 +3,25 @@ import { db } from "@/lib/db";
 import crypto from "crypto";
 import { sendVerificationEmail } from "@/lib/mail/verification-mailer";
 import { apiResponse } from "@/lib/api-response";
-import { RATE_LIMIT_THRESHOLD_MS } from "@/features/auth/constants";
+import {
+  emailResendVerifySchema,
+  RATE_LIMIT_THRESHOLD_MS,
+} from "@/features/auth/constants";
 
 // const RATE_LIMIT_THRESHOLD_MS = 55 * 60 * 1000;
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
-    const normalizedEmail = email.trim().toLowerCase();
+    const body = await req.json().catch(() => null);
+    if (!body) {
+      return apiResponse.error("INVALID_BODY", 400);
+    }
+    const validatedFields = emailResendVerifySchema.safeParse(body);
+    if (!validatedFields.success) {
+      return apiResponse.error("INVALID_INPUT", 400);
+    }
+    const { email: normalizedEmail } = validatedFields.data;
+
     const result = await db.$transaction(async (tx: any) => {
       const user = await tx.user.findUnique({
         where: { email: normalizedEmail },

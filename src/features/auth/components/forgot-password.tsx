@@ -92,6 +92,7 @@ export function ForgotPassword() {
 
                 <div className="mb-9 mt-5">
                   <SubmitButton
+                    disabled={isExecuting || !!result?.data?.message}
                     isLoading={isExecuting}
                     label="Send Reset Link"
                   />

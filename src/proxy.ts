@@ -8,7 +8,7 @@ export async function proxy(request: NextRequest) {
   const session = await auth(); //
   const isLoggedIn = !!session?.user;
 
-  const isProtected = pathname.startsWith("/dashboard");
+  const isProtected = pathname.startsWith("/dashboard1");
   const isAuthRoute = pathname === "/sign-in";
 
   if (isProtected && !isLoggedIn) {

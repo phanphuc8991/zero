@@ -115,6 +115,7 @@ export function ResetPassword({ token }: { token: string | undefined }) {
 
                 <div className="mb-9 mt-5">
                   <SubmitButton
+                    disabled={isExecuting || !!result?.data?.message}
                     isLoading={isExecuting}
                     label="Reset password"
                   />

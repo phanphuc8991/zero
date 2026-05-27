@@ -7,7 +7,7 @@ import SunIcon from "@/assets/images/dark-light-icon/sun-icon.svg";
 import MoonIcon from "@/assets/images/dark-light-icon/moon-icon.svg";
 import { MobileSidebarDrawer } from "@/app/components/ui/MobileSideBarDrawer";
 import { NavItem } from "@/app/components/layout/NavItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { Suspense } from "react";
@@ -47,8 +47,29 @@ const navItem = [
 export function Navbar() {
   const { data: session, status } = useSession();
   const [mounted, setMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        // Cuộn xuống quá 50px thì kích hoạt
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   return (
-    <nav className="py-3.5 flex justify-between animation-navbar bg-creamwhite">
+    <nav
+      className={`py-3.5 flex justify-between transition-all duration-300 ease-in-out ${
+        isScrolled
+          ? "rounded-full shadow-2xl bg-creamwhite px-4 dark:bg-primary"
+          : "bg-transparent"
+      }`}
+    >
       <div className="flex items-center">
         <Link href="/">
           <Image

@@ -1,10 +1,4 @@
 @import "tailwindcss";
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
-[data-theme="dark"] {
-  --background: #0a0a0a;
-  --foreground: #fff9f0;
-}
 
 @layer base {
   h1 {
@@ -109,8 +103,8 @@
 }
 
 @theme {
-  --color-background: #fff9f0;
-  --color-foreground: #19191c;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
   --color-primary: #002726;
   --color-secondary: #33c375;
   --color-creamwhite: #fff9f0;
@@ -138,6 +132,16 @@
       height: 0;
     }
   }
+}
+
+:root {
+  --background: #fff9f0;
+  --foreground: #19191c;
+}
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #fff9f0;
 }
 
 @utility container {

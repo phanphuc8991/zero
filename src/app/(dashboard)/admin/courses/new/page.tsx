@@ -1,7 +1,11 @@
 "use client";
 
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card"; // 🌟 Import Card để đóng gói khối
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
@@ -25,46 +29,101 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UploadCloud, Save, Rocket, Trash2 } from "lucide-react";
 
-export default function CreateCoursePage() {
-  return (
-    <div className="">
-      {/* TOP HEADER ACTION BAR */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold tracking-tight">
-            Create New Course
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            className="cursor-pointer gap-2"
-            variant="secondary"
-            type="button"
-          >
-            <Trash2 size={15} /> Discard
-          </Button>
-          <Button
-            className="cursor-pointer gap-2"
-            variant="outline"
-            type="button"
-          >
-            <Save size={15} /> Save Draft
-          </Button>
-          <Button className="cursor-pointer gap-2" type="submit">
-            <Rocket size={15} /> Publish
-          </Button>
-        </div>
-      </div>
+const courseFormSchema = z.object({
+  title: z.string().min(1, { message: "Course title is required" }),
+  slug: z
+    .string()
+    .min(1, { message: "Slug URL path is required" })
+    .regex(/^[a-z0-9-]+$/, {
+      message: "Slug can only contain lowercase letters, numbers, and hyphens",
+    }),
+  description: z.string().optional(),
 
-      {/* MAIN FORM CONTAINER */}
+  categoryId: z.string().min(1, { message: "Please select a course category" }),
+
+  level: z.string().optional(),
+
+  durationHours: z
+    .number({ error: "Duration must be a number" })
+    .min(1, { message: "Duration must be at least 1 hour" }),
+
+  instructorId: z
+    .string()
+    .min(1, { message: "Please assign an instructor to this course" }),
+
+  includeCertificate: z.boolean().optional(),
+  openEnrollment: z.boolean().optional(),
+  status: z.string().optional(),
+});
+
+type CourseFormInput = z.infer<typeof courseFormSchema>;
+
+export default function CreateCoursePage() {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<CourseFormInput>({
+    mode: "onBlur",
+    resolver: zodResolver(courseFormSchema),
+    defaultValues: {
+      title: "",
+      slug: "",
+      description: "",
+      categoryId: "",
+      level: "All Levels",
+      durationHours: 0,
+      instructorId: "",
+      includeCertificate: false,
+      openEnrollment: true,
+      status: "draft",
+    },
+  });
+
+  const onSubmit = (data: CourseFormInput) => {
+    const formattedData = {
+      ...data,
+      categoryId: Number(data.categoryId),
+      instructorId: Number(data.instructorId),
+    };
+    console.log("Ready to insert into Prisma DB:", formattedData);
+  };
+
+  return (
+    <div className="mx-30 max-w-350">
       <div className="w-full">
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold tracking-tight">
+                Create New Course
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                className="cursor-pointer gap-2"
+                variant="secondary"
+                type="button"
+              >
+                <Trash2 size={15} /> Discard
+              </Button>
+              <Button
+                className="cursor-pointer gap-2"
+                variant="outline"
+                type="button"
+              >
+                <Save size={15} /> Save Draft
+              </Button>
+              <Button className="cursor-pointer gap-2" type="submit">
+                <Rocket size={15} /> Publish
+              </Button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            {/* ================================================================= */}
-            {/* CỘT TRÁI (70%): CHỮ CỐT LÕI & TAXONOMY                             */}
-            {/* ================================================================= */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Card 1: General Information */}
               <Card className="p-6 bg-background border shadow-sm">
                 <CardContent className="p-0">
                   <FieldSet>
@@ -75,28 +134,46 @@ export default function CreateCoursePage() {
                     </FieldDescription>
 
                     <FieldGroup>
-                      {/* Course Title - Dàn trải full hàng để nhập text dài */}
                       <Field>
                         <FieldLabel htmlFor="course-title">
                           Course Title
                         </FieldLabel>
                         <Input
+                          {...register("title")}
+                          aria-invalid={!!errors.title}
                           id="course-title"
                           placeholder="e.g. Ultimate Content Creation Mastery"
-                          required
                         />
+                        {errors.title && (
+                          <p
+                            aria-live="polite"
+                            className="text-destructive text-xs mt-1"
+                            role="alert"
+                          >
+                            {errors.title.message}
+                          </p>
+                        )}
                       </Field>
 
-                      {/* Slug (URL Path) - Dàn trải full hàng nhìn sang trọng hơn */}
                       <Field>
                         <FieldLabel htmlFor="course-slug">
                           Slug (URL Path)
                         </FieldLabel>
                         <Input
+                          {...register("slug")}
+                          aria-invalid={!!errors.slug}
                           id="course-slug"
                           placeholder="e.g. ultimate-content-creation-mastery"
-                          required
                         />
+                        {errors.slug && (
+                          <p
+                            aria-live="polite"
+                            className="text-destructive text-xs mt-1"
+                            role="alert"
+                          >
+                            {errors.slug.message}
+                          </p>
+                        )}
                       </Field>
 
                       <Field>
@@ -104,8 +181,9 @@ export default function CreateCoursePage() {
                           Course Description
                         </FieldLabel>
                         <Textarea
+                          {...register("description")}
                           id="course-desc"
-                          placeholder="Write a detailed description about what students will learn in this masterclass..."
+                          placeholder="Write a detailed description about what students will learn..."
                           className="min-h-40 resize-none"
                         />
                         <FieldDescription>
@@ -118,7 +196,6 @@ export default function CreateCoursePage() {
                 </CardContent>
               </Card>
 
-              {/* Card 2: Course Taxonomy - Đã xử lý lấp đầy khoảng trống (Cover Space) */}
               <Card className="p-6 bg-background border shadow-sm">
                 <CardContent className="p-0">
                   <FieldSet>
@@ -128,37 +205,47 @@ export default function CreateCoursePage() {
                       structures
                     </FieldDescription>
 
-                    {/* 🌟 Sử dụng CSS Grid chia đôi 50/50: Category bên trái và Level bên phải */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start pt-2">
-                      {/* Category */}
                       <Field>
                         <FieldLabel>Category</FieldLabel>
-                        <Select defaultValue="">
-                          <SelectTrigger>
+                        <Select
+                          value={watch("categoryId")}
+                          onValueChange={(val) =>
+                            setValue("categoryId", val, {
+                              shouldValidate: true,
+                            })
+                          }
+                        >
+                          <SelectTrigger aria-invalid={!!errors.categoryId}>
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="ai">
-                                AI & Automation
-                              </SelectItem>
-                              <SelectItem value="nocode">
-                                No-Code Mastery
-                              </SelectItem>
-                              <SelectItem value="design">
-                                UI/UX Interface
-                              </SelectItem>
+                              <SelectItem value="1">AI & Automation</SelectItem>
+                              <SelectItem value="2">No-Code Mastery</SelectItem>
+                              <SelectItem value="3">UI/UX Interface</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
+                        {errors.categoryId && (
+                          <p
+                            aria-live="polite"
+                            className="text-destructive text-xs mt-1"
+                            role="alert"
+                          >
+                            {errors.categoryId.message}
+                          </p>
+                        )}
                       </Field>
 
-                      {/* Difficulty Level - Đưa xuống đây để triệt tiêu khoảng trống thừa */}
                       <Field>
                         <FieldLabel htmlFor="course-level">
                           Difficulty Level
                         </FieldLabel>
-                        <Select defaultValue="">
+                        <Select
+                          value={watch("level")}
+                          onValueChange={(val) => setValue("level", val)}
+                        >
                           <SelectTrigger id="course-level">
                             <SelectValue placeholder="Select target level" />
                           </SelectTrigger>
@@ -182,11 +269,7 @@ export default function CreateCoursePage() {
               </Card>
             </div>
 
-            {/* ================================================================= */}
-            {/* CỘT PHẢI (30%): MEDIA, SETTINGS & STATUS                          */}
-            {/* ================================================================= */}
             <div className="space-y-6">
-              {/* Card 3: Course Media */}
               <Card className="p-6 bg-background border shadow-sm">
                 <CardContent className="p-0">
                   <FieldSet>
@@ -224,56 +307,83 @@ export default function CreateCoursePage() {
                 </CardContent>
               </Card>
 
-              {/* Card 4: Settings */}
               <Card className="p-6 bg-background border shadow-sm">
                 <CardContent className="p-0">
                   <FieldSet>
                     <FieldLegend>Settings</FieldLegend>
                     <FieldGroup>
-                      {/* Duration */}
                       <Field>
                         <FieldLabel htmlFor="course-duration">
                           Total Duration (Hours)
                         </FieldLabel>
                         <Input
+                          {...register("durationHours", {
+                            valueAsNumber: true,
+                          })}
+                          aria-invalid={!!errors.durationHours}
                           id="course-duration"
                           type="number"
                           placeholder="e.g. 12"
-                          required
                         />
+                        {errors.durationHours && (
+                          <p
+                            aria-live="polite"
+                            className="text-destructive text-xs mt-1"
+                            role="alert"
+                          >
+                            {errors.durationHours.message}
+                          </p>
+                        )}
                       </Field>
 
-                      {/* Instructor */}
                       <Field>
                         <FieldLabel htmlFor="course-instructor">
                           Assigned Instructor
                         </FieldLabel>
-                        <Select defaultValue="">
-                          <SelectTrigger id="course-instructor">
+                        <Select
+                          value={watch("instructorId")}
+                          onValueChange={(val) =>
+                            setValue("instructorId", val, {
+                              shouldValidate: true,
+                            })
+                          }
+                        >
+                          <SelectTrigger
+                            id="course-instructor"
+                            aria-invalid={!!errors.instructorId}
+                          >
                             <SelectValue placeholder="Select instructor" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectItem value="inst-1">
-                                Ethan Walker
-                              </SelectItem>
-                              <SelectItem value="inst-2">
-                                Olivia Hayes
-                              </SelectItem>
-                              <SelectItem value="inst-3">
-                                Lucas Bennett
-                              </SelectItem>
+                              <SelectItem value="1">Ethan Walker</SelectItem>
+                              <SelectItem value="2">Olivia Hayes</SelectItem>
+                              <SelectItem value="3">Lucas Bennett</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
+                        {errors.instructorId && (
+                          <p
+                            aria-live="polite"
+                            className="text-destructive text-xs mt-1"
+                            role="alert"
+                          >
+                            {errors.instructorId.message}
+                          </p>
+                        )}
                       </Field>
 
-                      {/* Checkbox Certificate */}
                       <Field
                         orientation="horizontal"
                         className="pt-2 items-center"
                       >
-                        <Checkbox id="course-certificate" />
+                        <Checkbox
+                          id="course-certificate"
+                          checked={watch("includeCertificate")}
+                          onCheckedChange={(val) =>
+                            setValue("includeCertificate", !!val)
+                          }
+                        />
                         <FieldLabel
                           htmlFor="course-certificate"
                           className="font-normal cursor-pointer"
@@ -284,7 +394,6 @@ export default function CreateCoursePage() {
 
                       <FieldSeparator className="my-2" />
 
-                      {/* Switch Open Enrollment */}
                       <Field
                         orientation="horizontal"
                         className="justify-between items-center w-full"
@@ -297,20 +406,28 @@ export default function CreateCoursePage() {
                             Open Enrollment
                           </FieldLabel>
                         </div>
-                        <Switch id="course-enrollment" defaultChecked />
+                        <Switch
+                          id="course-enrollment"
+                          checked={watch("openEnrollment")}
+                          onCheckedChange={(val) =>
+                            setValue("openEnrollment", val)
+                          }
+                        />
                       </Field>
                     </FieldGroup>
                   </FieldSet>
                 </CardContent>
               </Card>
 
-              {/* Card 5: Status */}
               <Card className="p-6 bg-background border shadow-sm">
                 <CardContent className="p-0">
                   <FieldSet>
                     <FieldLegend>Status</FieldLegend>
                     <FieldGroup>
-                      <Select defaultValue="draft">
+                      <Select
+                        value={watch("status")}
+                        onValueChange={(val) => setValue("status", val)}
+                      >
                         <SelectTrigger id="course-status" className="w-full">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>

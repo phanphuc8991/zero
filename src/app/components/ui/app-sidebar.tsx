@@ -12,6 +12,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  BookA,
 } from "lucide-react";
 
 import { NavMain } from "@/app/components/ui/nav-main";
@@ -52,21 +53,21 @@ const data = {
   ],
   navMain: [
     {
-      title: "Playground",
+      title: "Courses",
       url: "#",
-      icon: SquareTerminal,
+      icon: BookA,
       isActive: true,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "All Courses",
+          url: "/admin/courses",
         },
         {
-          title: "Starred",
-          url: "#",
+          title: "Categories",
+          url: "/admin/categories ",
         },
         {
-          title: "Settings",
+          title: "Reviews & Ratings",
           url: "#",
         },
       ],

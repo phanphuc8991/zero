@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/mail/verification-mailer";
@@ -35,7 +34,7 @@ export async function POST(req: Request) {
     const expires = new Date(Date.now() + RATE_LIMIT_THRESHOLD_MS);
     await db.$transaction([
       db.user.create({
-        data: { name, email, password: hashedPassword },
+        data: { name, email, password: hashedPassword, currentPlanId: 1 },
       }),
       db.verificationToken.create({
         data: { identifier: email, token, expires },

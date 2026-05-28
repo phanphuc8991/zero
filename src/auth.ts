@@ -67,6 +67,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             email: user.email!,
             name: user.name,
             image: user.image,
+            currentPlanId: 1,
             accounts: {
               create: {
                 type: account.type,

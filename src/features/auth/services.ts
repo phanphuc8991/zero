@@ -18,66 +18,51 @@ export async function signInService(data: SignInForm) {
     if (error instanceof CustomAuthError) {
       throw new Error(error.customType);
     }
-
     throw new Error("SERVER_ERROR");
   }
 }
 
-export async function registerService(data: RegisterForm) {
-  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  const result = await res.json();
-
-  if (!res.ok) {
-    throw new Error(result?.error ?? "Something went wrong");
+async function handleResponse(res: Response) {
+  const contentType = res.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    throw new Error("SERVER_ERROR");
   }
 
-  return result as { message: AuthMessageType };
+  const result = await res.json();
+  if (!res.ok) {
+    throw new Error(result?.error ?? "SERVER_ERROR");
+  }
+  return result;
+}
+
+export async function registerService(data: RegisterForm) {
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  return handleResponse(res) as Promise<{ message: AuthMessageType }>;
 }
 
 export async function resendVerifyEmailService(data: { email: string }) {
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/auth/resend-verify`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    },
-  );
+  const res = await fetch("/api/auth/resend-verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 
-  const result = await res.json();
-  if (!res.ok) {
-    throw new Error(result?.error ?? "SERVER_ERROR");
-  }
-
-  return result as { message: AuthMessageType };
+  return handleResponse(res) as Promise<{ message: AuthMessageType }>;
 }
 
 export async function forgotPasswordService(data: { email: string }) {
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/auth/forgot-password`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    },
-  );
+  const res = await fetch("/api/auth/forgot-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 
-  const result = await res.json();
-  if (!res.ok) {
-    throw new Error(result?.error ?? "SERVER_ERROR");
-  }
-
-  return result as { message: AuthMessageType };
+  return handleResponse(res) as Promise<{ message: AuthMessageType }>;
 }
 
 export async function resetPasswordService(data: {
@@ -85,21 +70,11 @@ export async function resetPasswordService(data: {
   confirmPassword: string;
   token: string;
 }) {
-  const res = await fetch(
-    `${process.env.NEXTAUTH_URL}/api/auth/reset-password`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    },
-  );
+  const res = await fetch("/api/auth/reset-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 
-  const result = await res.json();
-  if (!res.ok) {
-    throw new Error(result?.error ?? "SERVER_ERROR");
-  }
-
-  return result as { message: AuthMessageType };
+  return handleResponse(res) as Promise<{ message: AuthMessageType }>;
 }

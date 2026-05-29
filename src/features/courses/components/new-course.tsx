@@ -1,8 +1,6 @@
 "use client";
-
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -11,7 +9,6 @@ import {
   FieldGroup,
   FieldLabel,
   FieldLegend,
-  FieldSeparator,
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -23,9 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { UploadCloud, Save, Rocket, Trash2 } from "lucide-react";
 import {
   type CourseFormInput,
@@ -35,22 +30,38 @@ import { useState } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { newCourseAction } from "@/features/courses/actions";
 
+const convertToSlug = (text: string): string => {
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-");
+};
+
 export function NewCourse() {
   const [serverError, setServerError] = useState("");
-  const { execute, result, isExecuting } = useAction(newCourseAction, {
+  const { execute, isExecuting } = useAction(newCourseAction, {
     onError: ({ error }) => {
+      console.log("error", error);
       setServerError(error?.serverError as string);
+    },
+    onSuccess: () => {
+      setServerError("");
+      alert("Course processed successfully!");
     },
   });
 
   const {
-    register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<CourseFormInput>({
-    mode: "onBlur",
     resolver: zodResolver(courseFormSchema),
     defaultValues: {
       title: "",
@@ -66,13 +77,21 @@ export function NewCourse() {
     },
   });
 
+  const onSubmitWithStatus = (statusValue: "draft" | "published") => {
+    setValue("status", statusValue);
+    handleSubmit((data) => {
+      execute(data);
+    })();
+  };
+
   return (
     <div className="mx-30 max-w-350">
       <div className="w-full">
         <form
-          onSubmit={handleSubmit((data) => execute(data))}
           className="flex flex-col gap-6"
+          onSubmit={(e) => e.preventDefault()}
         >
+          {/* Header Actions */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-bold tracking-tight">
@@ -84,6 +103,7 @@ export function NewCourse() {
                 className="cursor-pointer gap-2"
                 variant="secondary"
                 type="button"
+                disabled={isExecuting}
               >
                 <Trash2 size={15} /> Discard
               </Button>
@@ -91,18 +111,36 @@ export function NewCourse() {
                 className="cursor-pointer gap-2"
                 variant="outline"
                 type="button"
+                disabled={isExecuting}
+                onClick={() => onSubmitWithStatus("draft")}
               >
                 <Save size={15} /> Save Draft
               </Button>
-              <Button className="cursor-pointer gap-2" type="submit">
+              <Button
+                className="cursor-pointer gap-2"
+                type="button"
+                disabled={isExecuting}
+                onClick={() => onSubmitWithStatus("published")}
+              >
                 <Rocket size={15} /> Publish
               </Button>
             </div>
           </div>
 
+          {serverError && (
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="p-3 text-sm font-medium border rounded-md text-destructive bg-destructive/10 border-destructive/20"
+            >
+              {serverError}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Left Column */}
             <div className="lg:col-span-2 space-y-6">
-              <Card className="p-6 bg-background border shadow-sm">
+              <Card className="p-6 bg-background border shadow-none">
                 <CardContent className="p-0">
                   <FieldSet>
                     <FieldLegend>General Information</FieldLegend>
@@ -116,53 +154,84 @@ export function NewCourse() {
                         <FieldLabel htmlFor="course-title">
                           Course Title
                         </FieldLabel>
-                        <Input
-                          {...register("title")}
-                          aria-invalid={!!errors.title}
-                          id="course-title"
-                          placeholder="e.g. Ultimate Content Creation Mastery"
-                        />
-                        {errors.title && (
-                          <p
-                            aria-live="polite"
-                            className="text-destructive text-xs mt-1"
-                            role="alert"
-                          >
-                            {errors.title.message}
-                          </p>
-                        )}
+                        <div>
+                          <Controller
+                            control={control}
+                            name="title"
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                id="course-title"
+                                placeholder="e.g. Ultimate Content Creation Mastery"
+                                aria-invalid={!!errors.title}
+                                onChange={(e) => {
+                                  field.onChange(e);
+                                  const generatedSlug = convertToSlug(
+                                    e.target.value,
+                                  );
+                                  setValue("slug", generatedSlug, {
+                                    shouldValidate: true,
+                                  });
+                                }}
+                              />
+                            )}
+                          />
+                          {errors.title && (
+                            <p
+                              aria-live="polite"
+                              className="text-destructive text-xs mt-2"
+                              role="alert"
+                            >
+                              {errors.title.message}
+                            </p>
+                          )}
+                        </div>
                       </Field>
 
                       <Field>
                         <FieldLabel htmlFor="course-slug">
                           Slug (URL Path)
                         </FieldLabel>
-                        <Input
-                          {...register("slug")}
-                          aria-invalid={!!errors.slug}
-                          id="course-slug"
-                          placeholder="e.g. ultimate-content-creation-mastery"
-                        />
-                        {errors.slug && (
-                          <p
-                            aria-live="polite"
-                            className="text-destructive text-xs mt-1"
-                            role="alert"
-                          >
-                            {errors.slug.message}
-                          </p>
-                        )}
+                        <div>
+                          <Controller
+                            control={control}
+                            name="slug"
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                aria-invalid={!!errors.slug}
+                                id="course-slug"
+                                placeholder="e.g. ultimate-content-creation-mastery"
+                              />
+                            )}
+                          />
+                          {errors.slug && (
+                            <p
+                              aria-live="polite"
+                              className="text-destructive text-xs mt-1"
+                              role="alert"
+                            >
+                              {errors.slug.message}
+                            </p>
+                          )}
+                        </div>
                       </Field>
 
                       <Field>
                         <FieldLabel htmlFor="course-desc">
                           Course Description
                         </FieldLabel>
-                        <Textarea
-                          {...register("description")}
-                          id="course-desc"
-                          placeholder="Write a detailed description about what students will learn..."
-                          className="min-h-40 resize-none"
+                        <Controller
+                          control={control}
+                          name="description"
+                          render={({ field }) => (
+                            <Textarea
+                              {...field}
+                              id="course-desc"
+                              placeholder="Write a detailed description about what students will learn..."
+                              className="min-h-40 resize-none"
+                            />
+                          )}
                         />
                         <FieldDescription>
                           Detailed information about the course syllabus,
@@ -174,7 +243,7 @@ export function NewCourse() {
                 </CardContent>
               </Card>
 
-              <Card className="p-6 bg-background border shadow-sm">
+              <Card className="p-6 bg-background border shadow-none">
                 <CardContent className="p-0">
                   <FieldSet>
                     <FieldLegend>Course Taxonomy</FieldLegend>
@@ -185,61 +254,86 @@ export function NewCourse() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start pt-2">
                       <Field>
-                        <FieldLabel>Category</FieldLabel>
-                        <Select
-                          value={watch("categoryId")}
-                          onValueChange={(val) =>
-                            setValue("categoryId", val, {
-                              shouldValidate: true,
-                            })
-                          }
-                        >
-                          <SelectTrigger aria-invalid={!!errors.categoryId}>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="1">AI & Automation</SelectItem>
-                              <SelectItem value="2">No-Code Mastery</SelectItem>
-                              <SelectItem value="3">UI/UX Interface</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                        {errors.categoryId && (
-                          <p
-                            aria-live="polite"
-                            className="text-destructive text-xs mt-1"
-                            role="alert"
-                          >
-                            {errors.categoryId.message}
-                          </p>
-                        )}
+                        <FieldLabel htmlFor="categoryId">Category</FieldLabel>
+                        <div>
+                          <Controller
+                            control={control}
+                            name="categoryId"
+                            render={({ field }) => (
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <SelectTrigger
+                                  aria-invalid={!!errors.categoryId}
+                                  id="categoryId"
+                                  ref={field.ref}
+                                  className="w-full"
+                                >
+                                  <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="1">
+                                      AI & Automation
+                                    </SelectItem>
+                                    <SelectItem value="2">
+                                      No-Code Mastery
+                                    </SelectItem>
+                                    <SelectItem value="3">
+                                      UI/UX Interface
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                          {errors.categoryId && (
+                            <p
+                              aria-live="polite"
+                              className="text-destructive text-xs mt-1"
+                              role="alert"
+                            >
+                              {errors.categoryId.message}
+                            </p>
+                          )}
+                        </div>
                       </Field>
 
                       <Field>
                         <FieldLabel htmlFor="course-level">
                           Difficulty Level
                         </FieldLabel>
-                        <Select
-                          value={watch("level")}
-                          onValueChange={(val) => setValue("level", val)}
-                        >
-                          <SelectTrigger id="course-level">
-                            <SelectValue placeholder="Select target level" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="Beginner">Beginner</SelectItem>
-                              <SelectItem value="Intermediate">
-                                Intermediate
-                              </SelectItem>
-                              <SelectItem value="Advanced">Advanced</SelectItem>
-                              <SelectItem value="All Levels">
-                                All Levels
-                              </SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          control={control}
+                          name="level"
+                          render={({ field }) => (
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger id="course-level" ref={field.ref}>
+                                <SelectValue placeholder="Select target level" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectItem value="Beginner">
+                                    Beginner
+                                  </SelectItem>
+                                  <SelectItem value="Intermediate">
+                                    Intermediate
+                                  </SelectItem>
+                                  <SelectItem value="Advanced">
+                                    Advanced
+                                  </SelectItem>
+                                  <SelectItem value="All Levels">
+                                    All Levels
+                                  </SelectItem>
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
                       </Field>
                     </div>
                   </FieldSet>
@@ -248,7 +342,7 @@ export function NewCourse() {
             </div>
 
             <div className="space-y-6">
-              <Card className="p-6 bg-background border shadow-sm">
+              <Card className="p-6 bg-background border shadow-none">
                 <CardContent className="p-0">
                   <FieldSet>
                     <div className="flex items-center justify-between mb-2">
@@ -285,7 +379,7 @@ export function NewCourse() {
                 </CardContent>
               </Card>
 
-              <Card className="p-6 bg-background border shadow-sm">
+              <Card className="p-6 bg-background border shadow-none">
                 <CardContent className="p-0">
                   <FieldSet>
                     <FieldLegend>Settings</FieldLegend>
@@ -294,138 +388,127 @@ export function NewCourse() {
                         <FieldLabel htmlFor="course-duration">
                           Total Duration (Hours)
                         </FieldLabel>
-                        <Input
-                          {...register("durationHours", {
-                            valueAsNumber: true,
-                          })}
-                          aria-invalid={!!errors.durationHours}
-                          id="course-duration"
-                          type="number"
-                          placeholder="e.g. 12"
-                        />
-                        {errors.durationHours && (
-                          <p
-                            aria-live="polite"
-                            className="text-destructive text-xs mt-1"
-                            role="alert"
-                          >
-                            {errors.durationHours.message}
-                          </p>
-                        )}
+                        <div>
+                          <Controller
+                            control={control}
+                            name="durationHours"
+                            render={({ field }) => (
+                              <Input
+                                {...field}
+                                onChange={(e) =>
+                                  field.onChange(e.target.valueAsNumber || 0)
+                                }
+                                aria-invalid={!!errors.durationHours}
+                                id="course-duration"
+                                type="number"
+                                placeholder="e.g. 12"
+                              />
+                            )}
+                          />
+                          {errors.durationHours && (
+                            <p
+                              aria-live="polite"
+                              className="text-destructive text-xs mt-1"
+                              role="alert"
+                            >
+                              {errors.durationHours.message}
+                            </p>
+                          )}
+                        </div>
                       </Field>
 
                       <Field>
                         <FieldLabel htmlFor="course-instructor">
                           Assigned Instructor
                         </FieldLabel>
-                        <Select
-                          value={watch("instructorId")}
-                          onValueChange={(val) =>
-                            setValue("instructorId", val, {
-                              shouldValidate: true,
-                            })
-                          }
-                        >
-                          <SelectTrigger
-                            id="course-instructor"
-                            aria-invalid={!!errors.instructorId}
-                          >
-                            <SelectValue placeholder="Select instructor" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectItem value="1">Ethan Walker</SelectItem>
-                              <SelectItem value="2">Olivia Hayes</SelectItem>
-                              <SelectItem value="3">Lucas Bennett</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                        {errors.instructorId && (
-                          <p
-                            aria-live="polite"
-                            className="text-destructive text-xs mt-1"
-                            role="alert"
-                          >
-                            {errors.instructorId.message}
-                          </p>
-                        )}
-                      </Field>
-
-                      <Field
-                        orientation="horizontal"
-                        className="pt-2 items-center"
-                      >
-                        <Checkbox
-                          id="course-certificate"
-                          checked={watch("includeCertificate")}
-                          onCheckedChange={(val) =>
-                            setValue("includeCertificate", !!val)
-                          }
-                        />
-                        <FieldLabel
-                          htmlFor="course-certificate"
-                          className="font-normal cursor-pointer"
-                        >
-                          Include certificate upon completion
-                        </FieldLabel>
-                      </Field>
-
-                      <FieldSeparator className="my-2" />
-
-                      <Field
-                        orientation="horizontal"
-                        className="justify-between items-center w-full"
-                      >
-                        <div className="flex flex-col gap-0.5">
-                          <FieldLabel
-                            htmlFor="course-enrollment"
-                            className="font-medium cursor-pointer"
-                          >
-                            Open Enrollment
-                          </FieldLabel>
+                        <div>
+                          <Controller
+                            control={control}
+                            name="instructorId"
+                            render={({ field }) => (
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <SelectTrigger
+                                  id="course-instructor"
+                                  aria-invalid={!!errors.instructorId}
+                                  ref={field.ref}
+                                  className="w-full"
+                                >
+                                  <SelectValue placeholder="Select instructor" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectItem value="1">
+                                      Ethan Walker
+                                    </SelectItem>
+                                    <SelectItem value="2">
+                                      Olivia Hayes
+                                    </SelectItem>
+                                    <SelectItem value="3">
+                                      Lucas Bennett
+                                    </SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                          {errors.instructorId && (
+                            <p
+                              aria-live="polite"
+                              className="text-destructive text-xs mt-1"
+                              role="alert"
+                            >
+                              {errors.instructorId.message}
+                            </p>
+                          )}
                         </div>
-                        <Switch
-                          id="course-enrollment"
-                          checked={watch("openEnrollment")}
-                          onCheckedChange={(val) =>
-                            setValue("openEnrollment", val)
-                          }
-                        />
                       </Field>
                     </FieldGroup>
                   </FieldSet>
                 </CardContent>
               </Card>
 
-              <Card className="p-6 bg-background border shadow-sm">
+              <Card className="p-6 bg-background border shadow-none">
                 <CardContent className="p-0">
                   <FieldSet>
                     <FieldLegend>Status</FieldLegend>
                     <FieldGroup>
-                      <Select
-                        value={watch("status")}
-                        onValueChange={(val) => setValue("status", val)}
-                      >
-                        <SelectTrigger id="course-status" className="w-full">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectItem value="draft">
-                              <span className="inline-flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-orange-500" />
-                                Draft
-                              </span>
-                            </SelectItem>
-                            <SelectItem value="published">
-                              <span className="inline-flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-green-500" />
-                                Published
-                              </span>
-                            </SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        control={control}
+                        name="status"
+                        render={({ field }) => (
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger
+                              id="course-status"
+                              className="w-full"
+                              ref={field.ref}
+                            >
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="draft">
+                                  <span className="inline-flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-orange-500" />
+                                    Draft
+                                  </span>
+                                </SelectItem>
+                                <SelectItem value="published">
+                                  <span className="inline-flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-green-500" />
+                                    Published
+                                  </span>
+                                </SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                       <FieldDescription>
                         Set the course visibility status.
                       </FieldDescription>

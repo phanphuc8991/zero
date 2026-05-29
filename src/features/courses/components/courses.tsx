@@ -1,7 +1,6 @@
 "use client";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 import DataTable from "@/components/data-table/data-table";
 import { Course, courseColumns } from "@/components/data-table/course-columns";
 import { useRouter } from "next/navigation";
@@ -277,6 +276,27 @@ const myCoursesData: Course[] = [
     instructorName: "Dr. Amelia Scott",
   },
 ];
+const courseFilters = [
+  {
+    columnId: "categoryId",
+    title: "Category",
+    options: [
+      { value: "ai-prompt-engineering", label: "AI & Prompt Engineering" },
+      { value: "no-code-development", label: "No-Code Development" },
+      { value: "ui-ux-design", label: "UI/UX Design Strategy" },
+    ],
+  },
+  {
+    columnId: "level",
+    title: "Level",
+    options: [
+      { value: "all", label: "All Levels" },
+      { value: "beginner", label: "Beginner" },
+      { value: "intermediate", label: "Intermediate" },
+      { value: "advanced", label: "Advanced" },
+    ],
+  },
+];
 
 export function Courses() {
   const router = useRouter();
@@ -284,7 +304,7 @@ export function Courses() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold tracking-tight">Orders</h1>
+        <h1 className="text-xl font-bold tracking-tight">Courses</h1>
         <Button
           className="cursor-pointer"
           onClick={() => router.push("/admin/courses/new")}
@@ -296,8 +316,10 @@ export function Courses() {
 
       <DataTable
         defaultPageSize={5}
+        searchColumn="title"
         columns={courseColumns}
         data={myCoursesData}
+        filters={courseFilters}
       />
     </div>
   );

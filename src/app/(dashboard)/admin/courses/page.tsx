@@ -1,6 +1,6 @@
 "use client";
 
-import { Courses } from "@/app/components/layout/Courses";
+import { Courses } from "@/features/courses/components/courses";
 
 export default function Page() {
   return (

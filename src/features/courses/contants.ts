@@ -25,5 +25,29 @@ export const courseFormSchema = z.object({
   openEnrollment: z.boolean().optional(),
   status: z.string().optional(),
 });
-
 export type CourseFormInput = z.infer<typeof courseFormSchema>;
+
+export const instructorFormSchema = z.object({
+  name: z.string().min(1, { message: "Instructor name is required" }),
+  title: z.string().min(1, { message: "Professional title is required" }), // Ví dụ: AI Content Strategist
+  avatarUrl: z
+    .url({ message: "Invalid avatar URL" })
+    .optional()
+    .or(z.literal("")),
+  bio: z.string().optional(),
+});
+
+export type InstructorFormInput = z.infer<typeof instructorFormSchema>;
+
+export const categoryFormSchema = z.object({
+  name: z.string().min(1, { message: "Category name is required" }),
+  slug: z
+    .string()
+    .min(1, { message: "Slug URL path is required" })
+    .regex(/^[a-z0-9-]+$/, {
+      message: "Slug can only contain lowercase letters, numbers, and hyphens",
+    }),
+  description: z.string().optional(),
+});
+
+export type CategoryFormInput = z.infer<typeof categoryFormSchema>;

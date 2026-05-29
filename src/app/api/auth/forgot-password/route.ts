@@ -57,10 +57,10 @@ export async function POST(req: Request) {
       await db.passwordResetToken.deleteMany({
         where: { userId: result.userId },
       });
-      return NextResponse.json({ error: "EMAIL_SEND_FAILED" }, { status: 500 });
+      return apiResponse.error("VERIFICATION_SENT_GENERIC", 500);
     }
 
-    return NextResponse.json({ message: "EMAIL_SEND_SUCCESS" });
+    return apiResponse.success({ message: "EMAIL_SEND_SUCCESS" });
   } catch (error) {
     console.error("Forgot password error:", error);
     return apiResponse.error("SERVER_ERROR", 500);

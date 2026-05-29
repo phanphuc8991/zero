@@ -67,6 +67,10 @@ const data = {
           url: "/admin/categories ",
         },
         {
+          title: "Instructors",
+          url: "/admin/instructors ",
+        },
+        {
           title: "Reviews & Ratings",
           url: "#",
         },

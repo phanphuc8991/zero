@@ -23,6 +23,7 @@ export type CategoryDataRow = {
 export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
   {
     id: "select",
+    size: 50,
     header: ({ table }) => (
       <Checkbox
         checked={
@@ -46,6 +47,7 @@ export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
   {
     accessorKey: "name",
     meta: "Category Name",
+    size: 100,
     header: ({ column }) => {
       return (
         <Button
@@ -64,6 +66,7 @@ export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
   },
   {
     accessorKey: "slug",
+    size: 100,
     meta: "Slug URL",
     header: "Slug URL",
     cell: ({ row }) => (
@@ -73,6 +76,7 @@ export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
     ),
   },
   {
+    size: 100,
     accessorKey: "description",
     meta: "Description",
     header: "Description",

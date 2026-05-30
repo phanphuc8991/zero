@@ -45,3 +45,12 @@ export async function createInstructorService(data: InstructorFormInput) {
 
   return handleResponse(res);
 }
+
+export async function getCategoriesService() {
+  const res = await fetch("/api/category/get-categories", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+  });
+  return handleResponse(res);
+}

@@ -139,7 +139,11 @@ export default function Instructors() {
               <UserPlus size={16} /> Add new
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-120">
+          <DialogContent
+            className="sm:max-w-120"
+            onInteractOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle>New Instructor</DialogTitle>
               <DialogDescription className="sr-only">

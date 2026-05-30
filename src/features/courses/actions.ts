@@ -7,6 +7,7 @@ import {
   createCategoryService,
   createCourseService,
   createInstructorService,
+  getCategoriesService,
 } from "@/features/courses/services";
 import { actionClient } from "@/lib/safe-action";
 
@@ -27,3 +28,7 @@ export const newInstructorAction = actionClient
   .action(async ({ parsedInput }) => {
     return await createInstructorService(parsedInput);
   });
+
+export const getCategoriesAction = actionClient.action(async () => {
+  return await getCategoriesService();
+});

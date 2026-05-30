@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -21,8 +23,13 @@ import {
   CategoryFormInput,
   categoryFormSchema,
 } from "@/features/courses/contants";
-import { newCategoryAction } from "@/features/courses/actions";
+import {
+  getCategoriesAction,
+  newCategoryAction,
+} from "@/features/courses/actions";
 import { categoryColumns } from "@/components/data-table/category-columns";
+import { toast } from "sonner";
+import LoadingOverlay from "@/app/components/ui/LoadingOverlay";
 
 const convertToSlug = (text: string) =>
   text
@@ -35,37 +42,6 @@ const convertToSlug = (text: string) =>
     .replace(/\s+/g, "-")
     .replace(/[^\w\-]+/g, "")
     .replace(/\-\-+/g, "-");
-
-const mockCategories: any = [
-  {
-    id: 1,
-    name: "AI & Prompt Engineering",
-    slug: "ai-prompt-engineering",
-    description:
-      "Learn how to master Large Language Models (LLMs), optimize prompts for Claude and ChatGPT, and apply AI to workflow automation.",
-  },
-  {
-    id: 2,
-    name: "No-Code Development",
-    slug: "no-code-development",
-    description:
-      "Build SaaS products, e-commerce websites, and professional landing pages using Webflow, Bubble, and Airtable without writing code.",
-  },
-  {
-    id: 3,
-    name: "UI/UX Design Strategy",
-    slug: "ui-ux-design",
-    description:
-      "Learn user experience design principles, customer behavior research, and how to build scalable component systems and design systems.",
-  },
-  {
-    id: 4,
-    name: "Data Analytics & Automation",
-    slug: "data-analytics-automation",
-    description:
-      "Analyze business data, optimize workflows, and automate operations using Make, Zapier, and SQL dashboards.",
-  },
-];
 
 const categoriesFilters = [
   {
@@ -87,19 +63,8 @@ export default function Categories() {
   const [categoriesData, setCategoriesData] = useState<any>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [serverError, setServerError] = useState("");
-
-  const loadCategories = async () => {
-    try {
-      setCategoriesData(mockCategories);
-    } catch (err) {
-      console.error("Failed to load categories:", err);
-    }
-  };
-
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  console.log("isInitialLoading", isInitialLoading);
   const {
     handleSubmit,
     setValue,
@@ -119,12 +84,30 @@ export default function Categories() {
       setServerError("");
       setIsModalOpen(false);
       reset();
-      loadCategories();
+      toast.success("Category created successfully");
+      setIsInitialLoading(true);
+      fetchCategories();
     },
   });
 
+  const { execute: fetchCategories } = useAction(getCategoriesAction, {
+    onSuccess: ({ data }) => {
+      setIsInitialLoading(false);
+      if (data?.categories) {
+        setCategoriesData(data.categories);
+      }
+    },
+    onError: ({ error }) => {
+      setIsInitialLoading(false);
+      console.error("Failed to load categories:", error);
+      toast.error("Failed to load categories");
+    },
+  });
+  useEffect(() => {
+    fetchCategories();
+  }, []);
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 h-full">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold tracking-tight">Categories</h1>
         <Dialog
@@ -142,7 +125,11 @@ export default function Categories() {
               <Plus size={16} /> Add new
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-120">
+          <DialogContent
+            className="sm:max-w-120"
+            onInteractOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle>New Category</DialogTitle>
               <DialogDescription className="sr-only">
@@ -150,16 +137,6 @@ export default function Categories() {
                 courses.
               </DialogDescription>
             </DialogHeader>
-
-            {serverError && (
-              <div
-                role="alert"
-                aria-live="assertive"
-                className="p-3 bg-destructive/10 border border-destructive text-destructive rounded-md text-xs font-medium"
-              >
-                Error: {serverError}
-              </div>
-            )}
 
             <form
               onSubmit={handleSubmit((data) => execute(data))}
@@ -243,8 +220,28 @@ export default function Categories() {
                 />
               </Field>
 
-              <div className="flex justify-end pt-2">
-                <Button type="submit" disabled={isExecuting} className="gap-2">
+              {serverError && (
+                <div
+                  role="alert"
+                  aria-live="assertive"
+                  className="p-3 bg-destructive/10 border border-destructive text-destructive rounded-md text-xs font-medium"
+                >
+                  Error: {serverError}
+                </div>
+              )}
+
+              <DialogFooter className="py-4">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
+                </DialogClose>
+
+                <Button
+                  type="submit"
+                  disabled={isExecuting}
+                  className="gap-2 cursor-pointer"
+                >
                   {isExecuting ? (
                     <Loader2 className="animate-spin" size={15} />
                   ) : (
@@ -252,18 +249,19 @@ export default function Categories() {
                   )}
                   Save
                 </Button>
-              </div>
+              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
       <DataTable
-        defaultPageSize={10}
+        defaultPageSize={5}
         searchColumn="name"
         columns={categoryColumns}
         data={categoriesData}
         filters={categoriesFilters}
+        isLoading={isInitialLoading}
       />
     </div>
   );

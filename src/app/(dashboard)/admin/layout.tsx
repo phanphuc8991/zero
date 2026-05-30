@@ -41,7 +41,7 @@ export default function Page({ children }: { children: React.ReactNode }) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="p-4 bg-[#FBFBFB]">{children}</div>
+        <div className="p-4 bg-[#FBFBFB] h-full">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

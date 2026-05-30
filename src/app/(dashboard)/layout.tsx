@@ -1,7 +1,7 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "@/app/(dashboard)/dashboard.css";
 import { AuthProvider } from "@/providers/auth-provider";
-
+import { Toaster } from "sonner";
 export default function DashboardLayout({
   children,
 }: {
@@ -18,6 +18,7 @@ export default function DashboardLayout({
         <body className="min-h-full font-sans">
           <AuthProvider>
             <main>{children}</main>
+            <Toaster position="top-center" richColors />
           </AuthProvider>
         </body>
       </TooltipProvider>

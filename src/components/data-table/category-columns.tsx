@@ -1,26 +1,11 @@
 "use client";
-
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, MoreHorizontal, Edit, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
+import { Category } from "@/features/courses/contants";
 
-export type CategoryDataRow = {
-  id: number;
-  name: string;
-  slug: string;
-  description: string | null;
-};
-
-export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
+export const categoryColumns: ColumnDef<Category>[] = [
   {
     id: "select",
     size: 50,
@@ -47,7 +32,7 @@ export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
   {
     accessorKey: "name",
     meta: "Category Name",
-    size: 100,
+    size: 150,
     header: ({ column }) => {
       return (
         <Button
@@ -66,7 +51,7 @@ export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
   },
   {
     accessorKey: "slug",
-    size: 100,
+    size: 250,
     meta: "Slug URL",
     header: "Slug URL",
     cell: ({ row }) => (
@@ -76,12 +61,12 @@ export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
     ),
   },
   {
-    size: 100,
+    size: 250,
     accessorKey: "description",
     meta: "Description",
     header: "Description",
     cell: ({ row }) => {
-      const desc = row.getValue("description") as string;
+      const desc = row.getValue("description") as string | null | undefined;
       return (
         <div
           className="max-w-75 truncate text-muted-foreground"
@@ -95,34 +80,40 @@ export const categoryColumns: ColumnDef<CategoryDataRow>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      const category = row.original;
-
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as
+        | {
+            handleEdit?: (category: Category) => void;
+            handleDelete?: (category: Category) => void;
+          }
+        | undefined;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal size={16} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => navigator.clipboard.writeText(category.slug)}
-            >
-              Copy Slug
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer gap-2">
-              <Edit size={14} /> Edit Category
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive gap-2">
-              <Trash2 size={14} /> Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center justify-end gap-2 text-end">
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0"
+            onClick={() => {
+              if (meta?.handleEdit) {
+                meta.handleEdit(row.original);
+              }
+            }}
+          >
+            <span className="sr-only">Edit</span>
+            <Edit />
+          </Button>
+          <Button
+            variant="ghost"
+            className="text-destructive hover:text-destructive h-8 w-8 p-0"
+            onClick={() => {
+              if (meta?.handleDelete) {
+                meta.handleDelete(row.original);
+              }
+            }}
+          >
+            <span className="sr-only">Delete</span>
+            <Trash2 />
+          </Button>
+        </div>
       );
     },
   },

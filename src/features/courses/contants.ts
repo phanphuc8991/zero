@@ -50,4 +50,20 @@ export const categoryFormSchema = z.object({
   description: z.string().optional(),
 });
 
+export const editCategorySchema = categoryFormSchema.extend({
+  id: z.number().min(1, "Category ID is required"),
+});
+export const deleteCategorySchema = z.object({
+  id: z.number().min(1, "Category ID is required"),
+});
+
 export type CategoryFormInput = z.infer<typeof categoryFormSchema>;
+export type EditCategoryInput = z.infer<typeof editCategorySchema>;
+export type DeleteCategoryInput = z.infer<typeof deleteCategorySchema>;
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+}

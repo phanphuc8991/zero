@@ -2,6 +2,8 @@ import type {
   InstructorFormInput,
   CourseFormInput,
   CategoryFormInput,
+  EditCategoryInput,
+  DeleteCategoryInput,
 } from "@/features/courses/contants";
 
 async function handleResponse(res: Response) {
@@ -28,8 +30,26 @@ export async function createCourseService(data: CourseFormInput) {
   return handleResponse(res);
 }
 export async function createCategoryService(data: CategoryFormInput) {
-  const res = await fetch("/api/category/new-category", {
+  const res = await fetch("/api/category/add-category", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function editCategoryService(data: EditCategoryInput) {
+  const res = await fetch("/api/category/edit-category", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteCategoryService(data: DeleteCategoryInput) {
+  const res = await fetch("/api/category/delete-category", {
+    method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });

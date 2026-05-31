@@ -57,6 +57,8 @@ interface DataTableProps<TData, TValue> {
   searchPlaceholder?: string;
   filters?: FilterConfig[];
   isLoading?: boolean;
+  handleEdit?: (data: TData) => void;
+  handleDelete?: (data: TData) => void;
 }
 
 export default function DataTable<TData, TValue>({
@@ -66,10 +68,13 @@ export default function DataTable<TData, TValue>({
   searchColumn = "title",
   filters = [],
   isLoading = false,
+  handleEdit,
+  handleDelete,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+
   const [rowSelection, setRowSelection] = useState({});
   const [facetFilters, setFacetFilters] = useState<Record<string, string[]>>(
     {},
@@ -97,6 +102,10 @@ export default function DataTable<TData, TValue>({
       rowSelection,
       pagination,
     },
+    meta: {
+      handleEdit,
+      handleDelete,
+    },
     onPaginationChange: setPagination,
   });
 
@@ -117,10 +126,6 @@ export default function DataTable<TData, TValue>({
   };
 
   const skeletonRowCount = defaultPageSize;
-  console.log(
-    "table.getRowModel().rows?.length ",
-    table.getRowModel().rows?.length,
-  );
   useEffect(() => {
     setPagination((prev) => ({ ...prev, pageSize: defaultPageSize }));
   }, [defaultPageSize]);
@@ -220,24 +225,24 @@ export default function DataTable<TData, TValue>({
         <div className="overflow-hidden rounded-md border">
           <Table className="w-full table-fixed">
             <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      style={{ width: header.column.getSize() }}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  ))}
-                  {}
-                </TableRow>
-              ))}
+              {!isLoading &&
+                table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead
+                        key={header.id}
+                        style={{ width: header.column.getSize() }}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
             </TableHeader>
             <TableBody>
               {isLoading ? (

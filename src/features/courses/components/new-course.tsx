@@ -31,6 +31,7 @@ import { useAction } from "next-safe-action/hooks";
 import { newCourseAction } from "@/features/courses/actions";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const convertToSlug = (text: string): string => {
   return text
@@ -47,7 +48,7 @@ const convertToSlug = (text: string): string => {
 
 export function NewCourse() {
   const [serverError, setServerError] = useState("");
-
+  const router = useRouter();
   const {
     categories,
     instructors,
@@ -67,9 +68,10 @@ export function NewCourse() {
       console.log("error", error);
       setServerError(error?.serverError as string);
     },
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
       setServerError("");
       toast.success("Course processed successfully!");
+      router.push(`/admin/courses/${data?.course?.id}/edit`);
     },
   });
 
@@ -102,18 +104,15 @@ export function NewCourse() {
   };
 
   return (
-    <div className="mx-30 max-w-350">
+    <div className="mx-15 max-w-400">
       <div className="w-full">
         <form
           className="flex flex-col gap-6"
           onSubmit={(e) => e.preventDefault()}
         >
-          {/* Header Actions */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold tracking-tight">
-                Create New Course
-              </h1>
+              <h1 className="text-xl font-bold tracking-tight">New Course</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -155,8 +154,7 @@ export function NewCourse() {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="gird lg:col-span-2 space-y-6">
               <Card className="p-6 bg-background border shadow-none">
                 <CardContent className="p-0">
                   <FieldSet>
@@ -246,7 +244,7 @@ export function NewCourse() {
                               {...field}
                               id="course-desc"
                               placeholder="Write a detailed description about what students will learn..."
-                              className="min-h-40 resize-none"
+                              className="min-h-30 resize-none"
                             />
                           )}
                         />
@@ -364,8 +362,8 @@ export function NewCourse() {
               </Card>
             </div>
 
-            <div className="space-y-6">
-              <Card className="p-6 bg-background border shadow-none">
+            <div className="space-y-6 grid ">
+              <Card className="p-6 bg-background border shadow-none ">
                 <CardContent className="p-0">
                   <FieldSet>
                     <div className="flex items-center justify-between mb-2">
@@ -401,7 +399,6 @@ export function NewCourse() {
                   </FieldSet>
                 </CardContent>
               </Card>
-
               <Card className="p-6 bg-background border shadow-none">
                 <CardContent className="p-0">
                   <FieldSet>
@@ -498,53 +495,6 @@ export function NewCourse() {
                   </FieldSet>
                 </CardContent>
               </Card>
-
-              <Card className="p-6 bg-background border shadow-none">
-                <CardContent className="p-0">
-                  <FieldSet>
-                    <FieldLegend>Status</FieldLegend>
-                    <FieldGroup>
-                      <Controller
-                        control={control}
-                        name="status"
-                        render={({ field }) => (
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger
-                              id="course-status"
-                              className="w-full"
-                              ref={field.ref}
-                            >
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="draft">
-                                  <span className="inline-flex items-center gap-2">
-                                    <span className="h-2 w-2 rounded-full bg-orange-500" />
-                                    Draft
-                                  </span>
-                                </SelectItem>
-                                <SelectItem value="published">
-                                  <span className="inline-flex items-center gap-2">
-                                    <span className="h-2 w-2 rounded-full bg-green-500" />
-                                    Published
-                                  </span>
-                                </SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      <FieldDescription>
-                        Set the course visibility status.
-                      </FieldDescription>
-                    </FieldGroup>
-                  </FieldSet>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </form>
@@ -552,3 +502,13 @@ export function NewCourse() {
     </div>
   );
 }
+<div className="gird">
+  <div className="grid">
+    <div className="child-1"></div>
+    <div className="child-1"></div>
+  </div>
+  <div className="grid">
+    <div className="child-1"></div>
+    <div className="child-1"></div>
+  </div>
+</div>;

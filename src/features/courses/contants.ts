@@ -25,7 +25,15 @@ export const courseFormSchema = z.object({
   openEnrollment: z.boolean().optional(),
   status: z.string().optional(),
 });
+
+export const courseByIdSchema = z.object({ courseId: z.number().min(1) });
+
+export const editCourseSchema = courseFormSchema.extend({
+  id: z.number().min(1, "Course ID is required"),
+});
+
 export type CourseFormInput = z.infer<typeof courseFormSchema>;
+export type EditCourseInput = z.infer<typeof editCourseSchema>;
 
 export const instructorFormSchema = z.object({
   name: z.string().min(1, { message: "Instructor name is required" }),
@@ -36,8 +44,6 @@ export const instructorFormSchema = z.object({
     .or(z.literal("")),
   bio: z.string().optional(),
 });
-
-export type InstructorFormInput = z.infer<typeof instructorFormSchema>;
 
 export const categoryFormSchema = z.object({
   name: z.string().min(1, { message: "Category name is required" }),
@@ -69,6 +75,7 @@ export type CategoryFormInput = z.infer<typeof categoryFormSchema>;
 export type EditCategoryInput = z.infer<typeof editCategorySchema>;
 export type DeleteCategoryInput = z.infer<typeof deleteCategorySchema>;
 
+export type InstructorFormInput = z.infer<typeof instructorFormSchema>;
 export type EditInstructorInput = z.infer<typeof editInstructorSchema>;
 export type DeleteInstructorInput = z.infer<typeof deleteInstructorSchema>;
 

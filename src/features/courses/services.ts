@@ -6,6 +6,7 @@ import type {
   DeleteCategoryInput,
   EditInstructorInput,
   DeleteInstructorInput,
+  EditCourseInput,
 } from "@/features/courses/contants";
 
 async function handleResponse(res: Response) {
@@ -30,6 +31,15 @@ export async function getCoursesService() {
   return handleResponse(res);
 }
 
+export async function getCourseByIdService(courseId: string) {
+  const res = await fetch(`/api/course/${courseId}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+  });
+  return handleResponse(res);
+}
+
 export async function createCourseService(data: CourseFormInput) {
   const res = await fetch("/api/course/new-course", {
     method: "POST",
@@ -40,6 +50,17 @@ export async function createCourseService(data: CourseFormInput) {
   });
   return handleResponse(res);
 }
+
+export async function editCourseService(data: EditCourseInput) {
+  console.log("data.id", data.id);
+  const res = await fetch(`/api/course/${data.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
 export async function createCategoryService(data: CategoryFormInput) {
   const res = await fetch("/api/category/add-category", {
     method: "POST",

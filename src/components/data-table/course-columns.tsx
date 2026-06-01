@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 export type Course = {
   id: number;
@@ -59,14 +60,18 @@ export const courseColumns: ColumnDef<Course>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <div
-        className="font-medium max-w-62.5 truncate"
-        title={row.getValue("title")}
-      >
-        {row.getValue("title")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const courseId = row.original.id;
+      return (
+        <Link
+          href={`/admin/courses/${courseId}/edit`}
+          className="font-medium max-w-62.5 truncate"
+          title={row.getValue("title")}
+        >
+          {row.getValue("title")}
+        </Link>
+      );
+    },
   },
   {
     accessorKey: "instructorName",

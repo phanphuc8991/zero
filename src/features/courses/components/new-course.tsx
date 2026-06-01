@@ -26,9 +26,11 @@ import {
   type CourseFormInput,
   courseFormSchema,
 } from "@/features/courses/contants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { newCourseAction } from "@/features/courses/actions";
+import { useCourseStore } from "@/stores/useCourseStore";
+import { toast } from "sonner";
 
 const convertToSlug = (text: string): string => {
   return text
@@ -45,6 +47,21 @@ const convertToSlug = (text: string): string => {
 
 export function NewCourse() {
   const [serverError, setServerError] = useState("");
+
+  const {
+    categories,
+    instructors,
+    isCategoriesLoading,
+    isInstructorsLoading,
+    fetchCategories,
+    fetchInstructors,
+  } = useCourseStore();
+
+  useEffect(() => {
+    fetchCategories();
+    fetchInstructors();
+  }, []);
+
   const { execute, isExecuting } = useAction(newCourseAction, {
     onError: ({ error }) => {
       console.log("error", error);
@@ -52,7 +69,7 @@ export function NewCourse() {
     },
     onSuccess: () => {
       setServerError("");
-      alert("Course processed successfully!");
+      toast.success("Course processed successfully!");
     },
   });
 
@@ -263,6 +280,7 @@ export function NewCourse() {
                               <Select
                                 value={field.value}
                                 onValueChange={field.onChange}
+                                disabled={isCategoriesLoading}
                               >
                                 <SelectTrigger
                                   aria-invalid={!!errors.categoryId}
@@ -270,19 +288,24 @@ export function NewCourse() {
                                   ref={field.ref}
                                   className="w-full"
                                 >
-                                  <SelectValue placeholder="Select a category" />
+                                  <SelectValue
+                                    placeholder={
+                                      isCategoriesLoading
+                                        ? "Loading..."
+                                        : "Select a category"
+                                    }
+                                  />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectGroup>
-                                    <SelectItem value="1">
-                                      AI & Automation
-                                    </SelectItem>
-                                    <SelectItem value="2">
-                                      No-Code Mastery
-                                    </SelectItem>
-                                    <SelectItem value="3">
-                                      UI/UX Interface
-                                    </SelectItem>
+                                    {categories.map((category) => (
+                                      <SelectItem
+                                        key={category.id}
+                                        value={String(category.id)}
+                                      >
+                                        {category.name}
+                                      </SelectItem>
+                                    ))}
                                   </SelectGroup>
                                 </SelectContent>
                               </Select>
@@ -429,6 +452,7 @@ export function NewCourse() {
                               <Select
                                 value={field.value}
                                 onValueChange={field.onChange}
+                                disabled={isInstructorsLoading}
                               >
                                 <SelectTrigger
                                   id="course-instructor"
@@ -436,19 +460,24 @@ export function NewCourse() {
                                   ref={field.ref}
                                   className="w-full"
                                 >
-                                  <SelectValue placeholder="Select instructor" />
+                                  <SelectValue
+                                    placeholder={
+                                      isInstructorsLoading
+                                        ? "Loading..."
+                                        : "Select instructor"
+                                    }
+                                  />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectGroup>
-                                    <SelectItem value="1">
-                                      Ethan Walker
-                                    </SelectItem>
-                                    <SelectItem value="2">
-                                      Olivia Hayes
-                                    </SelectItem>
-                                    <SelectItem value="3">
-                                      Lucas Bennett
-                                    </SelectItem>
+                                    {instructors.map((instructor) => (
+                                      <SelectItem
+                                        key={instructor.id}
+                                        value={String(instructor.id)}
+                                      >
+                                        {instructor.name}
+                                      </SelectItem>
+                                    ))}
                                   </SelectGroup>
                                 </SelectContent>
                               </Select>

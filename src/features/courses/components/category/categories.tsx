@@ -10,6 +10,7 @@ import { AddCategory } from "@/features/courses/components/category/add-category
 import { Category } from "@/features/courses/contants";
 import { EditCategory } from "@/features/courses/components/category/edit-category";
 import { DeleteCategory } from "@/features/courses/components/category/delete-category";
+import { useCourseStore } from "@/stores/useCourseStore";
 
 const categoriesFilters = [
   {
@@ -67,6 +68,7 @@ export default function Categories() {
   const handleRefreshData = () => {
     setIsInitialLoading(true);
     fetchCategories();
+    useCourseStore.getState().resetCategories();
   };
 
   return (

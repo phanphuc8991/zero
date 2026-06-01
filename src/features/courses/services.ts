@@ -4,6 +4,8 @@ import type {
   CategoryFormInput,
   EditCategoryInput,
   DeleteCategoryInput,
+  EditInstructorInput,
+  DeleteInstructorInput,
 } from "@/features/courses/contants";
 
 async function handleResponse(res: Response) {
@@ -17,6 +19,15 @@ async function handleResponse(res: Response) {
     throw new Error(result?.error ?? "SERVER_ERROR");
   }
   return result;
+}
+
+export async function getCoursesService() {
+  const res = await fetch("/api/course/get-courses", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+  });
+  return handleResponse(res);
 }
 
 export async function createCourseService(data: CourseFormInput) {
@@ -56,8 +67,26 @@ export async function deleteCategoryService(data: DeleteCategoryInput) {
   return handleResponse(res);
 }
 
+export async function getCategoriesService() {
+  const res = await fetch("/api/category/get-categories", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+  });
+  return handleResponse(res);
+}
+
+export async function getInstructorsService() {
+  const res = await fetch("/api/instructor/get-instructors", {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+  });
+  return handleResponse(res);
+}
+
 export async function createInstructorService(data: InstructorFormInput) {
-  const res = await fetch("/api/instructor/new-instructor", {
+  const res = await fetch("/api/instructor/add-instructor", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -66,11 +95,20 @@ export async function createInstructorService(data: InstructorFormInput) {
   return handleResponse(res);
 }
 
-export async function getCategoriesService() {
-  const res = await fetch("/api/category/get-categories", {
-    method: "GET",
+export async function editInstructorService(data: EditInstructorInput) {
+  const res = await fetch("/api/instructor/edit-instructor", {
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
-    cache: "no-store",
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteInstructorService(data: DeleteInstructorInput) {
+  const res = await fetch("/api/instructor/delete-instructor", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
   });
   return handleResponse(res);
 }

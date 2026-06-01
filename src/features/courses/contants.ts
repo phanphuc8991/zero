@@ -29,7 +29,7 @@ export type CourseFormInput = z.infer<typeof courseFormSchema>;
 
 export const instructorFormSchema = z.object({
   name: z.string().min(1, { message: "Instructor name is required" }),
-  title: z.string().min(1, { message: "Professional title is required" }), // Ví dụ: AI Content Strategist
+  title: z.string().min(1, { message: "Professional title is required" }),
   avatarUrl: z
     .url({ message: "Invalid avatar URL" })
     .optional()
@@ -57,9 +57,28 @@ export const deleteCategorySchema = z.object({
   id: z.number().min(1, "Category ID is required"),
 });
 
+export const editInstructorSchema = instructorFormSchema.extend({
+  id: z.number().min(1, "Instructor ID is required"),
+});
+
+export const deleteInstructorSchema = z.object({
+  id: z.number().min(1, "Instructor ID is required"),
+});
+
 export type CategoryFormInput = z.infer<typeof categoryFormSchema>;
 export type EditCategoryInput = z.infer<typeof editCategorySchema>;
 export type DeleteCategoryInput = z.infer<typeof deleteCategorySchema>;
+
+export type EditInstructorInput = z.infer<typeof editInstructorSchema>;
+export type DeleteInstructorInput = z.infer<typeof deleteInstructorSchema>;
+
+export interface Instructor {
+  id: number;
+  name: string;
+  title: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+}
 
 export interface Category {
   id: number;

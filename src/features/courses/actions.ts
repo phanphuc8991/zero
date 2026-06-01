@@ -2,7 +2,9 @@ import {
   categoryFormSchema,
   courseFormSchema,
   deleteCategorySchema,
+  deleteInstructorSchema,
   editCategorySchema,
+  editInstructorSchema,
   instructorFormSchema,
 } from "@/features/courses/contants";
 import {
@@ -12,8 +14,16 @@ import {
   getCategoriesService,
   editCategoryService,
   deleteCategoryService,
+  getInstructorsService,
+  editInstructorService,
+  deleteInstructorService,
+  getCoursesService,
 } from "@/features/courses/services";
 import { actionClient } from "@/lib/safe-action";
+
+export const getCoursesAction = actionClient.action(async () => {
+  return await getCoursesService();
+});
 
 export const newCourseAction = actionClient
   .inputSchema(courseFormSchema)
@@ -39,12 +49,26 @@ export const deleteCategoryAction = actionClient
     return await deleteCategoryService(parsedInput);
   });
 
+export const getCategoriesAction = actionClient.action(async () => {
+  return await getCategoriesService();
+});
+
+export const getInstructorsAction = actionClient.action(async () => {
+  return await getInstructorsService();
+});
 export const newInstructorAction = actionClient
   .inputSchema(instructorFormSchema)
   .action(async ({ parsedInput }) => {
     return await createInstructorService(parsedInput);
   });
+export const editInstructorAction = actionClient
+  .inputSchema(editInstructorSchema)
+  .action(async ({ parsedInput }) => {
+    return await editInstructorService(parsedInput);
+  });
 
-export const getCategoriesAction = actionClient.action(async () => {
-  return await getCategoriesService();
-});
+export const deleteInstructorAction = actionClient
+  .inputSchema(deleteInstructorSchema)
+  .action(async ({ parsedInput }) => {
+    return await deleteInstructorService(parsedInput);
+  });

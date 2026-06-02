@@ -24,6 +24,7 @@ export const courseFormSchema = z.object({
   includeCertificate: z.boolean().optional(),
   openEnrollment: z.boolean().optional(),
   status: z.string().optional(),
+  thumbnailUrl: z.any().optional().nullable(),
 });
 
 export const courseByIdSchema = z.object({ courseId: z.number().min(1) });

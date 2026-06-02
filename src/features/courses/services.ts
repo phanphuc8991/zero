@@ -31,7 +31,7 @@ export async function getCoursesService() {
   return handleResponse(res);
 }
 
-export async function getCourseByIdService(courseId: string) {
+export async function getCourseByIdService(courseId: number) {
   const res = await fetch(`/api/course/${courseId}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -57,6 +57,17 @@ export async function editCourseService(data: EditCourseInput) {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function uploadThumbnailService(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("/api/upload/thumbnail", {
+    method: "POST",
+    body: formData,
   });
   return handleResponse(res);
 }

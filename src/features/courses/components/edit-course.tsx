@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,6 +39,8 @@ import {
 } from "@/features/courses/actions";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { UploadCloud } from "lucide-react";
+import { useUploadThumbnail } from "@/hooks/useUploadThumbnail";
+import { ThumbnailUpload } from "@/components/thumbnail-upload";
 
 const convertToSlug = (text: string): string => {
   return text
@@ -59,6 +61,11 @@ export default function EditCourse(props: { courseId: string }) {
   const [serverError, setServerError] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [courseTitle, setCourseTitle] = useState("");
+  const [existingThumbnail, setExistingThumbnail] = useState<string | null>(
+    null,
+  );
+  const thumbnailFileRef = useRef<File | null>(null);
+  const { upload, isUploading } = useUploadThumbnail();
 
   const {
     categories,
@@ -84,14 +91,13 @@ export default function EditCourse(props: { courseId: string }) {
       description: "",
       categoryId: "",
       level: "All Levels",
-      durationHours: 0,
+      durationHours: 1,
       instructorId: "",
       includeCertificate: false,
       openEnrollment: true,
       status: "draft",
     },
   });
-
   const { execute: fetchCourse } = useAction(getCourseByIdAction, {
     onSuccess: ({ data }) => {
       setIsPageLoading(false);
@@ -109,6 +115,7 @@ export default function EditCourse(props: { courseId: string }) {
           status: course.isPublished ? "published" : "draft",
           includeCertificate: false,
           openEnrollment: true,
+          thumbnailUrl: course.thumbnailUrl ?? null,
         });
       }
     },
@@ -121,6 +128,7 @@ export default function EditCourse(props: { courseId: string }) {
 
   const { execute: updateCourse, isExecuting } = useAction(editCourseAction, {
     onError: ({ error }) => {
+      console.log("error", error);
       setServerError(error?.serverError as string);
     },
     onSuccess: () => {
@@ -139,9 +147,20 @@ export default function EditCourse(props: { courseId: string }) {
 
   const onSubmitWithStatus = (statusValue: "draft" | "published") => {
     setValue("status", statusValue);
-    handleSubmit((data) => updateCourse({ ...data, id: courseId }))();
+    handleSubmit(async (data) => {
+      try {
+        let thumbnailUrl = data.thumbnailUrl ?? null;
+        if (thumbnailFileRef.current) {
+          const uploaded = await upload(thumbnailFileRef.current);
+          if (!uploaded) return;
+          thumbnailUrl = uploaded;
+        }
+        updateCourse({ ...data, thumbnailUrl, id: courseId });
+      } catch {
+        toast.error("Something went wrong. Please try again.");
+      }
+    })();
   };
-
   if (isPageLoading) {
     return (
       <div className="mx-30 max-w-350">
@@ -168,6 +187,7 @@ export default function EditCourse(props: { courseId: string }) {
       </div>
     );
   }
+  const isLoading = isExecuting || isUploading;
 
   return (
     <div className="mx-30 max-w-350">
@@ -196,10 +216,10 @@ export default function EditCourse(props: { courseId: string }) {
                   className="cursor-pointer gap-2"
                   variant="outline"
                   type="button"
-                  disabled={isExecuting}
+                  disabled={isLoading}
                   onClick={() => onSubmitWithStatus("draft")}
                 >
-                  {isExecuting ? (
+                  {isLoading && getValues("status") === "draft" ? (
                     <Loader2 className="animate-spin" size={15} />
                   ) : (
                     <Save size={15} />
@@ -211,10 +231,10 @@ export default function EditCourse(props: { courseId: string }) {
               <Button
                 className="cursor-pointer gap-2"
                 type="button"
-                disabled={isExecuting}
+                disabled={isLoading}
                 onClick={() => onSubmitWithStatus("published")}
               >
-                {isExecuting ? (
+                {isLoading && getValues("status") === "published" ? (
                   <Loader2 className="animate-spin" size={15} />
                 ) : (
                   <Rocket size={15} />
@@ -453,38 +473,24 @@ export default function EditCourse(props: { courseId: string }) {
                   <Card className="p-6 bg-background border shadow-none">
                     <CardContent className="p-0">
                       <FieldSet>
-                        <div className="flex items-center justify-between mb-2">
-                          <FieldLegend className="m-0">
-                            Course Media
-                          </FieldLegend>
-                          <button
-                            type="button"
-                            className="text-sm font-medium text-primary hover:underline cursor-pointer"
-                          >
-                            Add from URL
-                          </button>
-                        </div>
-                        <FieldGroup>
-                          <div className="border border-dashed border-muted-foreground/30 rounded-lg p-8 text-center hover:bg-accent/40 transition cursor-pointer group bg-background">
-                            <div className="mx-auto h-10 w-10 rounded-full bg-background flex items-center justify-between border shadow-sm mb-3 group-hover:scale-105 transition">
-                              <UploadCloud className="mx-auto h-5 w-5 text-muted-foreground" />
-                            </div>
-                            <span className="text-sm font-medium block mb-1">
-                              Drop your course banner here
-                            </span>
-                            <span className="text-xs text-muted-foreground block mb-3">
-                              PNG or JPG (max. 5MB)
-                            </span>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="cursor-pointer"
-                            >
-                              Select images
-                            </Button>
-                          </div>
-                        </FieldGroup>
+                        <FieldLegend className="mb-3">Course Media</FieldLegend>
+                        <Controller
+                          control={control}
+                          name="thumbnailUrl"
+                          render={({ field }) => (
+                            <ThumbnailUpload
+                              value={
+                                typeof field.value === "string"
+                                  ? field.value
+                                  : null
+                              }
+                              onChange={(file) => {
+                                thumbnailFileRef.current = file;
+                                field.onChange(file ? file : null);
+                              }}
+                            />
+                          )}
+                        />
                       </FieldSet>
                     </CardContent>
                   </Card>

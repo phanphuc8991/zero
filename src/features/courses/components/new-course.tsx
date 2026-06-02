@@ -21,17 +21,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { UploadCloud, Save, Rocket, Trash2 } from "lucide-react";
+import { UploadCloud, Save, Rocket, Trash2, Loader2 } from "lucide-react";
 import {
   type CourseFormInput,
   courseFormSchema,
 } from "@/features/courses/contants";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { newCourseAction } from "@/features/courses/actions";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { ThumbnailUpload } from "@/components/thumbnail-upload";
+import { useUploadThumbnail } from "@/hooks/useUploadThumbnail";
 
 const convertToSlug = (text: string): string => {
   return text
@@ -49,6 +51,8 @@ const convertToSlug = (text: string): string => {
 export function NewCourse() {
   const [serverError, setServerError] = useState("");
   const router = useRouter();
+  const thumbnailFileRef = useRef<File | null>(null);
+
   const {
     categories,
     instructors,
@@ -57,6 +61,7 @@ export function NewCourse() {
     fetchCategories,
     fetchInstructors,
   } = useCourseStore();
+  const { upload, isUploading } = useUploadThumbnail();
 
   useEffect(() => {
     fetchCategories();
@@ -79,6 +84,7 @@ export function NewCourse() {
     handleSubmit,
     setValue,
     control,
+    getValues,
     formState: { errors },
   } = useForm<CourseFormInput>({
     resolver: zodResolver(courseFormSchema),
@@ -88,7 +94,7 @@ export function NewCourse() {
       description: "",
       categoryId: "",
       level: "All Levels",
-      durationHours: 0,
+      durationHours: 1,
       instructorId: "",
       includeCertificate: false,
       openEnrollment: true,
@@ -98,11 +104,22 @@ export function NewCourse() {
 
   const onSubmitWithStatus = (statusValue: "draft" | "published") => {
     setValue("status", statusValue);
-    handleSubmit((data) => {
-      execute(data);
+    handleSubmit(async (data) => {
+      try {
+        let thumbnailUrl: string | null = null;
+
+        if (thumbnailFileRef.current) {
+          thumbnailUrl = await upload(thumbnailFileRef.current);
+          if (!thumbnailUrl) return;
+        }
+        execute({ ...data, thumbnailUrl });
+      } catch {
+        toast.error("Something went wrong. Please try again.");
+      }
     })();
   };
 
+  const isLoading = isExecuting || isUploading;
   return (
     <div className="mx-15 max-w-400">
       <div className="w-full">
@@ -119,7 +136,8 @@ export function NewCourse() {
                 className="cursor-pointer gap-2"
                 variant="secondary"
                 type="button"
-                disabled={isExecuting}
+                disabled={isLoading}
+                onClick={() => router.push("/admin/courses")}
               >
                 <Trash2 size={15} /> Discard
               </Button>
@@ -127,18 +145,28 @@ export function NewCourse() {
                 className="cursor-pointer gap-2"
                 variant="outline"
                 type="button"
-                disabled={isExecuting}
+                disabled={isLoading}
                 onClick={() => onSubmitWithStatus("draft")}
               >
-                <Save size={15} /> Save Draft
+                {isLoading && getValues("status") === "draft" ? (
+                  <Loader2 className="animate-spin" size={15} />
+                ) : (
+                  <Save size={15} />
+                )}
+                Save Draft
               </Button>
               <Button
                 className="cursor-pointer gap-2"
                 type="button"
-                disabled={isExecuting}
+                disabled={isLoading}
                 onClick={() => onSubmitWithStatus("published")}
               >
-                <Rocket size={15} /> Publish
+                {isLoading && getValues("status") === "published" ? (
+                  <Loader2 className="animate-spin" size={15} />
+                ) : (
+                  <Rocket size={15} />
+                )}
+                Publish
               </Button>
             </div>
           </div>
@@ -363,7 +391,7 @@ export function NewCourse() {
             </div>
 
             <div className="space-y-6 grid ">
-              <Card className="p-6 bg-background border shadow-none ">
+              {/* <Card className="p-6 bg-background border shadow-none ">
                 <CardContent className="p-0">
                   <FieldSet>
                     <div className="flex items-center justify-between mb-2">
@@ -396,6 +424,19 @@ export function NewCourse() {
                         </Button>
                       </div>
                     </FieldGroup>
+                  </FieldSet>
+                </CardContent>
+              </Card> */}
+
+              <Card className="p-6 bg-background border shadow-none">
+                <CardContent className="p-0">
+                  <FieldSet>
+                    <FieldLegend className="mb-3">Course Media</FieldLegend>
+                    <ThumbnailUpload
+                      onChange={(file) => {
+                        thumbnailFileRef.current = file;
+                      }}
+                    />
                   </FieldSet>
                 </CardContent>
               </Card>

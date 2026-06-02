@@ -3,7 +3,6 @@ import { apiResponse } from "@/lib/api-response";
 
 export async function GET() {
   try {
-    console.log("get category run");
     const categories = await db.category.findMany({
       orderBy: {
         id: "desc",

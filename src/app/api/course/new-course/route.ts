@@ -40,6 +40,7 @@ export async function POST(req: Request) {
         categoryId,
         instructorId,
         isPublished,
+        thumbnailUrl: rawData.thumbnailUrl || null,
       },
     });
 

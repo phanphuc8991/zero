@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Rocket, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Rocket, Trash2, Loader2, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,9 +38,13 @@ import {
   editCourseAction,
 } from "@/features/courses/actions";
 import { useCourseStore } from "@/stores/useCourseStore";
-import { UploadCloud } from "lucide-react";
 import { useUploadThumbnail } from "@/hooks/useUploadThumbnail";
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
+import { ChapterColumn } from "@/features/courses/components/chapter-column";
+import { LessonItem } from "@/features/courses/components/lesson-item";
+import { DragDropProvider } from "@dnd-kit/react";
+import { PointerSensor, KeyboardSensor } from "@dnd-kit/dom";
+import { move } from "@dnd-kit/helpers";
 
 const convertToSlug = (text: string): string => {
   return text
@@ -54,7 +58,21 @@ const convertToSlug = (text: string): string => {
     .replace(/[^\w\-]+/g, "")
     .replace(/\-\-+/g, "-");
 };
+interface Lesson {
+  id: number;
+  chapterId: number;
+  title: string;
+  videoUrl: string | null;
+  durationSeconds: number;
+  sortOrder: number;
+  isPreview: boolean;
+}
 
+interface ChapterInfo {
+  id: number;
+  title: string;
+  sortOrder: number;
+}
 export default function EditCourse(props: { courseId: string }) {
   const router = useRouter();
   const courseId = Number(props?.courseId);
@@ -65,7 +83,84 @@ export default function EditCourse(props: { courseId: string }) {
     null,
   );
   const thumbnailFileRef = useRef<File | null>(null);
+  const handleUpdateChapterTitle = (columnKey: string, newTitle: string) => {
+    setChapterDetails((prev) => ({
+      ...prev,
+      [columnKey]: {
+        ...prev[columnKey],
+        title: newTitle,
+      },
+    }));
+  };
+  const handleUpdateLessonFields = (
+    columnKey: string,
+    lessonId: number,
+    fieldsToUpdate: Partial<Lesson>,
+  ) => {
+    setItems((prevItems) => {
+      const currentLessons = prevItems[columnKey] || [];
+      const updatedLessons = currentLessons.map((lesson) =>
+        lesson.id === lessonId ? { ...lesson, ...fieldsToUpdate } : lesson,
+      );
+      return {
+        ...prevItems,
+        [columnKey]: updatedLessons,
+      };
+    });
+  };
+
   const { upload, isUploading } = useUploadThumbnail();
+  const [items, setItems] = useState<{ [key: string]: Lesson[] }>({
+    "chapter-key-a": [
+      {
+        id: 101,
+        chapterId: 10,
+        title: "Cài đặt môi trường NodeJS",
+        videoUrl: "",
+        durationSeconds: 495,
+        sortOrder: 0,
+        isPreview: true,
+      },
+      {
+        id: 102,
+        chapterId: 10,
+        title: "Cấu trúc thư mục App Router",
+        videoUrl: "",
+        durationSeconds: 720,
+        sortOrder: 1,
+        isPreview: false,
+      },
+    ],
+    "chapter-key-b": [
+      {
+        id: 201,
+        chapterId: 11,
+        title: "Cách tạo Dynamic Routes",
+        videoUrl: "",
+        durationSeconds: 900,
+        sortOrder: 0,
+        isPreview: false,
+      },
+    ],
+  });
+
+  const [chapterDetails, setChapterDetails] = useState<{
+    [key: string]: ChapterInfo;
+  }>({
+    "chapter-key-a": { id: 10, title: "Khởi đầu với Next.js", sortOrder: 0 },
+    "chapter-key-b": {
+      id: 11,
+      title: "Làm chủ Routing & Layout",
+      sortOrder: 1,
+    },
+  });
+
+  const [columnOrder, setColumnOrder] = useState<string[]>(() =>
+    Object.keys(items),
+  );
+
+  console.log("chapterDetails", chapterDetails);
+  console.log("columnOrder", columnOrder);
 
   const {
     categories,
@@ -192,9 +287,9 @@ export default function EditCourse(props: { courseId: string }) {
   return (
     <div className="mx-30 max-w-350">
       <div className="w-full">
-        <form
+        <div
           className="flex flex-col gap-6"
-          onSubmit={(e) => e.preventDefault()}
+          // onSubmit={(e) => e.preventDefault()}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -254,10 +349,10 @@ export default function EditCourse(props: { courseId: string }) {
             </div>
           )}
 
-          <Tabs defaultValue="overview">
+          <Tabs defaultValue="content">
             <TabsList>
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
+              <TabsTrigger value="content">Course Content</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
@@ -616,13 +711,86 @@ export default function EditCourse(props: { courseId: string }) {
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="curriculum">
-              <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
-                Curriculum section — coming soon
-              </div>
+            <TabsContent value="content">
+              {/* <DragDropProvider
+                sensors={[PointerSensor, KeyboardSensor]}
+                onDragOver={(event) => {
+                  const { source, target } = event.operation;
+                  if (!target) return;
+                  if (source?.type === "column") {
+                    setColumnOrder((prevColumns) => move(prevColumns, event));
+                    return;
+                  }
+                  if (source && target) {
+                    const sourceChapterId = source.data?.chapterId;
+                    const targetChapterId = target.data?.chapterId;
+                    if (sourceChapterId !== targetChapterId) return;
+                    setItems((prevItems) => move(prevItems, event));
+                  }
+                }}
+              > */}
+              <DragDropProvider
+                sensors={[PointerSensor, KeyboardSensor]}
+                onDragOver={(event) => {
+                  const { source, target } = event.operation;
+                  if (source?.type === "column") return;
+
+                  if (source && target) {
+                    const sourceChapterId = source.data?.chapterId;
+                    const targetChapterId = target.data?.chapterId;
+                    if (sourceChapterId !== targetChapterId) return;
+                  }
+
+                  setItems((prevItems) => move(prevItems, event));
+                }}
+                onDragEnd={(event) => {
+                  const { source } = event.operation;
+                  if (event.canceled || source?.type !== "column") return;
+
+                  setColumnOrder((columns) => move(columns, event));
+                }}
+              >
+                <div className="flex flex-col gap-4">
+                  {columnOrder.map((columnKey, chapterIndex) => {
+                    const chapter = chapterDetails[columnKey];
+                    const lessons = items[columnKey] || [];
+
+                    return (
+                      <ChapterColumn
+                        key={columnKey}
+                        id={columnKey}
+                        index={chapterIndex}
+                        title={chapter.title}
+                        lessonCount={lessons.length}
+                        onUpdateTitle={handleUpdateChapterTitle}
+                      >
+                        {lessons.map((lesson, lessonIndex) => (
+                          <LessonItem
+                            key={lesson.id}
+                            id={lesson.id}
+                            title={lesson.title}
+                            index={lessonIndex}
+                            column={columnKey}
+                            chapterIndex={chapterIndex}
+                            onUpdateLesson={handleUpdateLessonFields}
+                            videoUrl={lesson.videoUrl}
+                            durationSeconds={lesson.durationSeconds}
+                            isPreview={lesson.isPreview}
+                          />
+                        ))}
+                      </ChapterColumn>
+                    );
+                  })}
+                </div>
+
+                <Button variant="outline" className="mt-6 gap-2 w-full h-12">
+                  <Plus size={15} />
+                  Add chapter
+                </Button>
+              </DragDropProvider>
             </TabsContent>
           </Tabs>
-        </form>
+        </div>
       </div>
     </div>
   );

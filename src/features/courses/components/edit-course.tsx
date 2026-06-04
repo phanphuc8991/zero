@@ -92,6 +92,10 @@ export default function EditCourse(props: { courseId: string }) {
       },
     }));
   };
+
+  const [isAddingChapter, setIsAddingChapter] = useState(false);
+  const [newChapterTitle, setNewChapterTitle] = useState("");
+
   const handleUpdateLessonFields = (
     columnKey: string,
     lessonId: number,
@@ -107,6 +111,27 @@ export default function EditCourse(props: { courseId: string }) {
         [columnKey]: updatedLessons,
       };
     });
+  };
+
+  const handleAddChapter = () => {
+    if (!newChapterTitle.trim()) return;
+    const newColumnKey = `chapter-key-${Date.now()}`;
+    const newChapterId = Math.floor(Math.random() * 10000);
+    setChapterDetails((prev) => ({
+      ...prev,
+      [newColumnKey]: {
+        id: newChapterId,
+        title: newChapterTitle.trim(),
+        sortOrder: Object.keys(prev).length,
+      },
+    }));
+    setItems((prev) => ({
+      ...prev,
+      [newColumnKey]: [],
+    }));
+    setColumnOrder((prev) => [...prev, newColumnKey]);
+    setNewChapterTitle("");
+    setIsAddingChapter(false);
   };
 
   const { upload, isUploading } = useUploadThumbnail();
@@ -143,7 +168,6 @@ export default function EditCourse(props: { courseId: string }) {
       },
     ],
   });
-
   const [chapterDetails, setChapterDetails] = useState<{
     [key: string]: ChapterInfo;
   }>({
@@ -158,9 +182,6 @@ export default function EditCourse(props: { courseId: string }) {
   const [columnOrder, setColumnOrder] = useState<string[]>(() =>
     Object.keys(items),
   );
-
-  console.log("chapterDetails", chapterDetails);
-  console.log("columnOrder", columnOrder);
 
   const {
     categories,
@@ -354,7 +375,6 @@ export default function EditCourse(props: { courseId: string }) {
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="content">Course Content</TabsTrigger>
             </TabsList>
-
             <TabsContent value="overview">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start pt-4">
                 <div className="lg:col-span-2 space-y-6">
@@ -711,42 +731,30 @@ export default function EditCourse(props: { courseId: string }) {
                 </div>
               </div>
             </TabsContent>
+
             <TabsContent value="content">
-              {/* <DragDropProvider
-                sensors={[PointerSensor, KeyboardSensor]}
-                onDragOver={(event) => {
-                  const { source, target } = event.operation;
-                  if (!target) return;
-                  if (source?.type === "column") {
-                    setColumnOrder((prevColumns) => move(prevColumns, event));
-                    return;
-                  }
-                  if (source && target) {
-                    const sourceChapterId = source.data?.chapterId;
-                    const targetChapterId = target.data?.chapterId;
-                    if (sourceChapterId !== targetChapterId) return;
-                    setItems((prevItems) => move(prevItems, event));
-                  }
-                }}
-              > */}
               <DragDropProvider
                 sensors={[PointerSensor, KeyboardSensor]}
                 onDragOver={(event) => {
                   const { source, target } = event.operation;
-                  if (source?.type === "column") return;
-
+                  if (source?.type === "column" || target?.type === "column")
+                    return;
                   if (source && target) {
-                    const sourceChapterId = source.data?.chapterId;
-                    const targetChapterId = target.data?.chapterId;
-                    if (sourceChapterId !== targetChapterId) return;
+                    const sourceId = source.id;
+                    const targetId = target.id;
+                    const sourceChapterKey = Object.keys(items).find((key) =>
+                      items[key].some((lesson) => lesson.id === sourceId),
+                    );
+                    const targetChapterKey = Object.keys(items).find((key) =>
+                      items[key].some((lesson) => lesson.id === targetId),
+                    );
+                    if (sourceChapterKey !== targetChapterKey) return;
                   }
-
                   setItems((prevItems) => move(prevItems, event));
                 }}
                 onDragEnd={(event) => {
                   const { source } = event.operation;
                   if (event.canceled || source?.type !== "column") return;
-
                   setColumnOrder((columns) => move(columns, event));
                 }}
               >
@@ -783,10 +791,51 @@ export default function EditCourse(props: { courseId: string }) {
                   })}
                 </div>
 
-                <Button variant="outline" className="mt-6 gap-2 w-full h-12">
-                  <Plus size={15} />
-                  Add chapter
-                </Button>
+                {isAddingChapter ? (
+                  <div className="mt-6 flex flex-col gap-2 p-4 border rounded-lg bg-background">
+                    <Input
+                      autoFocus
+                      placeholder="Enter a new chapter title... (e.g., Chapter 3: Advanced Hooks)"
+                      value={newChapterTitle}
+                      onChange={(e) => setNewChapterTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleAddChapter();
+                        if (e.key === "Escape") {
+                          setIsAddingChapter(false);
+                          setNewChapterTitle("");
+                        }
+                      }}
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setIsAddingChapter(false);
+                          setNewChapterTitle("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleAddChapter}
+                        disabled={!newChapterTitle.trim()}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="mt-6 gap-2 w-full h-12 cursor-pointer"
+                    onClick={() => setIsAddingChapter(true)}
+                  >
+                    <Plus size={15} />
+                    Add chapter
+                  </Button>
+                )}
               </DragDropProvider>
             </TabsContent>
           </Tabs>

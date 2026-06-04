@@ -77,7 +77,7 @@ export function LessonItem({
     formState: { errors },
   } = useForm<LessonFormInput>({
     resolver: zodResolver(lessonFormSchema),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: {
       title: title,
       videoUrl: videoUrl,
@@ -91,6 +91,7 @@ export function LessonItem({
   // }, [title, videoUrl, durationSeconds, isPreview, reset]);
 
   const onValidSubmit = (data: LessonFormInput) => {
+    console.log("data", data);
     if (onUpdateLesson) {
       onUpdateLesson(column, id, {
         title: data.title,
@@ -112,9 +113,10 @@ export function LessonItem({
     id,
     index,
     type: "item",
-    accept: "item",
-    group: column,
-    data: { chapterId: column },
+    data: {
+      type: "lesson",
+      chapterId: column,
+    },
     disabled: isEditing,
   });
 

@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useSortable } from "@dnd-kit/react/sortable";
@@ -11,6 +12,7 @@ import { Pencil, GripVertical, Play, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
+
 const lessonFormSchema = z.object({
   title: z.string().trim().min(1, "Lesson title cannot be empty"),
   videoUrl: z
@@ -50,6 +52,10 @@ interface ItemProps {
   videoUrl: string | null;
   durationSeconds: number;
   isPreview: boolean;
+  isEditing: boolean;
+  setIsEditing: (editing: boolean, isFormDirty?: boolean) => void;
+  onFormDirtyChange?: (dirty: boolean) => void;
+
   onUpdateLesson?: (
     columnKey: string,
     lessonId: number,
@@ -66,15 +72,26 @@ export function LessonItem({
   videoUrl,
   durationSeconds,
   isPreview,
+  isEditing,
+  setIsEditing,
+  onFormDirtyChange,
   onUpdateLesson,
 }: ItemProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const { ref, isDragging } = useSortable({
+    id,
+    index,
+    type: "item",
+    data: {
+      type: "lesson",
+      chapterId: column,
+    },
+    disabled: isEditing,
+  });
   const {
     handleSubmit,
     control,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<LessonFormInput>({
     resolver: zodResolver(lessonFormSchema),
     mode: "onChange",
@@ -85,10 +102,11 @@ export function LessonItem({
       isPreview: isPreview,
     },
   });
-
-  // useEffect(() => {
-  //   reset({ title, videoUrl, durationSeconds, isPreview });
-  // }, [title, videoUrl, durationSeconds, isPreview, reset]);
+  useEffect(() => {
+    if (onFormDirtyChange) {
+      onFormDirtyChange(isDirty);
+    }
+  }, [isDirty, onFormDirtyChange]);
 
   const onValidSubmit = (data: LessonFormInput) => {
     console.log("data", data);
@@ -109,28 +127,21 @@ export function LessonItem({
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  const { ref, isDragging } = useSortable({
-    id,
-    index,
-    type: "item",
-    data: {
-      type: "lesson",
-      chapterId: column,
-    },
-    disabled: isEditing,
-  });
-
-  // useEffect(() => {
-  //   if (isEditing && inputRef.current) {
-  //     inputRef.current.focus();
-  //   }
-  // }, [isEditing]);
+  useEffect(() => {
+    if (isEditing) {
+      reset({ title, videoUrl, durationSeconds, isPreview });
+    } else {
+      reset({ title, videoUrl, durationSeconds, isPreview });
+    }
+  }, [isEditing, title, videoUrl, durationSeconds, isPreview, reset]);
 
   return (
     <Card
-      className={`p-4 bg-background border shadow-none transition-opacity ${
-        isDragging ? "opacity-40 border-dashed border-gray-400" : ""
-      }`}
+      className={`p-4 transition-all duration-200 ${
+        isEditing
+          ? "bg-muted/30 shadow-none"
+          : "bg-background border shadow-none"
+      } ${isDragging ? "opacity-40 border-dashed border-gray-400" : ""}`}
       ref={ref}
     >
       <CardContent className="p-0">
@@ -146,7 +157,6 @@ export function LessonItem({
             </span>
 
             <FieldGroup>
-              {/* Lesson Title */}
               <Field>
                 <FieldLabel className="font-semibold text-muted-foreground">
                   Lesson Title
@@ -158,25 +168,15 @@ export function LessonItem({
                     render={({ field }) => (
                       <Input
                         {...field}
-                        ref={(e) => {
-                          field.ref(e);
-                          // @ts-ignore
-                          inputRef.current = e;
-                        }}
                         placeholder="Enter lesson title..."
                         aria-invalid={!!errors.title}
-                        className={
-                          errors.title
-                            ? "border-destructive focus-visible:ring-destructive"
-                            : ""
-                        }
                       />
                     )}
                   />
                   {errors.title && (
                     <p
                       aria-live="polite"
-                      className="text-destructive mt-1.5"
+                      className="text-destructive text-xs mt-2"
                       role="alert"
                     >
                       {errors.title.message}
@@ -186,7 +186,6 @@ export function LessonItem({
               </Field>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Video URL */}
                 <Field>
                   <FieldLabel className="font-semibold text-muted-foreground">
                     Video URL
@@ -197,24 +196,20 @@ export function LessonItem({
                       name="videoUrl"
                       render={({ field }) => (
                         <Input
+                          {...field}
                           value={field.value || ""}
                           onChange={(e) =>
                             field.onChange(e.target.value || null)
                           }
-                          placeholder=""
+                          placeholder="Enter video URL (YouTube, Vimeo, etc.)"
                           aria-invalid={!!errors.videoUrl}
-                          className={
-                            errors.videoUrl
-                              ? "border-destructive focus-visible:ring-destructive"
-                              : ""
-                          }
                         />
                       )}
                     />
                     {errors.videoUrl && (
                       <p
                         aria-live="polite"
-                        className="text-destructive  mt-1.5"
+                        className="text-destructive text-xs mt-2"
                         role="alert"
                       >
                         {errors.videoUrl.message}
@@ -223,10 +218,9 @@ export function LessonItem({
                   </div>
                 </Field>
 
-                {/* Duration */}
                 <Field>
                   <FieldLabel className=" font-semibold text-muted-foreground">
-                    Duration (Seconds)
+                    Duration (Minutes)
                   </FieldLabel>
                   <div>
                     <Controller
@@ -251,7 +245,7 @@ export function LessonItem({
                     {errors.durationSeconds && (
                       <p
                         aria-live="polite"
-                        className="text-destructive  mt-1.5"
+                        className="text-destructive text-xs mt-2"
                         role="alert"
                       >
                         {errors.durationSeconds.message}
@@ -260,28 +254,34 @@ export function LessonItem({
                   </div>
                 </Field>
               </div>
-
-              {/* Free Preview Checkbox */}
-              <div className="flex items-center gap-2 py-1">
-                <Controller
-                  control={control}
-                  name="isPreview"
-                  render={({ field }) => (
-                    <input
-                      type="checkbox"
-                      id={`preview-${id}`}
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300 text-primary cursor-pointer"
+              <div className="w-full py-4 px-4 border rounded-xl">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3">
+                    <Controller
+                      control={control}
+                      name="isPreview"
+                      render={({ field }) => (
+                        <Checkbox
+                          id={`preview-${id}`}
+                          className="cursor-pointer"
+                          checked={field.value}
+                          onCheckedChange={(e) => {
+                            field.onChange(e);
+                          }}
+                        />
+                      )}
                     />
-                  )}
-                />
-                <label
-                  htmlFor={`preview-${id}`}
-                  className=" font-medium cursor-pointer select-none"
-                >
-                  Allow students to watch this lesson as a free preview
-                </label>
+                    <label
+                      htmlFor={`preview-${id}`}
+                      className="font-semibold cursor-pointer select-none text-sm"
+                    >
+                      Free Preview
+                    </label>
+                  </div>
+                  <p className="text-sm ml-7 text-muted-foreground">
+                    Allow students to watch this lesson as a free preview
+                  </p>
+                </div>
               </div>
             </FieldGroup>
 
@@ -293,8 +293,7 @@ export function LessonItem({
                 size="sm"
                 className="h-8 "
                 onClick={() => {
-                  reset();
-                  setIsEditing(false);
+                  setIsEditing(false, isDirty);
                 }}
               >
                 Cancel
@@ -334,7 +333,7 @@ export function LessonItem({
                 variant="outline"
                 className="gap-2"
                 type="button"
-                onClick={() => setIsEditing(true)}
+                onClick={() => setIsEditing(true, isDirty)}
               >
                 <Pencil size={15} />
               </Button>

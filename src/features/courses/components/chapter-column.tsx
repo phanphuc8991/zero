@@ -12,6 +12,7 @@ interface ColumnProps {
   title: string;
   lessonCount: number;
   onUpdateTitle?: (id: string, newTitle: string) => void;
+  onAddLesson?: (columnKey: string, lessonTitle: string) => void;
 }
 
 export function ChapterColumn({
@@ -21,6 +22,7 @@ export function ChapterColumn({
   title,
   lessonCount,
   onUpdateTitle,
+  onAddLesson,
 }: ColumnProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
@@ -32,7 +34,18 @@ export function ChapterColumn({
     data: { chapterId: id },
     disabled: isEditing,
   });
+  const [isAddingLesson, setIsAddingLesson] = useState(false);
+  const [newLessonTitle, setNewLessonTitle] = useState("");
 
+  const handleSaveLesson = () => {
+    if (!newLessonTitle.trim()) return;
+
+    if (onAddLesson) {
+      onAddLesson(id, newLessonTitle.trim());
+    }
+    setNewLessonTitle("");
+    setIsAddingLesson(false);
+  };
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
@@ -143,10 +156,54 @@ export function ChapterColumn({
 
         <div className="flex flex-col gap-4">
           {children}
-          <Button variant="outline" className="gap-2 w-full h-12">
-            <Plus size={15} />
-            Add lesson
-          </Button>
+          {isAddingLesson ? (
+            <div className="flex flex-col gap-2 p-3 border border-dashed rounded-lg bg-muted/20">
+              <Input
+                autoFocus
+                placeholder="Enter a new lesson title... (Press Enter to create)"
+                value={newLessonTitle}
+                onChange={(e) => setNewLessonTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSaveLesson();
+                  if (e.key === "Escape") {
+                    setIsAddingLesson(false);
+                    setNewLessonTitle("");
+                  }
+                }}
+                className="h-9"
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8"
+                  onClick={() => {
+                    setIsAddingLesson(false);
+                    setNewLessonTitle("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  className="h-8"
+                  onClick={handleSaveLesson}
+                  disabled={!newLessonTitle.trim()}
+                >
+                  Add
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              className="gap-2 w-full h-12 cursor-pointer text-sm"
+              onClick={() => setIsAddingLesson(true)}
+            >
+              <Plus size={15} />
+              Add lesson
+            </Button>
+          )}
         </div>
       </CardContent>
       <div className="flex items-center justify-between">

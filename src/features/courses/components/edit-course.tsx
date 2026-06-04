@@ -45,6 +45,16 @@ import { LessonItem } from "@/features/courses/components/lesson-item";
 import { DragDropProvider } from "@dnd-kit/react";
 import { PointerSensor, KeyboardSensor } from "@dnd-kit/dom";
 import { move } from "@dnd-kit/helpers";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const convertToSlug = (text: string): string => {
   return text
@@ -82,6 +92,12 @@ export default function EditCourse(props: { courseId: string }) {
   const [existingThumbnail, setExistingThumbnail] = useState<string | null>(
     null,
   );
+  const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
+  const [isCurrentFormDirty, setIsCurrentFormDirty] = useState(false);
+
+  const [pendingLessonId, setPendingLessonId] = useState<number | null>(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+
   const thumbnailFileRef = useRef<File | null>(null);
   const handleUpdateChapterTitle = (columnKey: string, newTitle: string) => {
     setChapterDetails((prev) => ({
@@ -91,6 +107,13 @@ export default function EditCourse(props: { courseId: string }) {
         title: newTitle,
       },
     }));
+  };
+
+  const handleConfirmDiscard = () => {
+    setEditingLessonId(pendingLessonId);
+    setIsCurrentFormDirty(false);
+    setIsAlertOpen(false);
+    setPendingLessonId(null);
   };
 
   const [isAddingChapter, setIsAddingChapter] = useState(false);
@@ -132,6 +155,27 @@ export default function EditCourse(props: { courseId: string }) {
     setColumnOrder((prev) => [...prev, newColumnKey]);
     setNewChapterTitle("");
     setIsAddingChapter(false);
+  };
+
+  const handleAddLesson = (columnKey: string, lessonTitle: string) => {
+    if (!lessonTitle.trim()) return;
+
+    const newLessonId = Math.floor(Math.random() * 100000);
+    const currentLessons = items[columnKey] || [];
+
+    const newLesson: Lesson = {
+      id: newLessonId,
+      chapterId: chapterDetails[columnKey]?.id || 0,
+      title: lessonTitle.trim(),
+      videoUrl: "",
+      durationSeconds: 0,
+      sortOrder: currentLessons.length,
+      isPreview: false,
+    };
+    setItems((prev) => ({
+      ...prev,
+      [columnKey]: [...currentLessons, newLesson],
+    }));
   };
 
   const { upload, isUploading } = useUploadThumbnail();
@@ -252,7 +296,7 @@ export default function EditCourse(props: { courseId: string }) {
       toast.success("Course updated successfully");
     },
   });
-
+  console.log("items", items);
   useEffect(() => {
     if (courseId) {
       fetchCourse({ courseId });
@@ -771,6 +815,7 @@ export default function EditCourse(props: { courseId: string }) {
                         title={chapter.title}
                         lessonCount={lessons.length}
                         onUpdateTitle={handleUpdateChapterTitle}
+                        onAddLesson={handleAddLesson}
                       >
                         {lessons.map((lesson, lessonIndex) => (
                           <LessonItem
@@ -784,6 +829,39 @@ export default function EditCourse(props: { courseId: string }) {
                             videoUrl={lesson.videoUrl}
                             durationSeconds={lesson.durationSeconds}
                             isPreview={lesson.isPreview}
+                            isEditing={editingLessonId === lesson.id}
+                            onFormDirtyChange={(dirty) => {
+                              if (editingLessonId === lesson.id) {
+                                setIsCurrentFormDirty(dirty);
+                              }
+                            }}
+                            setIsEditing={(editing, isFormDirty) => {
+                              if (editing) {
+                                console.log(
+                                  "isCurrentFormDirty",
+                                  isCurrentFormDirty,
+                                );
+                                if (
+                                  editingLessonId !== null &&
+                                  editingLessonId !== lesson.id &&
+                                  isCurrentFormDirty
+                                ) {
+                                  setPendingLessonId(lesson.id);
+                                  setIsAlertOpen(true);
+                                  return;
+                                }
+                                setEditingLessonId(lesson.id);
+                                setIsCurrentFormDirty(false);
+                              } else {
+                                if (isFormDirty) {
+                                  setPendingLessonId(null);
+                                  setIsAlertOpen(true);
+                                } else {
+                                  setEditingLessonId(null);
+                                  setIsCurrentFormDirty(false);
+                                }
+                              }
+                            }}
                           />
                         ))}
                       </ChapterColumn>
@@ -839,6 +917,31 @@ export default function EditCourse(props: { courseId: string }) {
               </DragDropProvider>
             </TabsContent>
           </Tabs>
+          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+            <AlertDialogContent
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <AlertDialogHeader>
+                <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+                <AlertDialogDescription>
+                  You have made modifications to this lesson. Are you sure you
+                  want to discard these changes? Your edits will be lost.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+                  Keep Editing
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleConfirmDiscard}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Discard Changes
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>

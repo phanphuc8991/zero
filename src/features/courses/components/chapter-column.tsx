@@ -5,12 +5,15 @@ import { Pencil, GripVertical, Trash2, Plus, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useCourseStore } from "@/stores/useCourseStore";
+import { useShallow } from "zustand/react/shallow";
 interface ColumnProps {
   children: React.ReactNode;
   id: string;
   index: number;
   title: string;
   lessonCount: number;
+  chapterId: number;
   onUpdateTitle?: (id: string, newTitle: string) => void;
   onAddLesson?: (columnKey: string, lessonTitle: string) => void;
 }
@@ -23,8 +26,29 @@ export function ChapterColumn({
   lessonCount,
   onUpdateTitle,
   onAddLesson,
+  chapterId,
 }: ColumnProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  const {
+    isSystemLocked,
+    editingChapterId,
+    openEditChapter,
+    openAddLesson,
+    closeAllInputs,
+    isAddingLessonChapterId,
+  } = useCourseStore(
+    useShallow((state) => ({
+      isSystemLocked: state.isSystemLocked(),
+      editingChapterId: state.editingChapterId,
+      openEditChapter: state.openEditChapter,
+      openAddLesson: state.openAddLesson,
+      closeAllInputs: state.closeAllInputs,
+      isAddingLessonChapterId: state.isAddingLessonChapterId,
+    })),
+  );
+
+  const isEditingThisChapter = editingChapterId === chapterId;
+  const isAddingThisLessonChapterId = isAddingLessonChapterId === chapterId;
+
   const [editTitle, setEditTitle] = useState(title);
   const inputRef = useRef<HTMLInputElement>(null);
   const { ref, isDragging } = useSortable({
@@ -32,48 +56,28 @@ export function ChapterColumn({
     index,
     type: "column",
     data: { chapterId: id },
-    disabled: isEditing,
+    disabled: isEditingThisChapter,
   });
-  const [isAddingLesson, setIsAddingLesson] = useState(false);
+
   const [newLessonTitle, setNewLessonTitle] = useState("");
 
   const handleSaveLesson = () => {
-    if (!newLessonTitle.trim()) return;
-
     if (onAddLesson) {
       onAddLesson(id, newLessonTitle.trim());
     }
     setNewLessonTitle("");
-    setIsAddingLesson(false);
   };
+
   useEffect(() => {
-    if (isEditing && inputRef.current) {
+    if (isEditingThisChapter && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
     }
-  }, [isEditing]);
+  }, [isEditingThisChapter]);
 
-  useEffect(() => {
-    setEditTitle(title);
-  }, [title]);
-
-  const handleSave = () => {
-    if (editTitle.trim() === "") {
-      setEditTitle(title);
-      setIsEditing(false);
-      return;
-    }
+  const handleSaveChapter = () => {
     if (onUpdateTitle) {
       onUpdateTitle(id, editTitle.trim());
-    }
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSave();
-    if (e.key === "Escape") {
-      setEditTitle(title);
-      setIsEditing(false);
     }
   };
 
@@ -89,7 +93,7 @@ export function ChapterColumn({
           <div className="flex items-center gap-4 flex-1">
             <div className="flex items-center gap-4">
               <GripVertical className="w-6 h-6 cursor-pointer" />
-              {isEditing ? (
+              {isEditingThisChapter ? (
                 <div className="flex items-center gap-1.5">
                   <span className="text-lg font-bold whitespace-nowrap">
                     Chapter {index + 1}:
@@ -99,16 +103,15 @@ export function ChapterColumn({
                       ref={inputRef}
                       value={editTitle}
                       onChange={(e) => setEditTitle(e.target.value)}
-                      onKeyDown={handleKeyDown}
                       className="h-7 font-medium py-1 px-2 w-full"
                     />
                   </div>
-
                   <div className="flex items-center gap-1.5 shrink-0">
                     <Button
                       variant="outline"
                       className="h-8 w-8 p-0"
-                      onClick={handleSave}
+                      disabled={!editTitle.trim()}
+                      onClick={handleSaveChapter}
                     >
                       <Check size={15} />
                     </Button>
@@ -117,7 +120,7 @@ export function ChapterColumn({
                       className="h-8 w-8 p-0"
                       onClick={() => {
                         setEditTitle(title);
-                        setIsEditing(false);
+                        closeAllInputs();
                       }}
                     >
                       <X size={15} className="text-destructive" />
@@ -138,47 +141,47 @@ export function ChapterColumn({
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
-            {!isEditing && (
-              <Button
-                variant="outline"
-                className="gap-2"
-                onClick={() => setIsEditing(true)}
-              >
-                <Pencil size={15} />
-                Edit
-              </Button>
+            {!isEditingThisChapter && (
+              <>
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => openEditChapter(chapterId)}
+                  disabled={isSystemLocked}
+                >
+                  <Pencil size={15} />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  disabled={isSystemLocked}
+                >
+                  <Trash2 size={15} className="text-[#E9122B]" />
+                </Button>
+              </>
             )}
-            <Button variant="outline" className="gap-2">
-              <Trash2 size={15} className="text-[#E9122B]" />
-            </Button>
           </div>
         </div>
 
         <div className="flex flex-col gap-4">
           {children}
-          {isAddingLesson ? (
-            <div className="flex flex-col gap-2 p-3 border border-dashed rounded-lg bg-muted/20">
+          {isAddingThisLessonChapterId ? (
+            <div className="flex flex-col gap-2 p-3 border border-dashed rounded-lg bg-muted/20 mb-6">
               <Input
                 autoFocus
                 placeholder="Enter a new lesson title... (Press Enter to create)"
                 value={newLessonTitle}
                 onChange={(e) => setNewLessonTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSaveLesson();
-                  if (e.key === "Escape") {
-                    setIsAddingLesson(false);
-                    setNewLessonTitle("");
-                  }
-                }}
                 className="h-9"
               />
               <div className="flex justify-end gap-2">
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="outline"
                   className="h-8"
                   onClick={() => {
-                    setIsAddingLesson(false);
+                    closeAllInputs();
                     setNewLessonTitle("");
                   }}
                 >
@@ -197,8 +200,9 @@ export function ChapterColumn({
           ) : (
             <Button
               variant="outline"
-              className="gap-2 w-full h-12 cursor-pointer text-sm"
-              onClick={() => setIsAddingLesson(true)}
+              className="gap-2 w-full h-12 cursor-pointer text-sm mb-6"
+              onClick={() => openAddLesson(chapterId)}
+              disabled={isSystemLocked}
             >
               <Plus size={15} />
               Add lesson
@@ -206,10 +210,6 @@ export function ChapterColumn({
           )}
         </div>
       </CardContent>
-      <div className="flex items-center justify-between">
-        <div className="div1"></div>
-        <div className="div2"></div>
-      </div>
     </Card>
   );
 }

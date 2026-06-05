@@ -1,12 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Rocket, Trash2, Loader2, Plus } from "lucide-react";
-
+import { Save, Rocket, Trash2, Loader2, Plus } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +44,7 @@ import { LessonItem } from "@/features/courses/components/lesson-item";
 import { DragDropProvider } from "@dnd-kit/react";
 import { PointerSensor, KeyboardSensor } from "@dnd-kit/dom";
 import { move } from "@dnd-kit/helpers";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -84,99 +84,36 @@ interface ChapterInfo {
   sortOrder: number;
 }
 export default function EditCourse(props: { courseId: string }) {
-  const router = useRouter();
+  const {
+    isSystemLocked,
+    openAddChapter,
+    isAddingChapter,
+    closeAllInputs,
+    categories,
+    instructors,
+    isCategoriesLoading,
+    isInstructorsLoading,
+    fetchCategories,
+    fetchInstructors,
+  } = useCourseStore(
+    useShallow((state) => ({
+      isSystemLocked: state.isSystemLocked(),
+      openAddChapter: state.openAddChapter,
+      isAddingChapter: state.isAddingChapter,
+      closeAllInputs: state.closeAllInputs,
+      categories: state.categories,
+      instructors: state.instructors,
+      isCategoriesLoading: state.isCategoriesLoading,
+      isInstructorsLoading: state.isInstructorsLoading,
+      fetchCategories: state.fetchCategories,
+      fetchInstructors: state.fetchInstructors,
+    })),
+  );
+
   const courseId = Number(props?.courseId);
   const [serverError, setServerError] = useState("");
   const [isPageLoading, setIsPageLoading] = useState(true);
-  const [courseTitle, setCourseTitle] = useState("");
-  const [existingThumbnail, setExistingThumbnail] = useState<string | null>(
-    null,
-  );
-  const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
-  const [isCurrentFormDirty, setIsCurrentFormDirty] = useState(false);
-
-  const [pendingLessonId, setPendingLessonId] = useState<number | null>(null);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
-
-  const thumbnailFileRef = useRef<File | null>(null);
-  const handleUpdateChapterTitle = (columnKey: string, newTitle: string) => {
-    setChapterDetails((prev) => ({
-      ...prev,
-      [columnKey]: {
-        ...prev[columnKey],
-        title: newTitle,
-      },
-    }));
-  };
-
-  const handleConfirmDiscard = () => {
-    setEditingLessonId(pendingLessonId);
-    setIsCurrentFormDirty(false);
-    setIsAlertOpen(false);
-    setPendingLessonId(null);
-  };
-
-  const [isAddingChapter, setIsAddingChapter] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState("");
-
-  const handleUpdateLessonFields = (
-    columnKey: string,
-    lessonId: number,
-    fieldsToUpdate: Partial<Lesson>,
-  ) => {
-    setItems((prevItems) => {
-      const currentLessons = prevItems[columnKey] || [];
-      const updatedLessons = currentLessons.map((lesson) =>
-        lesson.id === lessonId ? { ...lesson, ...fieldsToUpdate } : lesson,
-      );
-      return {
-        ...prevItems,
-        [columnKey]: updatedLessons,
-      };
-    });
-  };
-
-  const handleAddChapter = () => {
-    if (!newChapterTitle.trim()) return;
-    const newColumnKey = `chapter-key-${Date.now()}`;
-    const newChapterId = Math.floor(Math.random() * 10000);
-    setChapterDetails((prev) => ({
-      ...prev,
-      [newColumnKey]: {
-        id: newChapterId,
-        title: newChapterTitle.trim(),
-        sortOrder: Object.keys(prev).length,
-      },
-    }));
-    setItems((prev) => ({
-      ...prev,
-      [newColumnKey]: [],
-    }));
-    setColumnOrder((prev) => [...prev, newColumnKey]);
-    setNewChapterTitle("");
-    setIsAddingChapter(false);
-  };
-
-  const handleAddLesson = (columnKey: string, lessonTitle: string) => {
-    if (!lessonTitle.trim()) return;
-
-    const newLessonId = Math.floor(Math.random() * 100000);
-    const currentLessons = items[columnKey] || [];
-
-    const newLesson: Lesson = {
-      id: newLessonId,
-      chapterId: chapterDetails[columnKey]?.id || 0,
-      title: lessonTitle.trim(),
-      videoUrl: "",
-      durationSeconds: 0,
-      sortOrder: currentLessons.length,
-      isPreview: false,
-    };
-    setItems((prev) => ({
-      ...prev,
-      [columnKey]: [...currentLessons, newLesson],
-    }));
-  };
 
   const { upload, isUploading } = useUploadThumbnail();
   const [items, setItems] = useState<{ [key: string]: Lesson[] }>({
@@ -227,14 +164,80 @@ export default function EditCourse(props: { courseId: string }) {
     Object.keys(items),
   );
 
-  const {
-    categories,
-    instructors,
-    isCategoriesLoading,
-    isInstructorsLoading,
-    fetchCategories,
-    fetchInstructors,
-  } = useCourseStore();
+  // const [existingThumbnail, setExistingThumbnail] = useState<string | null>(
+  //   null,
+  // );
+
+  const thumbnailFileRef = useRef<File | null>(null);
+
+  const handleUpdateChapterTitle = (columnKey: string, newTitle: string) => {
+    setChapterDetails((prev) => ({
+      ...prev,
+      [columnKey]: {
+        ...prev[columnKey],
+        title: newTitle,
+      },
+    }));
+    closeAllInputs();
+  };
+
+  const handleUpdateLessonFields = (
+    columnKey: string,
+    lessonId: number,
+    fieldsToUpdate: Partial<Lesson>,
+  ) => {
+    setItems((prevItems) => {
+      const currentLessons = prevItems[columnKey] || [];
+      const updatedLessons = currentLessons.map((lesson) =>
+        lesson.id === lessonId ? { ...lesson, ...fieldsToUpdate } : lesson,
+      );
+      return {
+        ...prevItems,
+        [columnKey]: updatedLessons,
+      };
+    });
+    closeAllInputs();
+  };
+
+  const handleAddChapter = () => {
+    const newColumnKey = `chapter-key-${Date.now()}`;
+    const newChapterId = Math.floor(Math.random() * 10000);
+    setChapterDetails((prev) => ({
+      ...prev,
+      [newColumnKey]: {
+        id: newChapterId,
+        title: newChapterTitle.trim(),
+        sortOrder: Object.keys(prev).length,
+      },
+    }));
+    setItems((prev) => ({
+      ...prev,
+      [newColumnKey]: [],
+    }));
+    setColumnOrder((prev) => [...prev, newColumnKey]);
+    setNewChapterTitle("");
+    closeAllInputs();
+  };
+
+  const handleAddLesson = (columnKey: string, lessonTitle: string) => {
+    if (!lessonTitle.trim()) return;
+    const newLessonId = Math.floor(Math.random() * 100000);
+    const currentLessons = items[columnKey] || [];
+    const newLesson: Lesson = {
+      id: newLessonId,
+      chapterId: chapterDetails[columnKey]?.id || 0,
+      title: lessonTitle.trim(),
+      videoUrl: "",
+      durationSeconds: 0,
+      sortOrder: currentLessons.length,
+      isPreview: false,
+    };
+    setItems((prev) => ({
+      ...prev,
+      [columnKey]: [...currentLessons, newLesson],
+    }));
+    closeAllInputs();
+  };
 
   const {
     handleSubmit,
@@ -263,7 +266,6 @@ export default function EditCourse(props: { courseId: string }) {
       setIsPageLoading(false);
       if (data?.course) {
         const course = data.course;
-        setCourseTitle(course.title);
         reset({
           title: course.title ?? "",
           slug: course.slug ?? "",
@@ -296,7 +298,7 @@ export default function EditCourse(props: { courseId: string }) {
       toast.success("Course updated successfully");
     },
   });
-  console.log("items", items);
+
   useEffect(() => {
     if (courseId) {
       fetchCourse({ courseId });
@@ -352,10 +354,7 @@ export default function EditCourse(props: { courseId: string }) {
   return (
     <div className="mx-30 max-w-350">
       <div className="w-full">
-        <div
-          className="flex flex-col gap-6"
-          // onSubmit={(e) => e.preventDefault()}
-        >
+        <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-bold tracking-tight">
@@ -813,6 +812,7 @@ export default function EditCourse(props: { courseId: string }) {
                         id={columnKey}
                         index={chapterIndex}
                         title={chapter.title}
+                        chapterId={chapter.id}
                         lessonCount={lessons.length}
                         onUpdateTitle={handleUpdateChapterTitle}
                         onAddLesson={handleAddLesson}
@@ -829,39 +829,6 @@ export default function EditCourse(props: { courseId: string }) {
                             videoUrl={lesson.videoUrl}
                             durationSeconds={lesson.durationSeconds}
                             isPreview={lesson.isPreview}
-                            isEditing={editingLessonId === lesson.id}
-                            onFormDirtyChange={(dirty) => {
-                              if (editingLessonId === lesson.id) {
-                                setIsCurrentFormDirty(dirty);
-                              }
-                            }}
-                            setIsEditing={(editing, isFormDirty) => {
-                              if (editing) {
-                                console.log(
-                                  "isCurrentFormDirty",
-                                  isCurrentFormDirty,
-                                );
-                                if (
-                                  editingLessonId !== null &&
-                                  editingLessonId !== lesson.id &&
-                                  isCurrentFormDirty
-                                ) {
-                                  setPendingLessonId(lesson.id);
-                                  setIsAlertOpen(true);
-                                  return;
-                                }
-                                setEditingLessonId(lesson.id);
-                                setIsCurrentFormDirty(false);
-                              } else {
-                                if (isFormDirty) {
-                                  setPendingLessonId(null);
-                                  setIsAlertOpen(true);
-                                } else {
-                                  setEditingLessonId(null);
-                                  setIsCurrentFormDirty(false);
-                                }
-                              }
-                            }}
                           />
                         ))}
                       </ChapterColumn>
@@ -876,20 +843,13 @@ export default function EditCourse(props: { courseId: string }) {
                       placeholder="Enter a new chapter title... (e.g., Chapter 3: Advanced Hooks)"
                       value={newChapterTitle}
                       onChange={(e) => setNewChapterTitle(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleAddChapter();
-                        if (e.key === "Escape") {
-                          setIsAddingChapter(false);
-                          setNewChapterTitle("");
-                        }
-                      }}
                     />
                     <div className="flex justify-end gap-2">
                       <Button
                         size="sm"
-                        variant="ghost"
+                        variant="outline"
                         onClick={() => {
-                          setIsAddingChapter(false);
+                          closeAllInputs();
                           setNewChapterTitle("");
                         }}
                       >
@@ -907,8 +867,9 @@ export default function EditCourse(props: { courseId: string }) {
                 ) : (
                   <Button
                     variant="outline"
+                    disabled={isSystemLocked}
                     className="mt-6 gap-2 w-full h-12 cursor-pointer"
-                    onClick={() => setIsAddingChapter(true)}
+                    onClick={openAddChapter}
                   >
                     <Plus size={15} />
                     Add chapter
@@ -917,31 +878,6 @@ export default function EditCourse(props: { courseId: string }) {
               </DragDropProvider>
             </TabsContent>
           </Tabs>
-          <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-            <AlertDialogContent
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <AlertDialogHeader>
-                <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
-                <AlertDialogDescription>
-                  You have made modifications to this lesson. Are you sure you
-                  want to discard these changes? Your edits will be lost.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
-                  Keep Editing
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleConfirmDiscard}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  Discard Changes
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       </div>
     </div>

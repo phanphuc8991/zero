@@ -1,17 +1,17 @@
 "use client";
-
+import * as z from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useCourseStore } from "@/stores/useCourseStore";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, GripVertical, Play, Trash2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import * as z from "zod";
+import { useShallow } from "zustand/react/shallow";
 
 const lessonFormSchema = z.object({
   title: z.string().trim().min(1, "Lesson title cannot be empty"),
@@ -52,10 +52,6 @@ interface ItemProps {
   videoUrl: string | null;
   durationSeconds: number;
   isPreview: boolean;
-  isEditing: boolean;
-  setIsEditing: (editing: boolean, isFormDirty?: boolean) => void;
-  onFormDirtyChange?: (dirty: boolean) => void;
-
   onUpdateLesson?: (
     columnKey: string,
     lessonId: number,
@@ -72,11 +68,19 @@ export function LessonItem({
   videoUrl,
   durationSeconds,
   isPreview,
-  isEditing,
-  setIsEditing,
-  onFormDirtyChange,
   onUpdateLesson,
 }: ItemProps) {
+  const { editingLessonId, isSystemLocked, openEditLesson, closeAllInputs } =
+    useCourseStore(
+      useShallow((state) => ({
+        editingLessonId: state.editingLessonId,
+        isSystemLocked: state.isSystemLocked(),
+        openEditLesson: state.openEditLesson,
+        closeAllInputs: state.closeAllInputs,
+      })),
+    );
+
+  const editingThisLessonId = editingLessonId === id;
   const { ref, isDragging } = useSortable({
     id,
     index,
@@ -85,12 +89,12 @@ export function LessonItem({
       type: "lesson",
       chapterId: column,
     },
-    disabled: isEditing,
+    disabled: !!editingThisLessonId,
   });
   const {
     handleSubmit,
     control,
-    reset,
+    // reset,
     formState: { errors, isDirty },
   } = useForm<LessonFormInput>({
     resolver: zodResolver(lessonFormSchema),
@@ -102,14 +106,8 @@ export function LessonItem({
       isPreview: isPreview,
     },
   });
-  useEffect(() => {
-    if (onFormDirtyChange) {
-      onFormDirtyChange(isDirty);
-    }
-  }, [isDirty, onFormDirtyChange]);
 
   const onValidSubmit = (data: LessonFormInput) => {
-    console.log("data", data);
     if (onUpdateLesson) {
       onUpdateLesson(column, id, {
         title: data.title,
@@ -118,7 +116,6 @@ export function LessonItem({
         isPreview: data.isPreview,
       });
     }
-    setIsEditing(false);
   };
 
   const formatDuration = (seconds: number) => {
@@ -127,25 +124,17 @@ export function LessonItem({
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  useEffect(() => {
-    if (isEditing) {
-      reset({ title, videoUrl, durationSeconds, isPreview });
-    } else {
-      reset({ title, videoUrl, durationSeconds, isPreview });
-    }
-  }, [isEditing, title, videoUrl, durationSeconds, isPreview, reset]);
-
   return (
     <Card
       className={`p-4 transition-all duration-200 ${
-        isEditing
+        editingLessonId
           ? "bg-muted/30 shadow-none"
           : "bg-background border shadow-none"
       } ${isDragging ? "opacity-40 border-dashed border-gray-400" : ""}`}
       ref={ref}
     >
       <CardContent className="p-0">
-        {isEditing ? (
+        {editingThisLessonId ? (
           <form
             onSubmit={handleSubmit(onValidSubmit)}
             className="flex flex-col gap-4 w-full animate-in fade-in duration-150"
@@ -284,8 +273,6 @@ export function LessonItem({
                 </div>
               </div>
             </FieldGroup>
-
-            {/* Action Buttons */}
             <div className="flex items-center justify-end gap-2 pt-2">
               <Button
                 type="button"
@@ -293,7 +280,7 @@ export function LessonItem({
                 size="sm"
                 className="h-8 "
                 onClick={() => {
-                  setIsEditing(false, isDirty);
+                  closeAllInputs();
                 }}
               >
                 Cancel
@@ -333,11 +320,17 @@ export function LessonItem({
                 variant="outline"
                 className="gap-2"
                 type="button"
-                onClick={() => setIsEditing(true, isDirty)}
+                onClick={() => openEditLesson(id)}
+                disabled={isSystemLocked}
               >
                 <Pencil size={15} />
               </Button>
-              <Button variant="outline" className="gap-2" type="button">
+              <Button
+                variant="outline"
+                className="gap-2"
+                type="button"
+                disabled={isSystemLocked}
+              >
                 <Trash2 size={15} className="text-[#E9122B]" />
               </Button>
             </div>

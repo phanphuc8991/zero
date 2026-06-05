@@ -7,23 +7,59 @@ interface CourseStore {
   instructors: Instructor[];
   isCategoriesLoading: boolean;
   isInstructorsLoading: boolean;
+  editingLessonId: number | null;
+  editingChapterId: number | null;
+  isAddingLessonChapterId: number | null;
+  isAddingChapter: boolean;
 
-  // --- Actions ---
+  isSystemLocked: () => boolean;
+
+  openEditLesson: (lessonId: number) => void;
+  openEditChapter: (chapterId: number) => void;
+  openAddLesson: (chapterId: number) => void;
+  openAddChapter: () => void;
+  closeAllInputs: () => void;
+
   fetchCategories: () => Promise<void>;
   fetchInstructors: () => Promise<void>;
-
   resetCategories: () => void;
   resetInstructors: () => void;
 }
 
 export const useCourseStore = create<CourseStore>((set, get) => ({
-  // --- Initial State ---
   categories: [],
   instructors: [],
   isCategoriesLoading: false,
   isInstructorsLoading: false,
 
-  // --- Fetch Categories ---
+  editingLessonId: null,
+  editingChapterId: null,
+  isAddingLessonChapterId: null,
+  isAddingChapter: false,
+
+  openEditLesson: (lessonId) => set({ editingLessonId: lessonId }),
+  openEditChapter: (chapterId) => set({ editingChapterId: chapterId }),
+  openAddLesson: (chapterId) => set({ isAddingLessonChapterId: chapterId }),
+  openAddChapter: () => set({ isAddingChapter: true }),
+
+  closeAllInputs: () =>
+    set({
+      editingLessonId: null,
+      editingChapterId: null,
+      isAddingLessonChapterId: null,
+      isAddingChapter: false,
+    }),
+
+  isSystemLocked: () => {
+    const state = get();
+    return (
+      state.editingLessonId !== null ||
+      state.editingChapterId !== null ||
+      state.isAddingLessonChapterId !== null ||
+      state.isAddingChapter
+    );
+  },
+
   fetchCategories: async () => {
     if (get().categories.length > 0) return;
     set({ isCategoriesLoading: true });
@@ -41,8 +77,6 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
       set({ isCategoriesLoading: false });
     }
   },
-
-  // --- Fetch Instructors ---
   fetchInstructors: async () => {
     if (get().instructors.length > 0) return;
     set({ isInstructorsLoading: true });

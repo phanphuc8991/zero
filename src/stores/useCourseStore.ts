@@ -7,16 +7,22 @@ interface CourseStore {
   instructors: Instructor[];
   isCategoriesLoading: boolean;
   isInstructorsLoading: boolean;
-  editingLessonId: number | null;
-  editingChapterId: number | null;
-  isAddingLessonChapterId: number | null;
-  isAddingChapter: boolean;
 
+  editingChapterId: number | null;
+  isAddingChapter: boolean;
+  openEditChapter: (chapterId: number) => void;
+
+  isLessonDrawerOpen: boolean;
+  lessonDrawerMode: "CREATE" | "EDIT" | null;
+  activeChapterId: number | null;
+  activeChapterIndex: number | null;
+  editingLessonData: any | null;
   isSystemLocked: () => boolean;
 
-  openEditLesson: (lessonId: number) => void;
-  openEditChapter: (chapterId: number) => void;
-  openAddLesson: (chapterId: number) => void;
+  openAddLessonDrawer: (chapterId: number, chapterIndex: number) => void;
+  openEditLessonDrawer: (lesson: any) => void;
+  closeLessonDrawer: () => void;
+
   openAddChapter: () => void;
   closeAllInputs: () => void;
 
@@ -27,39 +33,68 @@ interface CourseStore {
 }
 
 export const useCourseStore = create<CourseStore>((set, get) => ({
+  // course
   categories: [],
   instructors: [],
   isCategoriesLoading: false,
   isInstructorsLoading: false,
 
-  editingLessonId: null,
+  // lesson
+  isLessonDrawerOpen: false,
+  lessonDrawerMode: null,
+  activeChapterId: null,
+  activeChapterIndex: null,
+  editingLessonData: null,
+
+  //chapter
   editingChapterId: null,
-  isAddingLessonChapterId: null,
   isAddingChapter: false,
 
-  openEditLesson: (lessonId) => set({ editingLessonId: lessonId }),
+  // chapter action
   openEditChapter: (chapterId) => set({ editingChapterId: chapterId }),
-  openAddLesson: (chapterId) => set({ isAddingLessonChapterId: chapterId }),
   openAddChapter: () => set({ isAddingChapter: true }),
+
+  // lesson action
+  openAddLessonDrawer: (chapterId, chapterIndex) =>
+    set({
+      isLessonDrawerOpen: true,
+      lessonDrawerMode: "CREATE",
+      activeChapterId: chapterId,
+      activeChapterIndex: chapterIndex,
+      editingLessonData: null,
+    }),
+
+  openEditLessonDrawer: (lesson) =>
+    set({
+      isLessonDrawerOpen: true,
+      lessonDrawerMode: "EDIT",
+      editingLessonData: lesson,
+      activeChapterId: null,
+      activeChapterIndex: null,
+    }),
+
+  closeLessonDrawer: () =>
+    set({
+      isLessonDrawerOpen: false,
+      lessonDrawerMode: null,
+      activeChapterId: null,
+      activeChapterIndex: null,
+      editingLessonData: null,
+    }),
 
   closeAllInputs: () =>
     set({
-      editingLessonId: null,
       editingChapterId: null,
-      isAddingLessonChapterId: null,
       isAddingChapter: false,
     }),
 
+  // check disabled when action active
   isSystemLocked: () => {
     const state = get();
-    return (
-      state.editingLessonId !== null ||
-      state.editingChapterId !== null ||
-      state.isAddingLessonChapterId !== null ||
-      state.isAddingChapter
-    );
+    return state.editingChapterId !== null || state.isAddingChapter;
   },
 
+  // course action
   fetchCategories: async () => {
     if (get().categories.length > 0) return;
     set({ isCategoriesLoading: true });

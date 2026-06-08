@@ -26,33 +26,29 @@ export function ChapterColumn({
   title,
   lessonCount,
   onUpdateChapter,
-  onAddLesson,
   chapterId,
 }: ChapterProps) {
   const {
     isSystemLocked,
     editingChapterId,
     openEditChapter,
-    openAddLesson,
     closeAllInputs,
-    isAddingLessonChapterId,
+    openAddLessonDrawer,
   } = useCourseStore(
     useShallow((state) => ({
       isSystemLocked: state.isSystemLocked(),
       editingChapterId: state.editingChapterId,
       openEditChapter: state.openEditChapter,
-      openAddLesson: state.openAddLesson,
       closeAllInputs: state.closeAllInputs,
-      isAddingLessonChapterId: state.isAddingLessonChapterId,
+      openAddLessonDrawer: state.openAddLessonDrawer,
     })),
   );
 
   const isEditingThisChapter = editingChapterId === chapterId;
-  const isAddingThisLessonChapterId = isAddingLessonChapterId === chapterId;
-
-  const [editTitle, setEditTitle] = useState(title);
+  const [chapterTitle, setChapterTitle] = useState(title);
 
   const inputRef = useRef<HTMLInputElement>(null);
+
   const { ref, isDragging } = useSortable({
     id: chapterKey,
     index,
@@ -60,13 +56,10 @@ export function ChapterColumn({
     disabled: isEditingThisChapter,
   });
 
-  const [newLessonTitle, setNewLessonTitle] = useState("");
-
-  const handleSaveLesson = () => {
-    if (onAddLesson) {
-      onAddLesson(chapterKey, newLessonTitle.trim());
+  const handleAddChapter = () => {
+    if (onUpdateChapter) {
+      onUpdateChapter(chapterKey, chapterTitle.trim());
     }
-    setNewLessonTitle("");
   };
 
   useEffect(() => {
@@ -75,12 +68,6 @@ export function ChapterColumn({
       inputRef.current.select();
     }
   }, [isEditingThisChapter]);
-
-  const handleSaveChapter = () => {
-    if (onUpdateChapter) {
-      onUpdateChapter(chapterKey, editTitle.trim());
-    }
-  };
 
   return (
     <Card
@@ -102,8 +89,8 @@ export function ChapterColumn({
                   <div className="w-100">
                     <Input
                       ref={inputRef}
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
+                      value={chapterTitle}
+                      onChange={(e) => setChapterTitle(e.target.value)}
                       className="h-7 font-medium py-1 px-2 w-full"
                     />
                   </div>
@@ -111,8 +98,8 @@ export function ChapterColumn({
                     <Button
                       variant="outline"
                       className="h-8 w-8 p-0"
-                      disabled={!editTitle.trim()}
-                      onClick={handleSaveChapter}
+                      disabled={!chapterTitle.trim()}
+                      onClick={handleAddChapter}
                     >
                       <Check size={15} />
                     </Button>
@@ -120,7 +107,7 @@ export function ChapterColumn({
                       variant="outline"
                       className="h-8 w-8 p-0"
                       onClick={() => {
-                        setEditTitle(title);
+                        setChapterTitle(title);
                         closeAllInputs();
                       }}
                     >
@@ -167,48 +154,15 @@ export function ChapterColumn({
 
         <div className="flex flex-col gap-4">
           {children}
-          {isAddingThisLessonChapterId ? (
-            <div className="flex flex-col gap-2 p-3 border border-dashed rounded-lg bg-muted/20 mb-6">
-              <Input
-                autoFocus
-                placeholder="Enter a new lesson title... (Press Enter to create)"
-                value={newLessonTitle}
-                onChange={(e) => setNewLessonTitle(e.target.value)}
-                className="h-9"
-              />
-              <div className="flex justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8"
-                  onClick={() => {
-                    closeAllInputs();
-                    setNewLessonTitle("");
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  className="h-8"
-                  onClick={handleSaveLesson}
-                  disabled={!newLessonTitle.trim()}
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              className="gap-2 w-full h-12 cursor-pointer text-sm mb-6"
-              onClick={() => openAddLesson(chapterId)}
-              disabled={isSystemLocked}
-            >
-              <Plus size={15} />
-              Add lesson
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            className="gap-2 w-full h-12 cursor-pointer text-sm mb-6"
+            onClick={() => openAddLessonDrawer(chapterId, index)}
+            disabled={isSystemLocked}
+          >
+            <Plus size={15} />
+            Add lesson
+          </Button>
         </div>
       </CardContent>
     </Card>

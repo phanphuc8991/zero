@@ -13,16 +13,14 @@ export const courseFormSchema = z.object({
 
   level: z.string().optional(),
 
-  durationHours: z
+  duration: z
     .number({ error: "Duration must be a number" })
-    .min(1, { message: "Duration must be at least 1 hour" }),
+    .min(1, { message: "Duration must be at least 1" }),
 
   instructorId: z
     .string()
     .min(1, { message: "Please assign an instructor to this course" }),
 
-  includeCertificate: z.boolean().optional(),
-  openEnrollment: z.boolean().optional(),
   status: z.string().optional(),
   thumbnailUrl: z.any().optional().nullable(),
 });
@@ -35,6 +33,82 @@ export const editCourseSchema = courseFormSchema.extend({
 
 export type CourseFormInput = z.infer<typeof courseFormSchema>;
 export type EditCourseInput = z.infer<typeof editCourseSchema>;
+
+// ============ CHAPTER & LESSON ============
+
+export const lessonPayloadSchema = z.object({
+  id: z.number().nullable(),
+  title: z.string().min(1),
+  videoUrl: z.string().nullable().optional(),
+  durationSeconds: z.number().default(0),
+  isPreview: z.boolean().default(false),
+  sortOrder: z.number(),
+});
+
+export const chapterPayloadSchema = z.object({
+  id: z.number().nullable(),
+  title: z.string().min(1),
+  sortOrder: z.number(),
+  lessons: z.array(lessonPayloadSchema),
+});
+
+export const saveChaptersSchema = z.object({
+  courseId: z.number().min(1),
+  chapters: z.array(chapterPayloadSchema),
+});
+
+export const getChaptersByCourseIdSchema = z.object({
+  courseId: z.number().min(1),
+});
+
+export type LessonPayload = z.infer<typeof lessonPayloadSchema>;
+export type ChapterPayload = z.infer<typeof chapterPayloadSchema>;
+export type SaveChaptersInput = z.infer<typeof saveChaptersSchema>;
+
+export interface LessonType {
+  id: number;
+  chapterId: number;
+  title: string;
+  videoUrl: string | null;
+  durationSeconds: number;
+  sortOrder: number;
+  isPreview: boolean;
+  isNew: boolean;
+}
+
+export interface ChapterType {
+  id: number;
+  title: string;
+  sortOrder: number;
+  isNew: boolean;
+}
+export type LessonResponse = Omit<LessonType, "isNew">;
+
+export interface ChapterResponse extends Omit<ChapterType, "isNew"> {
+  lessons: LessonResponse[];
+}
+
+export const lessonFormSchema = z.object({
+  title: z.string().trim().min(1, "Lesson title cannot be empty"),
+  videoUrl: z
+    .string()
+    .trim()
+    .nullable()
+    .or(
+      z
+        .url("Invalid video URL (must start with http:// or https://)")
+        .max(0)
+        .or(z.string()),
+    ),
+  durationSeconds: z
+    .number({ error: "Duration must be a number" })
+    .min(1, "Lesson duration must be greater than 0 seconds"),
+  isPreview: z.boolean(),
+});
+
+export type LessonFormInput = z.infer<typeof lessonFormSchema>;
+
+export type LessonTypeInitial = Omit<LessonType, "isNew">;
 
 export const instructorFormSchema = z.object({
   name: z.string().min(1, { message: "Instructor name is required" }),

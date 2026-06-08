@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         slug: rawData.slug,
         description: rawData.description,
         level: rawData.level || "All Levels",
-        durationHours: rawData.durationHours,
+        duration: rawData.duration,
         categoryId,
         instructorId,
         isPublished,

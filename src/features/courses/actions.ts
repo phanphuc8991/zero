@@ -7,7 +7,9 @@ import {
   editCategorySchema,
   editCourseSchema,
   editInstructorSchema,
+  getChaptersByCourseIdSchema,
   instructorFormSchema,
+  saveChaptersSchema,
 } from "@/features/courses/contants";
 import {
   createCategoryService,
@@ -22,6 +24,8 @@ import {
   getCoursesService,
   getCourseByIdService,
   editCourseService,
+  saveChaptersService,
+  getChaptersByCourseIdService,
 } from "@/features/courses/services";
 import { actionClient } from "@/lib/safe-action";
 
@@ -45,6 +49,18 @@ export const editCourseAction = actionClient
   .inputSchema(editCourseSchema)
   .action(async ({ parsedInput }) => {
     return await editCourseService(parsedInput);
+  });
+
+export const getChaptersByCourseIdAction = actionClient
+  .inputSchema(getChaptersByCourseIdSchema)
+  .action(async ({ parsedInput }) => {
+    return await getChaptersByCourseIdService(parsedInput.courseId);
+  });
+
+export const saveChaptersAction = actionClient
+  .inputSchema(saveChaptersSchema)
+  .action(async ({ parsedInput }) => {
+    return await saveChaptersService(parsedInput);
   });
 
 export const newCategoryAction = actionClient

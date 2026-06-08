@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { UploadCloud, Save, Rocket, Trash2, Loader2 } from "lucide-react";
+import { Save, Rocket, Trash2, Loader2 } from "lucide-react";
 import {
   type CourseFormInput,
   courseFormSchema,
@@ -94,10 +94,8 @@ export function NewCourse() {
       description: "",
       categoryId: "",
       level: "All Levels",
-      durationHours: 1,
+      duration: 1,
       instructorId: "",
-      includeCertificate: false,
-      openEnrollment: true,
       status: "draft",
     },
   });
@@ -391,43 +389,6 @@ export function NewCourse() {
             </div>
 
             <div className="space-y-6 grid ">
-              {/* <Card className="p-6 bg-background border shadow-none ">
-                <CardContent className="p-0">
-                  <FieldSet>
-                    <div className="flex items-center justify-between mb-2">
-                      <FieldLegend className="m-0">Course Media</FieldLegend>
-                      <button
-                        type="button"
-                        className="text-sm font-medium text-primary hover:underline cursor-pointer"
-                      >
-                        Add from URL
-                      </button>
-                    </div>
-                    <FieldGroup>
-                      <div className="border border-dashed border-muted-foreground/30 rounded-lg p-8 text-center hover:bg-accent/40 transition cursor-pointer group bg-background">
-                        <div className="mx-auto h-10 w-10 rounded-full bg-background flex items-center justify-between border shadow-sm mb-3 group-hover:scale-105 transition">
-                          <UploadCloud className="mx-auto h-5 w-5 text-muted-foreground" />
-                        </div>
-                        <span className="text-sm font-medium block mb-1">
-                          Drop your course banner here
-                        </span>
-                        <span className="text-xs text-muted-foreground block mb-3">
-                          PNG or JPG (max. 5MB)
-                        </span>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="cursor-pointer"
-                        >
-                          Select images
-                        </Button>
-                      </div>
-                    </FieldGroup>
-                  </FieldSet>
-                </CardContent>
-              </Card> */}
-
               <Card className="p-6 bg-background border shadow-none">
                 <CardContent className="p-0">
                   <FieldSet>
@@ -447,32 +408,32 @@ export function NewCourse() {
                     <FieldGroup>
                       <Field>
                         <FieldLabel htmlFor="course-duration">
-                          Total Duration (Hours)
+                          Total Duration (Minutes)
                         </FieldLabel>
                         <div>
                           <Controller
                             control={control}
-                            name="durationHours"
+                            name="duration"
                             render={({ field }) => (
                               <Input
                                 {...field}
                                 onChange={(e) =>
                                   field.onChange(e.target.valueAsNumber || 0)
                                 }
-                                aria-invalid={!!errors.durationHours}
+                                aria-invalid={!!errors.duration}
                                 id="course-duration"
                                 type="number"
                                 placeholder="e.g. 12"
                               />
                             )}
                           />
-                          {errors.durationHours && (
+                          {errors.duration && (
                             <p
                               aria-live="polite"
                               className="text-destructive text-xs mt-1"
                               role="alert"
                             >
-                              {errors.durationHours.message}
+                              {errors.duration.message}
                             </p>
                           )}
                         </div>

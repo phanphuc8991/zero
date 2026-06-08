@@ -18,7 +18,7 @@ export type Course = {
   id: number;
   title: string;
   slug: string;
-  durationHours: number;
+  duration: number;
   level: "beginner" | "intermediate" | "advanced" | "all";
   isPublished: boolean;
   instructorName: string;
@@ -84,11 +84,11 @@ export const courseColumns: ColumnDef<Course>[] = [
     ),
   },
   {
-    accessorKey: "durationHours",
+    accessorKey: "duration",
     header: () => <div className="text-center">Duration</div>,
     meta: "Duration",
     cell: ({ row }) => (
-      <div className="text-center">{row.getValue("durationHours")} hrs</div>
+      <div className="text-center">{row.getValue("duration")} hrs</div>
     ),
   },
   {

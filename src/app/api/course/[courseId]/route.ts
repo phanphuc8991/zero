@@ -91,7 +91,7 @@ export async function PUT(
         slug: rawData.slug,
         description: rawData.description,
         level: rawData.level || "All Levels",
-        durationHours: rawData.durationHours,
+        duration: rawData.duration,
         thumbnailUrl: rawData.thumbnailUrl ?? null,
         ...(finalCategoryId !== undefined && { categoryId: finalCategoryId }),
         ...(finalInstructorId !== undefined && {

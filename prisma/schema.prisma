@@ -109,7 +109,7 @@ model Course {
   slug          String      @unique @db.VarChar(255)
   thumbnailUrl  String?     @map("thumbnail_url") @db.VarChar(500)
   description   String?     @db.Text
-  durationHours Int         @default(0) @map("duration_hours")
+  duration      Int         @default(0) 
   level         String      @default("All Levels") @db.VarChar(50)
   isPublished   Boolean     @default(false) @map("is_published")
   createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz

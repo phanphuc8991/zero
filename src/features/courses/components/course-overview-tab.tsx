@@ -1,12 +1,6 @@
 "use client";
-import { useRef } from "react";
-import { Controller } from "react-hook-form";
-import type {
-  Control,
-  FieldErrors,
-  UseFormGetValues,
-  UseFormSetValue,
-} from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,7 +23,21 @@ import {
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
 import { useShallow } from "zustand/react/shallow";
 import { useCourseStore } from "@/stores/useCourseStore";
-import type { CourseFormInput } from "@/features/courses/contants";
+import {
+  courseFormSchema,
+  type CourseFormInput,
+} from "@/features/courses/contants";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Save, Rocket, Trash2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useUploadThumbnail } from "@/hooks/useUploadThumbnail";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import {
+  editCourseAction,
+  getCourseByIdAction,
+} from "@/features/courses/actions";
+import { useAction } from "next-safe-action/hooks";
 
 const convertToSlug = (text: string): string => {
   return text
@@ -44,32 +52,136 @@ const convertToSlug = (text: string): string => {
     .replace(/\-\-+/g, "-");
 };
 
-interface Props {
-  control: Control<CourseFormInput>;
-  errors: FieldErrors<CourseFormInput>;
-  setValue: UseFormSetValue<CourseFormInput>;
-  getValues: UseFormGetValues<CourseFormInput>;
-  thumbnailFileRef: React.RefObject<File | null>;
-  showStatus?: boolean;
-}
+export function CourseOverviewTab({ courseId }: { courseId: number }) {
+  const {
+    categories,
+    instructors,
+    isCategoriesLoading,
+    fetchCategories,
+    fetchInstructors,
+    isInstructorsLoading,
+  } = useCourseStore(
+    useShallow((state) => ({
+      categories: state.categories,
+      instructors: state.instructors,
+      isCategoriesLoading: state.isCategoriesLoading,
+      isInstructorsLoading: state.isInstructorsLoading,
+      fetchCategories: state.fetchCategories,
+      fetchInstructors: state.fetchInstructors,
+    })),
+  );
+  const [serverError, setServerError] = useState("");
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const thumbnailFileRef = useRef<File | null>(null);
+  const { upload, isUploading } = useUploadThumbnail();
+  const {
+    handleSubmit,
+    setValue,
+    reset,
+    control,
+    getValues,
+    formState: { errors },
+  } = useForm<CourseFormInput>({
+    resolver: zodResolver(courseFormSchema),
+    defaultValues: {
+      title: "",
+      slug: "",
+      description: "",
+      categoryId: "",
+      level: "All Levels",
+      duration: 1,
+      instructorId: "",
+      status: "draft",
+    },
+  });
 
-export function CourseOverviewTab({
-  control,
-  errors,
-  setValue,
-  getValues,
-  thumbnailFileRef,
-  showStatus = false,
-}: Props) {
-  const { categories, instructors, isCategoriesLoading, isInstructorsLoading } =
-    useCourseStore(
-      useShallow((state) => ({
-        categories: state.categories,
-        instructors: state.instructors,
-        isCategoriesLoading: state.isCategoriesLoading,
-        isInstructorsLoading: state.isInstructorsLoading,
-      })),
+  const { execute: fetchCourse } = useAction(getCourseByIdAction, {
+    onSuccess: ({ data }) => {
+      setIsPageLoading(false);
+      if (data?.course) {
+        const course = data.course;
+        reset({
+          title: course.title ?? "",
+          slug: course.slug ?? "",
+          description: course.description ?? "",
+          categoryId: course.categoryId ? String(course.categoryId) : "",
+          level: course.level ?? "All Levels",
+          duration: course.duration ?? 0,
+          instructorId: course.instructorId ? String(course.instructorId) : "",
+          status: course.isPublished ? "published" : "draft",
+          thumbnailUrl: course.thumbnailUrl ?? null,
+        });
+      }
+    },
+    onError: ({ error }) => {
+      console.log("fetch detail course faild", error);
+      setIsPageLoading(false);
+      toast.error("Failed to load course");
+    },
+  });
+
+  // update course
+  const { execute: updateCourse, isExecuting } = useAction(editCourseAction, {
+    onError: ({ error }) => {
+      setServerError(error?.serverError as string);
+    },
+    onSuccess: () => {
+      setServerError("");
+      toast.success("Course updated successfully");
+    },
+  });
+
+  useEffect(() => {
+    if (courseId) fetchCourse({ courseId });
+    fetchCategories();
+    fetchInstructors();
+  }, [courseId]);
+
+  const onSubmitWithStatus = (statusValue: "draft" | "published") => {
+    setValue("status", statusValue);
+    handleSubmit(async (data) => {
+      try {
+        let thumbnailUrl = data.thumbnailUrl ?? null;
+        if (thumbnailFileRef.current) {
+          const uploaded = await upload(thumbnailFileRef.current);
+          if (!uploaded) return;
+          thumbnailUrl = uploaded;
+        }
+        updateCourse({ ...data, thumbnailUrl, id: courseId });
+      } catch {
+        toast.error("Something went wrong. Please try again.");
+      }
+    })();
+  };
+
+  if (isPageLoading) {
+    return (
+      <div className="mx-30 max-w-350">
+        <div className="flex items-center justify-between mb-6">
+          <Skeleton className="h-8 w-64" />
+          <div className="flex gap-2">
+            <Skeleton className="h-9 w-24" />
+            <Skeleton className="h-9 w-24" />
+            <Skeleton className="h-9 w-24" />
+          </div>
+        </div>
+        <Skeleton className="h-10 w-72 mb-6" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </div>
+      </div>
     );
+  }
+
+  const isLoading = isExecuting || isUploading;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start pt-4">
@@ -296,32 +408,32 @@ export function CourseOverviewTab({
               <FieldGroup>
                 <Field>
                   <FieldLabel htmlFor="course-duration">
-                    Total Duration (Hours)
+                    Total Duration (Minutes)
                   </FieldLabel>
                   <div>
                     <Controller
                       control={control}
-                      name="durationHours"
+                      name="duration"
                       render={({ field }) => (
                         <Input
                           {...field}
                           onChange={(e) =>
                             field.onChange(e.target.valueAsNumber || 0)
                           }
-                          aria-invalid={!!errors.durationHours}
+                          aria-invalid={!!errors.duration}
                           id="course-duration"
                           type="number"
                           placeholder="e.g. 12"
                         />
                       )}
                     />
-                    {errors.durationHours && (
+                    {errors.duration && (
                       <p
                         aria-live="polite"
                         className="text-destructive text-xs mt-1"
                         role="alert"
                       >
-                        {errors.durationHours.message}
+                        {errors.duration.message}
                       </p>
                     )}
                   </div>
@@ -386,28 +498,75 @@ export function CourseOverviewTab({
           </CardContent>
         </Card>
 
-        {showStatus && (
-          <Card className="p-6 bg-background border shadow-none">
-            <CardContent className="p-0">
-              <FieldSet>
-                <FieldLegend>Current Status</FieldLegend>
-                <div className="pt-2">
-                  {getValues("status") === "published" ? (
-                    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/10 text-green-600 border border-green-500/20">
-                      <span className="h-2 w-2 rounded-full bg-green-500" />
-                      Published (Live)
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-600 border border-orange-500/20">
-                      <span className="h-2 w-2 rounded-full bg-orange-500" />
-                      Draft Mode
-                    </span>
-                  )}
-                </div>
-              </FieldSet>
-            </CardContent>
-          </Card>
+        <Card className="p-6 bg-background border shadow-none">
+          <CardContent className="p-0">
+            <FieldSet>
+              <FieldLegend>Current Status</FieldLegend>
+              <div className="pt-2">
+                {getValues("status") === "published" ? (
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/10 text-green-600 border border-green-500/20">
+                    <span className="h-2 w-2 rounded-full bg-green-500" />
+                    Published (Live)
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-600 border border-orange-500/20">
+                    <span className="h-2 w-2 rounded-full bg-orange-500" />
+                    Draft Mode
+                  </span>
+                )}
+              </div>
+            </FieldSet>
+          </CardContent>
+        </Card>
+
+        {serverError && (
+          <div
+            role="alert"
+            aria-live="assertive"
+            className="p-3 text-sm font-medium border rounded-md text-destructive bg-destructive/10 border-destructive/20"
+          >
+            {serverError}
+          </div>
         )}
+        <div className="flex items-center gap-2">
+          <Button
+            className="cursor-pointer gap-2"
+            variant="destructive"
+            type="button"
+            disabled={isExecuting}
+          >
+            <Trash2 size={15} /> Delete
+          </Button>
+          {getValues("status") !== "published" && (
+            <Button
+              className="cursor-pointer gap-2"
+              variant="outline"
+              type="button"
+              disabled={isLoading}
+              onClick={() => onSubmitWithStatus("draft")}
+            >
+              {isLoading && getValues("status") === "draft" ? (
+                <Loader2 className="animate-spin" size={15} />
+              ) : (
+                <Save size={15} />
+              )}
+              Save Draft
+            </Button>
+          )}
+          <Button
+            className="cursor-pointer gap-2"
+            type="button"
+            disabled={isLoading}
+            onClick={() => onSubmitWithStatus("published")}
+          >
+            {isLoading && getValues("status") === "published" ? (
+              <Loader2 className="animate-spin" size={15} />
+            ) : (
+              <Rocket size={15} />
+            )}
+            {getValues("status") === "published" ? "Save" : "Publish"}
+          </Button>
+        </div>
       </div>
     </div>
   );

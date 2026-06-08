@@ -7,6 +7,7 @@ import type {
   EditInstructorInput,
   DeleteInstructorInput,
   EditCourseInput,
+  SaveChaptersInput,
 } from "@/features/courses/contants";
 
 async function handleResponse(res: Response) {
@@ -68,6 +69,25 @@ export async function uploadThumbnailService(file: File) {
   const res = await fetch("/api/upload/thumbnail", {
     method: "POST",
     body: formData,
+  });
+  return handleResponse(res);
+}
+
+export async function getChaptersByCourseIdService(courseId: number) {
+  const res = await fetch(`/api/course/${courseId}/chapters`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+  });
+  return handleResponse(res);
+}
+
+export async function saveChaptersService(data: SaveChaptersInput) {
+  console.log("data in service", data);
+  const res = await fetch(`/api/course/${data.courseId}/chapters`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
   });
   return handleResponse(res);
 }

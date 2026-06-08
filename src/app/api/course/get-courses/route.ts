@@ -16,12 +16,12 @@ export async function GET() {
       id: course.id,
       title: course.title,
       slug: course.slug,
-      durationHours: course.durationHours,
+      duration: course.duration,
       level: course.level,
       isPublished: course.isPublished,
       instructorName: course.instructor?.name ?? "—",
     }));
-
+    console.log("formattedCourses", formattedCourses);
     return apiResponse.success({ courses: formattedCourses }, 200);
   } catch (error: any) {
     console.error("Get courses error:", error);

@@ -37,7 +37,7 @@ export function Courses() {
     },
     onError: ({ error }) => {
       setIsInitialLoading(false);
-      console.error("Failed to load courses:", error);
+      console.log("Failed to load courses:", error);
       toast.error("Failed to load courses");
     },
   });

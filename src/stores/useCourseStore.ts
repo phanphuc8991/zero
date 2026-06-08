@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Category, Instructor } from "@/features/courses/contants";
+import { Category, Instructor, LessonType } from "@/features/courses/contants";
 
 interface CourseStore {
   // --- State ---
@@ -16,11 +16,17 @@ interface CourseStore {
   lessonDrawerMode: "CREATE" | "EDIT" | null;
   activeChapterId: number | null;
   activeChapterIndex: number | null;
-  editingLessonData: any | null;
+  editingLessonData: LessonType | null;
+  activeChapterKey: string | null;
+
   isSystemLocked: () => boolean;
 
-  openAddLessonDrawer: (chapterId: number, chapterIndex: number) => void;
-  openEditLessonDrawer: (lesson: any) => void;
+  openAddLessonDrawer: (
+    chapterId: number,
+    chapterIndex: number,
+    chapterKey: string,
+  ) => void;
+  openEditLessonDrawer: (chapterKey: string, lesson: LessonType) => void;
   closeLessonDrawer: () => void;
 
   openAddChapter: () => void;
@@ -45,6 +51,7 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
   activeChapterId: null,
   activeChapterIndex: null,
   editingLessonData: null,
+  activeChapterKey: null,
 
   //chapter
   editingChapterId: null,
@@ -55,21 +62,23 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
   openAddChapter: () => set({ isAddingChapter: true }),
 
   // lesson action
-  openAddLessonDrawer: (chapterId, chapterIndex) =>
+  openAddLessonDrawer: (chapterId, chapterIndex, chapterKey) =>
     set({
       isLessonDrawerOpen: true,
       lessonDrawerMode: "CREATE",
       activeChapterId: chapterId,
       activeChapterIndex: chapterIndex,
+      activeChapterKey: chapterKey,
       editingLessonData: null,
     }),
 
-  openEditLessonDrawer: (lesson) =>
+  openEditLessonDrawer: (chapterKey, lesson) =>
     set({
       isLessonDrawerOpen: true,
       lessonDrawerMode: "EDIT",
       editingLessonData: lesson,
       activeChapterId: null,
+      activeChapterKey: chapterKey,
       activeChapterIndex: null,
     }),
 

@@ -7,18 +7,23 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { LessonForm } from "@/features/courses/components/lesson-form";
+import { LessonType } from "@/features/courses/contants";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useShallow } from "zustand/react/shallow";
 
 interface LessonDrawerProps {
-  onSaveLesson: (
+  handleSaveLesson: (
     mode: "CREATE" | "EDIT",
-    context: { chapterId: number | null; lessonId: number | null },
+    context: {
+      chapterId: number | null;
+      lessonId: number | null;
+      chapterKey: string | null;
+    },
     formData: any,
   ) => void;
 }
 
-export function LessonDrawer({ onSaveLesson }: LessonDrawerProps) {
+export function LessonDrawer({ handleSaveLesson }: LessonDrawerProps) {
   const {
     isLessonDrawerOpen,
     lessonDrawerMode,
@@ -26,6 +31,7 @@ export function LessonDrawer({ onSaveLesson }: LessonDrawerProps) {
     activeChapterId,
     editingLessonData,
     closeLessonDrawer,
+    activeChapterKey,
   } = useCourseStore(
     useShallow((state) => ({
       isLessonDrawerOpen: state.isLessonDrawerOpen,
@@ -34,16 +40,24 @@ export function LessonDrawer({ onSaveLesson }: LessonDrawerProps) {
       activeChapterId: state.activeChapterId,
       editingLessonData: state.editingLessonData,
       closeLessonDrawer: state.closeLessonDrawer,
+      activeChapterKey: state.activeChapterKey,
     })),
   );
 
-  const handleFormSubmit = (formData: any) => {
+  const handleFormSubmit = (formData: {
+    title: string;
+    videoUrl: string | null;
+    duration: number;
+    isPreview: boolean;
+  }) => {
+    console.log("formData", formData);
     if (lessonDrawerMode) {
-      onSaveLesson(
+      handleSaveLesson(
         lessonDrawerMode,
         {
           chapterId: activeChapterId,
           lessonId: editingLessonData?.id || null,
+          chapterKey: activeChapterKey,
         },
         formData,
       );
@@ -61,6 +75,7 @@ export function LessonDrawer({ onSaveLesson }: LessonDrawerProps) {
         className="w-full flex flex-col gap-6 h-full"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
+        onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <SheetHeader className="">
           <SheetTitle className="text-xl font-bold">
@@ -76,7 +91,7 @@ export function LessonDrawer({ onSaveLesson }: LessonDrawerProps) {
         </SheetHeader>
 
         <div className="flex-1 min-h-0 px-4">
-          <LessonForm onSubmitSuccess={handleFormSubmit} />
+          <LessonForm handleFormSubmit={handleFormSubmit} />
         </div>
       </SheetContent>
     </Sheet>

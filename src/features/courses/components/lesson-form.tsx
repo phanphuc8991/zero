@@ -9,32 +9,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useShallow } from "zustand/react/shallow";
-
-const lessonFormSchema = z.object({
-  title: z.string().trim().min(1, "Lesson title cannot be empty"),
-  videoUrl: z
-    .string()
-    .trim()
-    .nullable()
-    .or(
-      z
-        .url("Invalid video URL (must start with http:// or https://)")
-        .max(0)
-        .or(z.string()),
-    ),
-  duration: z
-    .number({ error: "Duration must be a number" })
-    .min(1, "Lesson duration must be greater than 0 seconds"),
-  isPreview: z.boolean(),
-});
-
-type LessonFormInput = z.infer<typeof lessonFormSchema>;
+import { LessonFormInput, lessonFormSchema } from "@/features/courses/contants";
 
 interface LessonFormProps {
-  onSubmitSuccess: (data: LessonFormInput) => void;
+  handleFormSubmit: (data: LessonFormInput) => void;
 }
 
-export function LessonForm({ onSubmitSuccess }: LessonFormProps) {
+export function LessonForm({ handleFormSubmit }: LessonFormProps) {
   const { lessonDrawerMode, editingLessonData, closeLessonDrawer } =
     useCourseStore(
       useShallow((state) => ({
@@ -47,46 +28,36 @@ export function LessonForm({ onSubmitSuccess }: LessonFormProps) {
   const {
     handleSubmit,
     control,
-    reset,
     formState: { errors },
   } = useForm<LessonFormInput>({
     resolver: zodResolver(lessonFormSchema),
     mode: "onChange",
-    defaultValues: {
-      title: "",
-      videoUrl: "",
-      duration: 0,
-      isPreview: false,
-    },
-  });
 
-  useEffect(() => {
-    if (lessonDrawerMode === "EDIT" && editingLessonData) {
-      reset({
-        title: editingLessonData.title,
-        videoUrl: editingLessonData.videoUrl || "",
-        duration: editingLessonData.duration,
-        isPreview: editingLessonData.isPreview,
-      });
-    } else {
-      reset({
-        title: "",
-        videoUrl: "",
-        duration: 0,
-        isPreview: false,
-      });
-    }
-  }, [lessonDrawerMode, editingLessonData, reset]);
+    defaultValues:
+      lessonDrawerMode === "EDIT" && editingLessonData
+        ? {
+            title: editingLessonData.title || "",
+            videoUrl: editingLessonData.videoUrl || "",
+            duration: editingLessonData.duration || 0,
+            isPreview: !!editingLessonData.isPreview,
+          }
+        : {
+            title: "",
+            videoUrl: "",
+            duration: 0,
+            isPreview: false,
+          },
+  });
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmitSuccess)}
+      onSubmit={handleSubmit(handleFormSubmit)}
       className="flex flex-col gap-5 h-full justify-between"
     >
       <div className="flex-1">
         <FieldGroup className="gap-4">
           <Field>
-            <FieldLabel className="">Lesson Title</FieldLabel>
+            <FieldLabel>Lesson Title</FieldLabel>
             <div>
               <Controller
                 control={control}
@@ -94,6 +65,7 @@ export function LessonForm({ onSubmitSuccess }: LessonFormProps) {
                 render={({ field }) => (
                   <Input
                     {...field}
+                    value={field.value || ""}
                     placeholder="e.g. Introduction to Next.js"
                     aria-invalid={!!errors.title}
                   />
@@ -106,9 +78,8 @@ export function LessonForm({ onSubmitSuccess }: LessonFormProps) {
               )}
             </div>
           </Field>
-
           <Field>
-            <FieldLabel className="">Video URL</FieldLabel>
+            <FieldLabel>Video URL</FieldLabel>
             <div>
               <Controller
                 control={control}
@@ -132,7 +103,7 @@ export function LessonForm({ onSubmitSuccess }: LessonFormProps) {
           </Field>
 
           <Field>
-            <FieldLabel className="">Duration (Minutes)</FieldLabel>
+            <FieldLabel>Duration (Minutes)</FieldLabel>
             <div>
               <Controller
                 control={control}
@@ -141,6 +112,7 @@ export function LessonForm({ onSubmitSuccess }: LessonFormProps) {
                   <Input
                     {...field}
                     type="number"
+                    value={field.value ?? ""}
                     onChange={(e) =>
                       field.onChange(e.target.valueAsNumber || 0)
                     }
@@ -186,7 +158,7 @@ export function LessonForm({ onSubmitSuccess }: LessonFormProps) {
         </FieldGroup>
       </div>
 
-      <div className="flex flex-col items-center  gap-2 w-full mb-4">
+      <div className="flex flex-col items-center gap-2 w-full mb-4">
         <Button className="w-full" type="submit">
           {lessonDrawerMode === "CREATE" ? "Create Lesson" : "Save Changes"}
         </Button>

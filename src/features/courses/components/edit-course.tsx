@@ -22,7 +22,7 @@ export default function EditCourse({ courseId }: { courseId: number }) {
             </TabsContent>
 
             <TabsContent value="content">
-              <CourseContentTab />
+              <CourseContentTab courseId={courseId} />
             </TabsContent>
           </Tabs>
         </div>

@@ -16,13 +16,15 @@ interface Lesson {
   duration: number;
   sortOrder: number;
   isPreview: boolean;
+  chapterKey: string;
 }
 
 interface LessonProps {
   lessonId: number;
   title: string;
   index: number;
-  // chapterKey: string;
+  chapterId: number;
+  chapterKey: string;
   chapterIndex: number;
   videoUrl: string | null;
   duration: number;
@@ -38,7 +40,8 @@ export function LessonItem({
   lessonId,
   title,
   index,
-  // chapterKey,
+  chapterId,
+  chapterKey,
   chapterIndex,
   videoUrl,
   duration,
@@ -63,13 +66,15 @@ export function LessonItem({
   };
 
   const openEditLesson = () => {
-    openEditLessonDrawer({
+    const lessson = {
       id: lessonId,
+      chapterId,
       title,
       videoUrl,
       duration,
       isPreview,
-    });
+    };
+    openEditLessonDrawer(chapterKey, lessson);
   };
 
   return (

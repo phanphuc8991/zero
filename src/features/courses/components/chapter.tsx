@@ -157,7 +157,7 @@ export function ChapterColumn({
           <Button
             variant="outline"
             className="gap-2 w-full h-12 cursor-pointer text-sm mb-6"
-            onClick={() => openAddLessonDrawer(chapterId, index)}
+            onClick={() => openAddLessonDrawer(chapterId, index, chapterKey)}
             disabled={isSystemLocked}
           >
             <Plus size={15} />

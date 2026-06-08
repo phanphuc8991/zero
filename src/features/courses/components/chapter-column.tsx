@@ -7,27 +7,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useShallow } from "zustand/react/shallow";
-interface ColumnProps {
+
+interface ChapterProps {
   children: React.ReactNode;
-  id: string;
+  chapterKey: string;
   index: number;
   title: string;
   lessonCount: number;
   chapterId: number;
-  onUpdateTitle?: (id: string, newTitle: string) => void;
-  onAddLesson?: (columnKey: string, lessonTitle: string) => void;
+  onUpdateChapter?: (chapterKey: string, newTitle: string) => void;
+  onAddLesson?: (chapterKey: string, lessonTitle: string) => void;
 }
 
 export function ChapterColumn({
   children,
-  id,
+  chapterKey,
   index,
   title,
   lessonCount,
-  onUpdateTitle,
+  onUpdateChapter,
   onAddLesson,
   chapterId,
-}: ColumnProps) {
+}: ChapterProps) {
   const {
     isSystemLocked,
     editingChapterId,
@@ -50,12 +51,12 @@ export function ChapterColumn({
   const isAddingThisLessonChapterId = isAddingLessonChapterId === chapterId;
 
   const [editTitle, setEditTitle] = useState(title);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const { ref, isDragging } = useSortable({
-    id,
+    id: chapterKey,
     index,
     type: "column",
-    data: { chapterId: id },
     disabled: isEditingThisChapter,
   });
 
@@ -63,7 +64,7 @@ export function ChapterColumn({
 
   const handleSaveLesson = () => {
     if (onAddLesson) {
-      onAddLesson(id, newLessonTitle.trim());
+      onAddLesson(chapterKey, newLessonTitle.trim());
     }
     setNewLessonTitle("");
   };
@@ -76,8 +77,8 @@ export function ChapterColumn({
   }, [isEditingThisChapter]);
 
   const handleSaveChapter = () => {
-    if (onUpdateTitle) {
-      onUpdateTitle(id, editTitle.trim());
+    if (onUpdateChapter) {
+      onUpdateChapter(chapterKey, editTitle.trim());
     }
   };
 

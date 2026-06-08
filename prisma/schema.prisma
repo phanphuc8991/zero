@@ -141,7 +141,7 @@ model Lesson {
   chapterId       Int            @map("chapter_id")
   title           String         @db.VarChar(255)
   videoUrl        String?        @map("video_url") @db.VarChar(500)
-  durationSeconds Int            @default(0) @map("duration_seconds")
+  duration        Int            @default(0)
   sortOrder       Int            @default(0) @map("sort_order")
   isPreview       Boolean        @default(false) @map("is_preview")
   createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz

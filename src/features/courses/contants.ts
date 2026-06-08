@@ -40,7 +40,7 @@ export const lessonPayloadSchema = z.object({
   id: z.number().nullable(),
   title: z.string().min(1),
   videoUrl: z.string().nullable().optional(),
-  durationSeconds: z.number().default(0),
+  duration: z.number().default(0),
   isPreview: z.boolean().default(false),
   sortOrder: z.number(),
 });
@@ -70,7 +70,7 @@ export interface LessonType {
   chapterId: number;
   title: string;
   videoUrl: string | null;
-  durationSeconds: number;
+  duration: number;
   sortOrder: number;
   isPreview: boolean;
   isNew: boolean;
@@ -100,7 +100,7 @@ export const lessonFormSchema = z.object({
         .max(0)
         .or(z.string()),
     ),
-  durationSeconds: z
+  duration: z
     .number({ error: "Duration must be a number" })
     .min(1, "Lesson duration must be greater than 0 seconds"),
   isPreview: z.boolean(),

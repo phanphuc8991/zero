@@ -25,7 +25,7 @@ const lessonFormSchema = z.object({
         .max(0)
         .or(z.string()),
     ),
-  durationSeconds: z
+  duration: z
     .number({ error: "Duration must be a number" })
     .min(1, "Lesson duration must be greater than 0 seconds"),
   isPreview: z.boolean(),
@@ -38,19 +38,19 @@ interface Lesson {
   chapterId: number;
   title: string;
   videoUrl: string | null;
-  durationSeconds: number;
+  duration: number;
   sortOrder: number;
   isPreview: boolean;
 }
 
-interface ItemProps {
-  id: number;
+interface LessonProps {
+  lessonId: number;
   title: string;
   index: number;
-  column: string;
+  chapterKey: string;
   chapterIndex: number;
   videoUrl: string | null;
-  durationSeconds: number;
+  duration: number;
   isPreview: boolean;
   onUpdateLesson?: (
     columnKey: string,
@@ -60,16 +60,16 @@ interface ItemProps {
 }
 
 export function LessonItem({
-  id,
+  lessonId,
   title,
   index,
-  column,
+  chapterKey,
   chapterIndex,
   videoUrl,
-  durationSeconds,
+  duration,
   isPreview,
   onUpdateLesson,
-}: ItemProps) {
+}: LessonProps) {
   const { editingLessonId, isSystemLocked, openEditLesson, closeAllInputs } =
     useCourseStore(
       useShallow((state) => ({
@@ -80,16 +80,13 @@ export function LessonItem({
       })),
     );
 
-  const editingThisLessonId = editingLessonId === id;
+  const editingThisLessonId = editingLessonId === lessonId;
+
   const { ref, isDragging } = useSortable({
-    id,
+    id: lessonId,
     index,
     type: "item",
-    data: {
-      type: "lesson",
-      chapterId: column,
-    },
-    disabled: !!editingThisLessonId,
+    disabled: editingThisLessonId,
   });
   const {
     handleSubmit,
@@ -102,17 +99,17 @@ export function LessonItem({
     defaultValues: {
       title: title,
       videoUrl: videoUrl,
-      durationSeconds: durationSeconds,
+      duration: duration,
       isPreview: isPreview,
     },
   });
 
   const onValidSubmit = (data: LessonFormInput) => {
     if (onUpdateLesson) {
-      onUpdateLesson(column, id, {
+      onUpdateLesson(chapterKey, lessonId, {
         title: data.title,
         videoUrl: data.videoUrl || null,
-        durationSeconds: data.durationSeconds,
+        duration: data.duration,
         isPreview: data.isPreview,
       });
     }
@@ -214,7 +211,7 @@ export function LessonItem({
                   <div>
                     <Controller
                       control={control}
-                      name="durationSeconds"
+                      name="duration"
                       render={({ field }) => (
                         <Input
                           {...field}
@@ -222,22 +219,22 @@ export function LessonItem({
                           onChange={(e) =>
                             field.onChange(e.target.valueAsNumber || 0)
                           }
-                          aria-invalid={!!errors.durationSeconds}
+                          aria-invalid={!!errors.duration}
                           className={
-                            errors.durationSeconds
+                            errors.duration
                               ? "border-destructive focus-visible:ring-destructive"
                               : ""
                           }
                         />
                       )}
                     />
-                    {errors.durationSeconds && (
+                    {errors.duration && (
                       <p
                         aria-live="polite"
                         className="text-destructive text-xs mt-2"
                         role="alert"
                       >
-                        {errors.durationSeconds.message}
+                        {errors.duration.message}
                       </p>
                     )}
                   </div>
@@ -251,7 +248,7 @@ export function LessonItem({
                       name="isPreview"
                       render={({ field }) => (
                         <Checkbox
-                          id={`preview-${id}`}
+                          id={`preview-${lessonId}`}
                           className="cursor-pointer"
                           checked={field.value}
                           onCheckedChange={(e) => {
@@ -261,7 +258,7 @@ export function LessonItem({
                       )}
                     />
                     <label
-                      htmlFor={`preview-${id}`}
+                      htmlFor={`preview-${lessonId}`}
                       className="font-semibold cursor-pointer select-none text-sm"
                     >
                       Free Preview
@@ -305,9 +302,7 @@ export function LessonItem({
                 </div>
                 <div className="flex items-center gap-3">
                   <span className=" text-muted-foreground font-normal">
-                    {durationSeconds > 0
-                      ? formatDuration(durationSeconds)
-                      : "0:00"}
+                    {duration > 0 ? formatDuration(duration) : "0:00"}
                   </span>
                   <Badge className="gap-1 bg-[#EAF3DF] text-[#3D6C1A] text-[10px] px-1.5 py-0 h-4 shadow-none border-none hover:bg-[#EAF3DF]">
                     <span>video</span>
@@ -320,7 +315,7 @@ export function LessonItem({
                 variant="outline"
                 className="gap-2"
                 type="button"
-                onClick={() => openEditLesson(id)}
+                onClick={() => openEditLesson(lessonId)}
                 disabled={isSystemLocked}
               >
                 <Pencil size={15} />

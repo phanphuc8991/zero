@@ -407,43 +407,6 @@ export function NewCourse() {
                     <FieldLegend>Settings</FieldLegend>
                     <FieldGroup>
                       <Field>
-                        <FieldLabel htmlFor="course-duration">
-                          Total Duration (Minutes)
-                        </FieldLabel>
-                        <div>
-                          <Controller
-                            control={control}
-                            name="duration"
-                            render={({ field }) => (
-                              <Input
-                                {...field}
-                                type="number"
-                                id="course-duration"
-                                value={
-                                  field.value === 0 || Number.isNaN(field.value)
-                                    ? ""
-                                    : field.value
-                                }
-                                onChange={(e) =>
-                                  field.onChange(e.target.valueAsNumber)
-                                }
-                                placeholder="e.g. 12"
-                              />
-                            )}
-                          />
-                          {errors.duration && (
-                            <p
-                              aria-live="polite"
-                              className="text-destructive text-xs mt-2"
-                              role="alert"
-                            >
-                              {errors.duration.message}
-                            </p>
-                          )}
-                        </div>
-                      </Field>
-
-                      <Field>
                         <FieldLabel htmlFor="course-instructor">
                           Assigned Instructor
                         </FieldLabel>

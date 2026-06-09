@@ -15,7 +15,6 @@ export const courseFormSchema = z.object({
 
   duration: z
     .number({ message: "Duration must be a number" })
-    .min(1, "Lesson duration must be greater than 0 seconds")
     .refine((val) => !Number.isNaN(val), { message: "Duration is required" }),
 
   instructorId: z

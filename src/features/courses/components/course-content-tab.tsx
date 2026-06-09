@@ -254,10 +254,7 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
     saveChapters(payload);
   };
   useEffect(() => {
-    console.log("courseId", courseId);
     if (courseId) {
-      console.log("courseId in if", courseId);
-
       fetchChapters({ courseId });
     }
   }, [courseId]);

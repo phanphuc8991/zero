@@ -94,7 +94,7 @@ export function NewCourse() {
       description: "",
       categoryId: "",
       level: "All Levels",
-      duration: 1,
+      duration: 0,
       instructorId: "",
       status: "draft",
     },
@@ -132,7 +132,7 @@ export function NewCourse() {
             <div className="flex items-center gap-2">
               <Button
                 className="cursor-pointer gap-2"
-                variant="secondary"
+                variant="destructive"
                 type="button"
                 disabled={isLoading}
                 onClick={() => router.push("/admin/courses")}
@@ -249,7 +249,7 @@ export function NewCourse() {
                           {errors.slug && (
                             <p
                               aria-live="polite"
-                              className="text-destructive text-xs mt-1"
+                              className="text-destructive text-xs mt-2"
                               role="alert"
                             >
                               {errors.slug.message}
@@ -338,7 +338,7 @@ export function NewCourse() {
                           {errors.categoryId && (
                             <p
                               aria-live="polite"
-                              className="text-destructive text-xs mt-1"
+                              className="text-destructive text-xs mt-2"
                               role="alert"
                             >
                               {errors.categoryId.message}
@@ -417,12 +417,16 @@ export function NewCourse() {
                             render={({ field }) => (
                               <Input
                                 {...field}
-                                onChange={(e) =>
-                                  field.onChange(e.target.valueAsNumber || 0)
-                                }
-                                aria-invalid={!!errors.duration}
-                                id="course-duration"
                                 type="number"
+                                id="course-duration"
+                                value={
+                                  field.value === 0 || Number.isNaN(field.value)
+                                    ? ""
+                                    : field.value
+                                }
+                                onChange={(e) =>
+                                  field.onChange(e.target.valueAsNumber)
+                                }
                                 placeholder="e.g. 12"
                               />
                             )}
@@ -430,7 +434,7 @@ export function NewCourse() {
                           {errors.duration && (
                             <p
                               aria-live="polite"
-                              className="text-destructive text-xs mt-1"
+                              className="text-destructive text-xs mt-2"
                               role="alert"
                             >
                               {errors.duration.message}
@@ -485,7 +489,7 @@ export function NewCourse() {
                           {errors.instructorId && (
                             <p
                               aria-live="polite"
-                              className="text-destructive text-xs mt-1"
+                              className="text-destructive text-xs mt-2"
                               role="alert"
                             >
                               {errors.instructorId.message}

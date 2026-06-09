@@ -50,7 +50,6 @@ export function LessonDrawer({ handleSaveLesson }: LessonDrawerProps) {
     duration: number;
     isPreview: boolean;
   }) => {
-    console.log("formData", formData);
     if (lessonDrawerMode) {
       handleSaveLesson(
         lessonDrawerMode,

@@ -246,7 +246,7 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
                     {errors.slug && (
                       <p
                         aria-live="polite"
-                        className="text-destructive text-xs mt-1"
+                        className="text-destructive text-xs mt-2"
                         role="alert"
                       >
                         {errors.slug.message}
@@ -333,7 +333,7 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
                     {errors.categoryId && (
                       <p
                         aria-live="polite"
-                        className="text-destructive text-xs mt-1"
+                        className="text-destructive text-xs mt-2"
                         role="alert"
                       >
                         {errors.categoryId.message}
@@ -417,12 +417,16 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
                       render={({ field }) => (
                         <Input
                           {...field}
-                          onChange={(e) =>
-                            field.onChange(e.target.valueAsNumber || 0)
-                          }
-                          aria-invalid={!!errors.duration}
-                          id="course-duration"
                           type="number"
+                          id="course-duration"
+                          value={
+                            field.value === 0 || Number.isNaN(field.value)
+                              ? ""
+                              : field.value
+                          }
+                          onChange={(e) =>
+                            field.onChange(e.target.valueAsNumber)
+                          }
                           placeholder="e.g. 12"
                         />
                       )}
@@ -430,7 +434,7 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
                     {errors.duration && (
                       <p
                         aria-live="polite"
-                        className="text-destructive text-xs mt-1"
+                        className="text-destructive text-xs mt-2"
                         role="alert"
                       >
                         {errors.duration.message}
@@ -485,7 +489,7 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
                     {errors.instructorId && (
                       <p
                         aria-live="polite"
-                        className="text-destructive text-xs mt-1"
+                        className="text-destructive text-xs mt-2"
                         role="alert"
                       >
                         {errors.instructorId.message}

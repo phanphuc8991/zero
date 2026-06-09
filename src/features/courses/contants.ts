@@ -14,8 +14,9 @@ export const courseFormSchema = z.object({
   level: z.string().optional(),
 
   duration: z
-    .number({ error: "Duration must be a number" })
-    .min(1, { message: "Duration must be at least 1" }),
+    .number({ message: "Duration must be a number" })
+    .min(1, "Lesson duration must be greater than 0 seconds")
+    .refine((val) => !Number.isNaN(val), { message: "Duration is required" }),
 
   instructorId: z
     .string()
@@ -101,8 +102,9 @@ export const lessonFormSchema = z.object({
         .or(z.string()),
     ),
   duration: z
-    .number({ error: "Duration must be a number" })
-    .min(1, "Lesson duration must be greater than 0 seconds"),
+    .number({ message: "Duration must be a number" })
+    .min(1, "Lesson duration must be greater than 0 seconds")
+    .refine((val) => !Number.isNaN(val), { message: "Duration is required" }),
   isPreview: z.boolean(),
 });
 

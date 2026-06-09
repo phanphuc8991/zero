@@ -1,6 +1,4 @@
 "use client";
-import * as z from "zod";
-import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -72,7 +70,7 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
                 )}
               />
               {errors.title && (
-                <p className="text-destructive text-xs mt-1.5">
+                <p className="text-destructive text-xs mt-2">
                   {errors.title.message}
                 </p>
               )}
@@ -95,7 +93,7 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
                 )}
               />
               {errors.videoUrl && (
-                <p className="text-destructive text-xs mt-1.5">
+                <p className="text-destructive text-xs mt-2">
                   {errors.videoUrl.message}
                 </p>
               )}
@@ -112,16 +110,18 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
                   <Input
                     {...field}
                     type="number"
-                    value={field.value ?? ""}
-                    onChange={(e) =>
-                      field.onChange(e.target.valueAsNumber || 0)
+                    value={
+                      field.value === 0 || Number.isNaN(field.value)
+                        ? ""
+                        : field.value
                     }
-                    aria-invalid={!!errors.duration}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    placeholder="e.g. 12"
                   />
                 )}
               />
               {errors.duration && (
-                <p className="text-destructive text-xs mt-1.5">
+                <p className="text-destructive text-xs mt-2">
                   {errors.duration.message}
                 </p>
               )}

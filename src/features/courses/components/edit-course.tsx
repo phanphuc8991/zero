@@ -5,7 +5,7 @@ import { CourseContentTab } from "@/features/courses/components/course-content-t
 
 export default function EditCourse({ courseId }: { courseId: number }) {
   return (
-    <div className="mx-30 max-w-350">
+    <div className="mx-15 max-w-400">
       <div className="w-full">
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">

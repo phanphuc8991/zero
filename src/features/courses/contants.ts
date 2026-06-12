@@ -23,6 +23,15 @@ export const courseFormSchema = z.object({
 
   status: z.string().optional(),
   thumbnailUrl: z.any().optional().nullable(),
+
+  targetAudience: z
+    .array(z.string().min(2, "Each target must be at least 2 characters"))
+    .min(1, "Please add at least one target audience")
+    .max(10, "You can add a maximum of 10 target audiences"),
+
+  skillsGained: z
+    .array(z.string().min(2, "Each skill must be at least 2 characters"))
+    .min(1, "Please add at least one skill gained"),
 });
 
 export const courseByIdSchema = z.object({ courseId: z.number().min(1) });

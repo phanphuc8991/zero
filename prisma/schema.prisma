@@ -6,8 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
-
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -21,13 +19,12 @@ model User {
 
   accounts            Account[]
   passwordResetTokens PasswordResetToken[]
-  
 
-  currentPlanId       Int?           @map("current_plan_id")
-  plan                Plan?          @relation(fields: [currentPlanId], references: [id], onDelete: SetNull)
-  userProgress        UserProgress[]
-  submissions         Submission[]
-  comments            Comment[]
+  currentPlanId Int?           @map("current_plan_id")
+  plan          Plan?          @relation(fields: [currentPlanId], references: [id], onDelete: SetNull)
+  userProgress  UserProgress[]
+  submissions   Submission[]
+  comments      Comment[]
 
   @@map("users")
 }
@@ -63,28 +60,26 @@ model VerificationToken {
 
 model PasswordResetToken {
   id        String   @id @default(cuid())
-  token     String   @unique  
+  token     String   @unique
   userId    String
   expiresAt DateTime
   createdAt DateTime @default(now()) @db.Timestamptz
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("password_reset_tokens")
 }
 
-
-
 model Instructor {
-  id         Int      @id @default(autoincrement())
-  name       String   @db.VarChar(255)
-  avatarUrl  String?  @map("avatar_url") @db.VarChar(500)
-  title      String   @db.VarChar(255) 
-  bio        String?  @db.Text
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  
-  courses    Course[]
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  avatarUrl String?  @map("avatar_url") @db.VarChar(500)
+  title     String   @db.VarChar(255)
+  bio       String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  courses Course[]
 
   @@map("instructors")
 }
@@ -95,30 +90,33 @@ model Category {
   slug        String   @unique @db.VarChar(255)
   description String?  @db.Text
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  
-  courses     Course[]
+
+  courses Course[]
 
   @@map("categories")
 }
 
 model Course {
-  id            Int         @id @default(autoincrement())
-  instructorId  Int?        @map("instructor_id")
-  categoryId    Int?        @map("category_id")
-  title         String      @db.VarChar(255)
-  slug          String      @unique @db.VarChar(255)
-  thumbnailUrl  String?     @map("thumbnail_url") @db.VarChar(500)
-  description   String?     @db.Text
-  duration      Int         @default(0) 
-  level         String      @default("All Levels") @db.VarChar(50)
-  isPublished   Boolean     @default(false) @map("is_published")
-  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  id             Int      @id @default(autoincrement())
+  instructorId   Int?     @map("instructor_id")
+  categoryId     Int?     @map("category_id")
+  title          String   @db.VarChar(255)
+  slug           String   @unique @db.VarChar(255)
+  thumbnailUrl   String?  @map("thumbnail_url") @db.VarChar(500)
+  description    String?  @db.Text
+  duration       Int      @default(0)
+  level          String   @default("All Levels") @db.VarChar(50)
+  isPublished    Boolean  @default(false) @map("is_published")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  skillsGained   String[] @default([]) @map("skills_gained")
+  targetAudience String[] @default([]) @map("target_audience")
+  features       String[] @default([])
 
-  instructor    Instructor? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
-  category      Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  chapters      Chapter[]
-  plans         Plan[]      @relation("PlanToCourse")
+  instructor Instructor? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  category   Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  chapters   Chapter[]
+  plans      Plan[]      @relation("PlanToCourse")
 
   @@map("courses")
 }
@@ -130,31 +128,31 @@ model Chapter {
   sortOrder Int      @default(0) @map("sort_order")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons   Lesson[]
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
 
   @@map("chapters")
 }
 
 model Lesson {
-  id              Int            @id @default(autoincrement())
-  chapterId       Int            @map("chapter_id")
-  title           String         @db.VarChar(255)
-  videoUrl        String?        @map("video_url") @db.VarChar(500)
-  duration        Int            @default(0)
-  sortOrder       Int            @default(0) @map("sort_order")
-  isPreview       Boolean        @default(false) @map("is_preview")
-  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+  id          Int      @id @default(autoincrement())
+  chapterId   Int      @map("chapter_id")
+  title       String   @db.VarChar(255)
+  videoUrl    String?  @map("video_url") @db.VarChar(500)
+  duration    Int      @default(0)
+  sortOrder   Int      @default(0) @map("sort_order")
+  isPreview   Boolean  @default(false) @map("is_preview")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  description String?  @db.Text
 
-  chapter         Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-  userProgress    UserProgress[]
-  assignments     Assignment[]
-  comments        Comment[]
+  chapter      Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  userProgress UserProgress[]
+  assignments  Assignment[]
+  comments     Comment[]
 
   @@map("lessons")
 }
-
 
 model Plan {
   id           Int      @id @default(autoincrement())
@@ -163,70 +161,69 @@ model Plan {
   billingCycle String   @default("monthly") @map("billing_cycle") @db.VarChar(50)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  users        User[]
-  courses      Course[] @relation("PlanToCourse")
+  users   User[]
+  courses Course[] @relation("PlanToCourse")
 
   @@map("plans")
 }
 
-
 model UserProgress {
-  userId         String   @map("user_id") 
+  userId         String   @map("user_id")
   lessonId       Int      @map("lesson_id")
   isCompleted    Boolean  @default(false) @map("is_completed")
   watchedSeconds Int      @default(0) @map("watched_seconds")
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   @@id([userId, lessonId])
   @@map("user_progress")
 }
 
 model Assignment {
-  id                Int          @id @default(autoincrement())
-  lessonId          Int          @map("lesson_id")
-  title             String       @db.VarChar(255)
-  instruction       String       @db.Text
-  fileAttachmentUrl String?      @map("file_attachment_url") @db.VarChar(500)
-  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz
+  id                Int      @id @default(autoincrement())
+  lessonId          Int      @map("lesson_id")
+  title             String   @db.VarChar(255)
+  instruction       String   @db.Text
+  fileAttachmentUrl String?  @map("file_attachment_url") @db.VarChar(500)
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  lesson            Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  submissions       Submission[]
+  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions Submission[]
 
   @@map("assignments")
 }
 
 model Submission {
-  id            Int        @id @default(autoincrement())
-  assignmentId  Int        @map("assignment_id")
-  userId        String     @map("user_id") 
-  submissionUrl String     @map("submission_url") @db.VarChar(500)
-  grade         Decimal?   @db.Decimal(4, 2)
-  feedback      String?    @db.Text
-  status        String     @default("pending") @db.VarChar(50)
-  createdAt     DateTime   @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt     DateTime   @updatedAt @map("updated_at") @db.Timestamptz
+  id            Int      @id @default(autoincrement())
+  assignmentId  Int      @map("assignment_id")
+  userId        String   @map("user_id")
+  submissionUrl String   @map("submission_url") @db.VarChar(500)
+  grade         Decimal? @db.Decimal(4, 2)
+  feedback      String?  @db.Text
+  status        String   @default("pending") @db.VarChar(50)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  assignment    Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("submissions")
 }
 
 model Comment {
-  id        Int       @id @default(autoincrement())
-  lessonId  Int       @map("lesson_id")
-  userId    String    @map("user_id") 
-  content   String    @db.Text
-  parentId  Int?      @map("parent_id")
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  id        Int      @id @default(autoincrement())
+  lessonId  Int      @map("lesson_id")
+  userId    String   @map("user_id")
+  content   String   @db.Text
+  parentId  Int?     @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  lesson    Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[] @relation("CommentReplies")
+  lesson  Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("CommentReplies")
 
   @@map("comments")
 }

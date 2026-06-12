@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       return apiResponse.error("INSTRUCTOR_NOT_FOUND", 404);
     if (courseWithSameSlug)
       return apiResponse.error("SLUG_ALREADY_EXISTS", 400);
-
+    console.log("rawData", rawData);
     const course = await db.course.create({
       data: {
         title: rawData.title,
@@ -41,6 +41,9 @@ export async function POST(req: Request) {
         instructorId,
         isPublished,
         thumbnailUrl: rawData.thumbnailUrl || null,
+        skillsGained: rawData.skillsGained || [],
+        targetAudience: rawData.targetAudience || [],
+        features: rawData.features || [],
       },
     });
 

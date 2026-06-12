@@ -27,11 +27,17 @@ export const courseFormSchema = z.object({
   targetAudience: z
     .array(z.string().min(2, "Each target must be at least 2 characters"))
     .min(1, "Please add at least one target audience")
-    .max(10, "You can add a maximum of 10 target audiences"),
+    .max(5, "You can add a maximum of 5 target audiences"),
 
   skillsGained: z
     .array(z.string().min(2, "Each skill must be at least 2 characters"))
-    .min(1, "Please add at least one skill gained"),
+    .min(1, "Please add at least one skill gained")
+    .max(5, "You can add a maximum of 5 skill gained"),
+
+  features: z
+    .array(z.string())
+    .min(1, "Please select at least one course feature")
+    .max(3, "You can select a maximum of 3 features"),
 });
 
 export const courseByIdSchema = z.object({ courseId: z.number().min(1) });

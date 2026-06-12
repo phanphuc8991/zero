@@ -4,14 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "@/components/ui/field";
+import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -22,7 +15,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Rocket, Trash2, Loader2 } from "lucide-react";
+import {
+  Save,
+  Rocket,
+  Trash2,
+  Loader2,
+  X,
+  ChevronsUpDown,
+  Check,
+} from "lucide-react";
 import {
   type CourseFormInput,
   courseFormSchema,
@@ -35,9 +36,28 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ThumbnailUpload } from "@/components/thumbnail-upload";
 import { useUploadThumbnail } from "@/hooks/useUploadThumbnail";
-import InputTags from "@/components/input-tags";
-import { watch } from "fs";
+import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
+const courseFeaturesList = [
+  { value: "professional-certificate", label: "Professional certificate" },
+  { value: "flexibl-learning-path", label: "Flexible learning path" },
+  { value: "24/7-support", label: "24/7 support" },
+  { value: "downloadable-materials", label: "Downloadable materials" },
+];
 const convertToSlug = (text: string): string => {
   return text
     .toString()
@@ -52,6 +72,7 @@ const convertToSlug = (text: string): string => {
 };
 
 export function NewCourse() {
+  const [openFeatures, setOpenFeatures] = useState(false);
   const targetAudienceId = useId();
   const skillsGainedId = useId();
   const [activeTargetIndex, setActiveTargetIndex] = useState<number | null>(
@@ -112,22 +133,21 @@ export function NewCourse() {
       status: "draft",
       targetAudience: [],
       skillsGained: [],
+      features: [],
     },
   });
-
-  console.log("getValues", getValues("description"));
-  console.log(" errors.targetAudience", errors.targetAudience);
+  console.log("errors", errors);
   const onSubmitWithStatus = (statusValue: "draft" | "published") => {
     setValue("status", statusValue);
     handleSubmit(async (data) => {
+      console.log("data", data);
       try {
         let thumbnailUrl: string | null = null;
-
-        // if (thumbnailFileRef.current) {
-        //   thumbnailUrl = await upload(thumbnailFileRef.current);
-        //   if (!thumbnailUrl) return;
-        // }
-        // execute({ ...data, thumbnailUrl });
+        if (thumbnailFileRef.current) {
+          thumbnailUrl = await upload(thumbnailFileRef.current);
+          if (!thumbnailUrl) return;
+        }
+        execute({ ...data, thumbnailUrl });
       } catch {
         toast.error("Something went wrong. Please try again.");
       }
@@ -321,6 +341,7 @@ export function NewCourse() {
                                 return (
                                   <div>
                                     <TagInput
+                                      maxTags={5}
                                       id={targetAudienceId}
                                       placeholder="Add targeted learner..."
                                       tags={emblorTags}
@@ -357,7 +378,8 @@ export function NewCourse() {
                                         className="text-destructive text-xs mt-2"
                                         role="alert"
                                       >
-                                        {errors.targetAudience.message}
+                                        {errors.targetAudience.message ||
+                                          errors.targetAudience[0]?.message}
                                       </p>
                                     )}
                                   </div>
@@ -386,6 +408,7 @@ export function NewCourse() {
                             return (
                               <div>
                                 <TagInput
+                                  maxTags={5}
                                   id={skillsGainedId}
                                   placeholder="Add a gained competency..."
                                   tags={emblorTags}
@@ -393,7 +416,7 @@ export function NewCourse() {
                                   setActiveTagIndex={setActiveSkillsIndex}
                                   styleClasses={{
                                     inlineTagsContainer: `border-input rounded-md bg-background shadow-xs transition-[color,box-shadow] focus-within:border-ring outline-none focus-within:ring-[3px] focus-within:ring-ring/50 p-1 gap-1 ${
-                                      errors.targetAudience
+                                      errors.skillsGained
                                         ? "border-destructive focus-within:ring-destructive/20 focus-within:border-destructive"
                                         : ""
                                     }`,
@@ -418,7 +441,8 @@ export function NewCourse() {
                                     className="text-destructive text-xs mt-2"
                                     role="alert"
                                   >
-                                    {errors.skillsGained.message}
+                                    {errors.skillsGained.message ||
+                                      errors.skillsGained[0]?.message}
                                   </p>
                                 )}
                               </div>
@@ -608,36 +632,144 @@ export function NewCourse() {
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="course-level">Features</FieldLabel>
+                      <FieldLabel htmlFor="course-features">
+                        Features
+                      </FieldLabel>
                       <Controller
                         control={control}
-                        name="level"
-                        render={({ field }) => (
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger id="course-level" ref={field.ref}>
-                              <SelectValue placeholder="Select target level" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="Beginner">
-                                  Beginner
-                                </SelectItem>
-                                <SelectItem value="Intermediate">
-                                  Intermediate
-                                </SelectItem>
-                                <SelectItem value="Advanced">
-                                  Advanced
-                                </SelectItem>
-                                <SelectItem value="All Levels">
-                                  All Levels
-                                </SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        )}
+                        name="features"
+                        render={({ field }) => {
+                          const selectedValues: string[] = field.value || [];
+                          const handleUnselect = (itemValue: string) => {
+                            const updatedValues = selectedValues.filter(
+                              (v) => v !== itemValue,
+                            );
+                            field.onChange(updatedValues);
+                          };
+                          const handleSelect = (currentValue: string) => {
+                            const updatedValues = selectedValues.includes(
+                              currentValue,
+                            )
+                              ? selectedValues.filter((v) => v !== currentValue)
+                              : [...selectedValues, currentValue];
+                            field.onChange(updatedValues);
+                          };
+                          return (
+                            <div className="w-full">
+                              <Popover
+                                open={openFeatures}
+                                onOpenChange={setOpenFeatures}
+                              >
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    id="course-features"
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={openFeatures}
+                                    className={cn(
+                                      "w-full justify-between min-h-10 h-auto p-2 border-input text-left font-normal shadow-xs transition-[color,box-shadow] focus-within:border-ring outline-none focus-within:ring-[3px] focus-within:ring-ring/50",
+                                      errors.features
+                                        ? "border-destructive focus-within:ring-destructive/20 focus-within:border-destructive"
+                                        : "",
+                                    )}
+                                  >
+                                    <div className="flex gap-1 flex-wrap items-center">
+                                      {selectedValues.length === 0 && (
+                                        <span className="text-muted-foreground text-sm">
+                                          Select features...
+                                        </span>
+                                      )}
+                                      {selectedValues.map((valueItem) => {
+                                        const featureObj =
+                                          courseFeaturesList.find(
+                                            (f) => f.value === valueItem,
+                                          );
+                                        return (
+                                          <Badge
+                                            variant="secondary"
+                                            key={valueItem}
+                                            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium bg-secondary text-secondary-foreground"
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              e.stopPropagation();
+                                              handleUnselect(valueItem);
+                                            }}
+                                          >
+                                            {featureObj
+                                              ? featureObj.label
+                                              : valueItem}
+                                            <span
+                                              role="button"
+                                              className="ml-0.5 rounded-full outline-none text-muted-foreground/80 hover:text-foreground cursor-pointer"
+                                              onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                              }}
+                                              onClick={() =>
+                                                handleUnselect(valueItem)
+                                              }
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </span>
+                                          </Badge>
+                                        );
+                                      })}
+                                    </div>
+                                    <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className="w-(--radix-popover-trigger-width) p-0"
+                                  align="start"
+                                >
+                                  <Command>
+                                    <CommandInput
+                                      placeholder="Search feature..."
+                                      className="h-9"
+                                    />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        No feature found.
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {courseFeaturesList.map((feature) => (
+                                          <CommandItem
+                                            key={feature.value}
+                                            value={feature.value}
+                                            onSelect={() =>
+                                              handleSelect(feature.value)
+                                            }
+                                            className="cursor-pointer"
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                selectedValues.includes(
+                                                  feature.value,
+                                                )
+                                                  ? "opacity-100"
+                                                  : "opacity-0",
+                                              )}
+                                            />
+                                            {feature.label}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                              {errors.features && (
+                                <p
+                                  className="text-destructive text-xs mt-2"
+                                  role="alert"
+                                >
+                                  {errors.features.message}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        }}
                       />
                     </Field>
                   </FieldSet>

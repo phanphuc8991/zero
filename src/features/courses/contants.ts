@@ -13,9 +13,8 @@ export const courseFormSchema = z.object({
 
   level: z.string().optional(),
 
-  duration: z
-    .number({ message: "Duration must be a number" })
-    .refine((val) => !Number.isNaN(val), { message: "Duration is required" }),
+  duration: z.number({ message: "Duration must be a number" }),
+  // .refine((val) => !Number.isNaN(val), { message: "Duration is required" }),
 
   instructorId: z
     .string()
@@ -56,6 +55,8 @@ export const lessonPayloadSchema = z.object({
   title: z.string().min(1),
   videoUrl: z.string().nullable().optional(),
   duration: z.number().default(0),
+  minutes: z.string().min(1),
+  seconds: z.string().min(1),
   isPreview: z.boolean().default(false),
   sortOrder: z.number(),
 });
@@ -85,7 +86,8 @@ export interface LessonType {
   chapterId: number;
   title: string;
   videoUrl: string | null;
-  duration: number;
+  minutes: string;
+  seconds: string;
   sortOrder: number;
   isPreview: boolean;
   isNew: boolean;
@@ -115,10 +117,20 @@ export const lessonFormSchema = z.object({
         .max(0)
         .or(z.string()),
     ),
-  duration: z
-    .number({ message: "Duration must be a number" })
-    .min(1, "Lesson duration must be greater than 0 seconds")
-    .refine((val) => !Number.isNaN(val), { message: "Duration is required" }),
+  minutes: z
+    .string()
+    .trim()
+    .min(1, "Minutes cannot be empty")
+    .regex(/^\d+$/, "Must be a positive integer"),
+
+  seconds: z
+    .string()
+    .trim()
+    .min(1, "Seconds cannot be empty")
+    .regex(/^\d+$/, "Must be a positive integer")
+    .refine((val) => parseInt(val, 10) <= 59, {
+      message: "Seconds must be less than 60",
+    }),
   isPreview: z.boolean(),
 });
 

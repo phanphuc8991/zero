@@ -50,8 +50,6 @@ export async function PUT(
     if (!parsed.success) return apiResponse.error("INVALID_INPUT", 400);
 
     const { chapters } = parsed.data;
-    console.log("chapters in api", chapters);
-    console.log("courseId", courseId);
     const existingCourse = await db.course.findUnique({
       where: { id: courseId },
       select: { id: true },
@@ -66,8 +64,6 @@ export async function PUT(
       const dbChapterIds = dbChapters.map((c) => c.id);
 
       const keepChapterIds: number[] = [];
-      const keepLessonIds: number[] = [];
-
       for (const chapterData of chapters) {
         let chapterId: number;
 
@@ -100,30 +96,30 @@ export async function PUT(
           select: { id: true },
         });
         const dbLessonIds = dbLessons.map((l) => l.id);
+        const keepLessonIds: number[] = [];
+
         for (const lessonData of chapterData.lessons) {
+          const minutesNumber = Number(lessonData.minutes) || 0;
+          const secondsNumber = Number(lessonData.seconds) || 0;
+          const totalDurationInSeconds = minutesNumber * 60 + secondsNumber;
+
+          const lessonPayload = {
+            chapterId: chapterId,
+            title: lessonData.title,
+            videoUrl: lessonData.videoUrl ?? null,
+            duration: totalDurationInSeconds,
+            isPreview: lessonData.isPreview,
+            sortOrder: lessonData.sortOrder,
+          };
           if (lessonData.id && dbLessonIds.includes(lessonData.id)) {
             await tx.lesson.update({
               where: { id: lessonData.id },
-              data: {
-                chapterId: chapterId,
-                title: lessonData.title,
-                videoUrl: lessonData.videoUrl ?? null,
-                duration: lessonData.duration,
-                isPreview: lessonData.isPreview,
-                sortOrder: lessonData.sortOrder,
-              },
+              data: lessonPayload,
             });
             keepLessonIds.push(lessonData.id);
           } else {
             const newLesson = await tx.lesson.create({
-              data: {
-                chapterId: chapterId,
-                title: lessonData.title,
-                videoUrl: lessonData.videoUrl ?? null,
-                duration: lessonData.duration,
-                isPreview: lessonData.isPreview,
-                sortOrder: lessonData.sortOrder,
-              },
+              data: lessonPayload,
             });
             keepLessonIds.push(newLesson.id);
           }
@@ -136,14 +132,33 @@ export async function PUT(
           },
         });
       }
-      console.log("keepChapterIds", keepChapterIds);
       await tx.chapter.deleteMany({
         where: {
           courseId,
           id: { notIn: keepChapterIds },
         },
       });
+
+      // update course duration when adding or updating lesson duration for any chapter.
+      const courseLessonsAggregate = await tx.lesson.aggregate({
+        where: {
+          chapter: {
+            courseId: courseId,
+          },
+        },
+        _sum: {
+          duration: true,
+        },
+      });
+      const totalCourseDuration = courseLessonsAggregate._sum.duration || 0;
+      await tx.course.update({
+        where: { id: courseId },
+        data: {
+          duration: totalCourseDuration,
+        },
+      });
     });
+
     const updatedChapters = await db.chapter.findMany({
       where: { courseId },
       orderBy: { sortOrder: "asc" },

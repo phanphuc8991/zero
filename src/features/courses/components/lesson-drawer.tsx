@@ -47,7 +47,8 @@ export function LessonDrawer({ handleSaveLesson }: LessonDrawerProps) {
   const handleFormSubmit = (formData: {
     title: string;
     videoUrl: string | null;
-    duration: number;
+    minutes: string;
+    seconds: string;
     isPreview: boolean;
   }) => {
     if (lessonDrawerMode) {

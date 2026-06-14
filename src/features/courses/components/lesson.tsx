@@ -13,7 +13,8 @@ interface Lesson {
   chapterId: number;
   title: string;
   videoUrl: string | null;
-  duration: number;
+  minutes: string;
+  seconds: string;
   sortOrder: number;
   isPreview: boolean;
   chapterKey: string;
@@ -27,8 +28,11 @@ interface LessonProps {
   chapterKey: string;
   chapterIndex: number;
   videoUrl: string | null;
-  duration: number;
+  minutes: string;
+  seconds: string;
   isPreview: boolean;
+  isNew: boolean;
+  sortOrder: number;
   onUpdateLesson?: (
     columnKey: string,
     lessonId: number,
@@ -44,8 +48,11 @@ export function LessonItem({
   chapterKey,
   chapterIndex,
   videoUrl,
-  duration,
+  minutes,
+  seconds,
   isPreview,
+  isNew,
+  sortOrder,
 }: LessonProps) {
   const { isSystemLocked, openEditLessonDrawer } = useCourseStore(
     useShallow((state) => ({
@@ -59,11 +66,23 @@ export function LessonItem({
     index,
     type: "item",
   });
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  };
+
+  function formatDuration(minutes: string, seconds: string): string {
+    const mins = parseInt(String(minutes), 10) || 0;
+    const secs = parseInt(String(seconds), 10) || 0;
+
+    const totalSeconds = mins * 60 + secs;
+
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+
+    const hoursStr = String(h).padStart(2, "0");
+    const minutesStr = String(m).padStart(2, "0");
+    const secondsStr = String(s).padStart(2, "0");
+
+    return `${hoursStr}:${minutesStr}:${secondsStr}`;
+  }
 
   const openEditLesson = () => {
     const lessson = {
@@ -71,8 +90,11 @@ export function LessonItem({
       chapterId,
       title,
       videoUrl,
-      duration,
+      minutes,
+      seconds,
       isPreview,
+      isNew,
+      sortOrder,
     };
     openEditLessonDrawer(chapterKey, lessson);
   };
@@ -89,16 +111,16 @@ export function LessonItem({
             <GripVertical className="w-6 h-6 cursor-pointer text-muted-foreground" />
             <Play className="w-5 h-5 text-muted-foreground" />
             <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 text-sm">
                 <h4 className="font-semibold">
                   <span>{chapterIndex + 1}.</span>
                   <span>{index + 1}:</span>
                 </h4>
-                <span className=""> {title}</span>
+                <span> {title}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className=" text-muted-foreground font-normal">
-                  {duration > 0 ? formatDuration(duration) : "0:00"}
+              <div className="flex items-center gap-3 text-sm">
+                <span className="text-muted-foreground font-normal">
+                  {formatDuration(minutes, seconds)}
                 </span>
                 <Badge className="gap-1 bg-[#EAF3DF] text-[#3D6C1A] text-[10px] px-1.5 py-0 h-4 shadow-none border-none hover:bg-[#EAF3DF]">
                   <span>video</span>

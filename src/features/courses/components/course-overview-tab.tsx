@@ -234,7 +234,29 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
   }
 
   const isLoading = isExecuting || isUploading;
+  function formatSecondsToBadge(totalSeconds: number): string {
+    if (!totalSeconds || totalSeconds <= 0) return "0s";
 
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+
+    const parts: string[] = [];
+
+    if (h > 0) {
+      parts.push(`${h}h`);
+    }
+
+    if (m > 0 || (h > 0 && s > 0)) {
+      parts.push(`${m}m`);
+    }
+
+    if (s > 0 || parts.length === 0) {
+      parts.push(`${s}s`);
+    }
+
+    return parts.join(" ");
+  }
   return (
     <div className="relative grid lg:grid-cols-3 gap-6 items-start">
       <div className="grid gap-6 lg:col-span-2">
@@ -797,7 +819,7 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
           <div className="flex justify-between items-center gap-2">
             <Badge className="h-7 px-3 gap-2 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20 font-semibold">
               <Clock className="h-3.5 w-3.5" />
-              2h 30m
+              {formatSecondsToBadge(getValues("duration"))}
             </Badge>
             <Separator orientation="vertical" className="h-4" />
             <div>

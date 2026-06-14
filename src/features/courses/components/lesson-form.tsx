@@ -36,13 +36,15 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
         ? {
             title: editingLessonData.title || "",
             videoUrl: editingLessonData.videoUrl || "",
-            duration: editingLessonData.duration || 0,
+            minutes: editingLessonData.minutes,
+            seconds: editingLessonData.seconds,
             isPreview: !!editingLessonData.isPreview,
           }
         : {
             title: "",
             videoUrl: "",
-            duration: 0,
+            minutes: "",
+            seconds: "",
             isPreview: false,
           },
   });
@@ -86,7 +88,6 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
                   <Input
                     {...field}
                     value={field.value || ""}
-                    onChange={(e) => field.onChange(e.target.value || null)}
                     placeholder="YouTube, Vimeo, HLS link..."
                     aria-invalid={!!errors.videoUrl}
                   />
@@ -101,34 +102,60 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
           </Field>
 
           <Field>
-            <FieldLabel>Duration (Minutes)</FieldLabel>
-            <div>
-              <Controller
-                control={control}
-                name="duration"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    type="number"
-                    value={
-                      field.value === 0 || Number.isNaN(field.value)
-                        ? ""
-                        : field.value
-                    }
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    placeholder="e.g. 12"
+            <FieldLabel>Duration(minutes,seconds)</FieldLabel>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <Controller
+                    control={control}
+                    name="minutes"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        type="text"
+                        placeholder="minutes"
+                        aria-invalid={!!errors.minutes}
+                      />
+                    )}
                   />
-                )}
-              />
-              {errors.duration && (
-                <p className="text-destructive text-xs mt-2">
-                  {errors.duration.message}
-                </p>
-              )}
+                </div>
+                <div>
+                  <Controller
+                    control={control}
+                    name="seconds"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        value={field.value || ""}
+                        type="text"
+                        placeholder="seconds"
+                        aria-invalid={!!errors.seconds}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1">
+                  {errors.minutes && (
+                    <p className="text-destructive text-xs">
+                      {errors.minutes.message}
+                    </p>
+                  )}
+                </div>
+                <div className="flex-1">
+                  {errors.seconds && (
+                    <p className="text-destructive text-xs">
+                      {errors.seconds.message}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </Field>
 
-          <div className="w-full py-4 px-4 border rounded-xl bg-muted/10 mt-2">
+          <div className="w-full py-4 px-4 border rounded-xl bg-muted/10">
             <div className="flex items-start gap-3">
               <Controller
                 control={control}

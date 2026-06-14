@@ -75,7 +75,8 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
     formData: {
       title: string;
       videoUrl: string | null;
-      duration: number;
+      minutes: string;
+      seconds: string;
       isPreview: boolean;
     },
   ) => {
@@ -159,15 +160,21 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
             isNew: false,
           };
 
-          lessons[chapterKey] = (chapter.lessons || []).map((lesson: any) => ({
-            id: lesson.id,
-            chapterId: lesson.chapterId,
-            title: lesson.title,
-            videoUrl: lesson.videoUrl,
-            duration: lesson.duration,
-            isPreview: lesson.isPreview,
-            isNew: false,
-          }));
+          lessons[chapterKey] = (chapter.lessons || []).map((lesson: any) => {
+            const totalSeconds = lesson.duration || 0;
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+            return {
+              id: lesson.id,
+              chapterId: lesson.chapterId,
+              title: lesson.title,
+              videoUrl: lesson.videoUrl,
+              minutes: String(mins),
+              seconds: String(secs),
+              isPreview: lesson.isPreview,
+              isNew: false,
+            };
+          });
         });
 
         setChapterDetails(details);
@@ -196,7 +203,6 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
           dbChapters.forEach((chapter: any) => {
             const chapterKey = `chapter-key-${chapter.id}`;
             order.push(chapterKey);
-
             details[chapterKey] = {
               id: chapter.id,
               title: chapter.title,
@@ -204,17 +210,22 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
               isNew: false,
             };
 
-            lessons[chapterKey] = (chapter.lessons || []).map(
-              (lesson: any) => ({
+            lessons[chapterKey] = (chapter.lessons || []).map((lesson: any) => {
+              const totalSeconds = lesson.duration || 0;
+              const mins = Math.floor(totalSeconds / 60);
+              const secs = totalSeconds % 60;
+
+              return {
                 id: lesson.id,
                 chapterId: lesson.chapterId,
                 title: lesson.title,
                 videoUrl: lesson.videoUrl,
-                duration: lesson.duration,
+                minutes: String(mins),
+                seconds: String(secs),
                 isPreview: lesson.isPreview,
                 isNew: false,
-              }),
-            );
+              };
+            });
           });
 
           setChapterDetails(details);
@@ -243,16 +254,17 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
             id: lesson.isNew ? null : lesson.id,
             title: lesson.title,
             videoUrl: lesson.videoUrl || null,
-            duration: lesson.duration,
+            minutes: lesson.minutes,
+            seconds: lesson.seconds,
             isPreview: lesson.isPreview,
             sortOrder: lessonIndex,
           })),
         };
       }),
     };
-
     saveChapters(payload);
   };
+
   useEffect(() => {
     if (courseId) {
       fetchChapters({ courseId });
@@ -332,8 +344,11 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
                     index={lessonIndex}
                     chapterIndex={chapterIndex}
                     videoUrl={lesson.videoUrl}
-                    duration={lesson.duration}
+                    minutes={lesson.minutes}
+                    seconds={lesson.seconds}
                     isPreview={lesson.isPreview}
+                    isNew={lesson.isNew}
+                    sortOrder={lesson.sortOrder}
                   />
                 ))}
               </ChapterColumn>
@@ -382,7 +397,7 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
         )}
       </DragDropProvider>
       <LessonDrawer handleSaveLesson={handleSaveLesson} />
-      <div className="flex justify-end items-center gap-2 border-t pt-4">
+      <div className="flex justify-end items-center gap-2 pt-4">
         <Button
           className="cursor-pointer gap-2"
           type="button"

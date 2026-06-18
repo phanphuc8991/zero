@@ -847,7 +847,7 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
             {serverError}
           </div>
         )}
-        <div className="flex items-center gap-2">
+        <div className="absolute -top-24 right-0 flex items-center gap-2">
           <Button
             className="cursor-pointer gap-2"
             variant="destructive"
@@ -881,7 +881,7 @@ export function CourseOverviewTab({ courseId }: { courseId: number }) {
             {isLoading && getValues("status") === "published" ? (
               <Loader2 className="animate-spin" size={15} />
             ) : (
-              <Rocket size={15} />
+              <Save size={15} />
             )}
             {getValues("status") === "published" ? "Save" : "Publish"}
           </Button>

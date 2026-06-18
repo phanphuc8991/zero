@@ -7,6 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useShallow } from "zustand/react/shallow";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ChapterProps {
   children: React.ReactNode;
@@ -17,6 +25,7 @@ interface ChapterProps {
   chapterId: number;
   onUpdateChapter?: (chapterKey: string, newTitle: string) => void;
   onAddLesson?: (chapterKey: string, lessonTitle: string) => void;
+  onDeleteChapter?: (chapterKey: string) => void;
 }
 
 export function ChapterColumn({
@@ -26,6 +35,7 @@ export function ChapterColumn({
   title,
   lessonCount,
   onUpdateChapter,
+  onDeleteChapter,
   chapterId,
 }: ChapterProps) {
   const {
@@ -46,7 +56,7 @@ export function ChapterColumn({
 
   const isEditingThisChapter = editingChapterId === chapterId;
   const [chapterTitle, setChapterTitle] = useState(title);
-
+  const [showDialogConfirmDelete, setShowDialogConfirmDelete] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { ref, isDragging } = useSortable({
@@ -59,6 +69,12 @@ export function ChapterColumn({
   const handleAddChapter = () => {
     if (onUpdateChapter) {
       onUpdateChapter(chapterKey, chapterTitle.trim());
+    }
+  };
+
+  const handdleDeleteChapter = () => {
+    if (onDeleteChapter) {
+      onDeleteChapter(chapterKey);
     }
   };
 
@@ -144,6 +160,9 @@ export function ChapterColumn({
                   variant="outline"
                   className="gap-2"
                   disabled={isSystemLocked}
+                  onClick={() => {
+                    setShowDialogConfirmDelete(true);
+                  }}
                 >
                   <Trash2 size={15} className="text-[#E9122B]" />
                 </Button>
@@ -165,6 +184,38 @@ export function ChapterColumn({
           </Button>
         </div>
       </CardContent>
+      <AlertDialog
+        open={showDialogConfirmDelete}
+        onOpenChange={setShowDialogConfirmDelete}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-normal">
+              Delete Item
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this item? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDialogConfirmDelete(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                handdleDeleteChapter();
+              }}
+            >
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

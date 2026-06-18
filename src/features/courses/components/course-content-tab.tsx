@@ -43,7 +43,9 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
 
   const [chapterOrder, setChapterOrder] = useState<string[]>([]);
   const [isPageLoading, setIsPageLoading] = useState(true);
-
+  console.log("chapterDetails", chapterDetails);
+  console.log("chapterOrder", chapterOrder);
+  console.log("listLesson", listLesson);
   const onAddChapter = () => {
     const newChapterKey = `chapter-key-${Date.now()}`;
     const newChapterId = Math.floor(Math.random() * 10000);
@@ -60,6 +62,17 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
     setChapterOrder((prev) => [...prev, newChapterKey]);
     setNewChapterTitle("");
     closeAllInputs();
+  };
+  const onDeleteChapter = (chapterKey: string) => {
+    setChapterOrder((prev) => prev.filter((item) => item !== chapterKey));
+    setListLesson((prev) => {
+      const { [chapterKey]: removed, ...rest } = prev;
+      return rest;
+    });
+    setChapterDetails((prev) => {
+      const { [chapterKey]: removed, ...rest } = prev;
+      return rest;
+    });
   };
   const onUpdateChapter = (chapterKey: string, newTitle: string) => {
     setChapterDetails((prev) => ({
@@ -116,6 +129,7 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
       return { ...prevItems, [chapterKey]: updatedLessons };
     });
   };
+
   const handleSaveLesson = (
     mode: "CREATE" | "EDIT",
     context: {
@@ -284,7 +298,7 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
   }
 
   return (
-    <div>
+    <div className="relative">
       <DragDropProvider
         sensors={[PointerSensor, KeyboardSensor]}
         onDragOver={(event) => {
@@ -333,6 +347,7 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
                 chapterId={chapter.id}
                 lessonCount={lessons.length}
                 onUpdateChapter={onUpdateChapter}
+                onDeleteChapter={onDeleteChapter}
               >
                 {lessons.map((lesson, lessonIndex) => (
                   <LessonItem
@@ -397,7 +412,7 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
         )}
       </DragDropProvider>
       <LessonDrawer handleSaveLesson={handleSaveLesson} />
-      <div className="flex justify-end items-center gap-2 pt-4">
+      <div className="absolute -top-15 right-0 flex justify-end items-center gap-2 pt-4">
         <Button
           className="cursor-pointer gap-2"
           type="button"
@@ -409,7 +424,7 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
           ) : (
             <Save size={15} />
           )}
-          Save Content Changes
+          Save
         </Button>
       </div>
     </div>

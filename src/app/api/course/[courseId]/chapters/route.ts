@@ -57,8 +57,12 @@ export async function PUT(
     if (!existingCourse) return apiResponse.error("COURSE_NOT_FOUND", 404);
 
     await db.$transaction(async (tx) => {
+      const now = new Date();
       const dbChapters = await tx.chapter.findMany({
-        where: { courseId },
+        where: {
+          courseId,
+          deletedAt: null,
+        },
         select: { id: true },
       });
       const dbChapterIds = dbChapters.map((c) => c.id);
@@ -74,6 +78,7 @@ export async function PUT(
             data: {
               title: chapterData.title,
               sortOrder: chapterData.sortOrder,
+              deletedAt: null,
             },
           });
           keepChapterIds.push(chapterId);
@@ -85,14 +90,15 @@ export async function PUT(
               sortOrder: chapterData.sortOrder,
             },
           });
-          console.log("else newChapter", newChapter);
-
           chapterId = newChapter.id;
           keepChapterIds.push(chapterId);
         }
 
         const dbLessons = await tx.lesson.findMany({
-          where: { chapterId },
+          where: {
+            chapterId,
+            deletedAt: null,
+          },
           select: { id: true },
         });
         const dbLessonIds = dbLessons.map((l) => l.id);
@@ -110,6 +116,7 @@ export async function PUT(
             duration: totalDurationInSeconds,
             isPreview: lessonData.isPreview,
             sortOrder: lessonData.sortOrder,
+            deletedAt: null,
           };
           if (lessonData.id && dbLessonIds.includes(lessonData.id)) {
             await tx.lesson.update({
@@ -124,27 +131,59 @@ export async function PUT(
             keepLessonIds.push(newLesson.id);
           }
         }
-
-        await tx.lesson.deleteMany({
+        await tx.lesson.updateMany({
           where: {
             chapterId: chapterId,
             id: { notIn: keepLessonIds },
+            deletedAt: null,
+          },
+          data: {
+            deletedAt: now,
           },
         });
       }
-      await tx.chapter.deleteMany({
+
+      await tx.chapter.updateMany({
+        where: {
+          courseId,
+          id: { notIn: keepChapterIds },
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: now,
+        },
+      });
+
+      // udpate lessons belong chapter when use delete chapter
+      const deletedChapters = await tx.chapter.findMany({
         where: {
           courseId,
           id: { notIn: keepChapterIds },
         },
+        select: { id: true },
       });
+      const deletedChapterIds = deletedChapters.map((c) => c.id);
+
+      if (deletedChapterIds.length > 0) {
+        await tx.lesson.updateMany({
+          where: {
+            chapterId: { in: deletedChapterIds },
+            deletedAt: null,
+          },
+          data: {
+            deletedAt: now,
+          },
+        });
+      }
 
       // update course duration when adding or updating lesson duration for any chapter.
       const courseLessonsAggregate = await tx.lesson.aggregate({
         where: {
           chapter: {
             courseId: courseId,
+            deletedAt: null,
           },
+          deletedAt: null,
         },
         _sum: {
           duration: true,
@@ -160,10 +199,14 @@ export async function PUT(
     });
 
     const updatedChapters = await db.chapter.findMany({
-      where: { courseId },
+      where: {
+        courseId,
+        deletedAt: null,
+      },
       orderBy: { sortOrder: "asc" },
       include: {
         lessons: {
+          where: { deletedAt: null },
           orderBy: { sortOrder: "asc" },
         },
       },

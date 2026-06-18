@@ -97,55 +97,55 @@ model Category {
 }
 
 model Course {
-  id             Int      @id @default(autoincrement())
-  instructorId   Int?     @map("instructor_id")
-  categoryId     Int?     @map("category_id")
-  title          String   @db.VarChar(255)
-  slug           String   @unique @db.VarChar(255)
-  thumbnailUrl   String?  @map("thumbnail_url") @db.VarChar(500)
-  description    String?  @db.Text
-  duration       Int      @default(0)
-  level          String   @default("All Levels") @db.VarChar(50)
-  isPublished    Boolean  @default(false) @map("is_published")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  skillsGained   String[] @default([]) @map("skills_gained")
-  targetAudience String[] @default([]) @map("target_audience")
-  features       String[] @default([])
-
-  instructor Instructor? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
-  category   Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  chapters   Chapter[]
-  plans      Plan[]      @relation("PlanToCourse")
+  id             Int         @id @default(autoincrement())
+  instructorId   Int?        @map("instructor_id")
+  categoryId     Int?        @map("category_id")
+  title          String      @db.VarChar(255)
+  slug           String      @unique @db.VarChar(255)
+  thumbnailUrl   String?     @map("thumbnail_url") @db.VarChar(500)
+  description    String?     @db.Text
+  duration       Int         @default(0)
+  level          String      @default("All Levels") @db.VarChar(50)
+  isPublished    Boolean     @default(false) @map("is_published")
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  skillsGained   String[]    @default([]) @map("skills_gained")
+  targetAudience String[]    @default([]) @map("target_audience")
+  features       String[]    @default([])
+  deletedAt      DateTime?   @map("deleted_at") @db.Timestamptz
+  instructor     Instructor? @relation(fields: [instructorId], references: [id], onDelete: SetNull)
+  category       Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  chapters       Chapter[]
+  plans          Plan[]      @relation("PlanToCourse")
 
   @@map("courses")
 }
 
 model Chapter {
-  id        Int      @id @default(autoincrement())
-  courseId  Int      @map("course_id")
-  title     String   @db.VarChar(255)
-  sortOrder Int      @default(0) @map("sort_order")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons Lesson[]
+  id        Int       @id @default(autoincrement())
+  courseId  Int       @map("course_id")
+  title     String    @db.VarChar(255)
+  sortOrder Int       @default(0) @map("sort_order")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
 
   @@map("chapters")
 }
 
 model Lesson {
-  id          Int      @id @default(autoincrement())
-  chapterId   Int      @map("chapter_id")
-  title       String   @db.VarChar(255)
-  videoUrl    String?  @map("video_url") @db.VarChar(500)
-  duration    Int      @default(0)
-  sortOrder   Int      @default(0) @map("sort_order")
-  isPreview   Boolean  @default(false) @map("is_preview")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
-  description String?  @db.Text
-
+  id           Int            @id @default(autoincrement())
+  chapterId    Int            @map("chapter_id")
+  title        String         @db.VarChar(255)
+  videoUrl     String?        @map("video_url") @db.VarChar(500)
+  duration     Int            @default(0)
+  sortOrder    Int            @default(0) @map("sort_order")
+  isPreview    Boolean        @default(false) @map("is_preview")
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+  description  String?        @db.Text
+  deletedAt    DateTime?      @map("deleted_at") @db.Timestamptz
   chapter      Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   userProgress UserProgress[]
   assignments  Assignment[]

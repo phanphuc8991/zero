@@ -21,7 +21,6 @@ export async function GET() {
       isPublished: course.isPublished,
       instructorName: course.instructor?.name ?? "—",
     }));
-    console.log("formattedCourses", formattedCourses);
     return apiResponse.success({ courses: formattedCourses }, 200);
   } catch (error: any) {
     console.error("Get courses error:", error);

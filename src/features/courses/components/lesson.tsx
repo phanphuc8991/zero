@@ -1,13 +1,12 @@
 "use client";
-import * as z from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useSortable } from "@dnd-kit/react/sortable";
-import { Pencil, GripVertical, Play, Trash2 } from "lucide-react";
+import { Pencil, GripVertical, Play, Trash2, X } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
-
+import { useState } from "react";
 interface Lesson {
   id: number;
   chapterId: number;
@@ -54,6 +53,7 @@ export function LessonItem({
   isNew,
   sortOrder,
 }: LessonProps) {
+  const [showVideo, setShowVideo] = useState(false);
   const { isSystemLocked, openEditLessonDrawer } = useCourseStore(
     useShallow((state) => ({
       isSystemLocked: state.isSystemLocked(),
@@ -109,7 +109,52 @@ export function LessonItem({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <GripVertical className="w-6 h-6 cursor-pointer text-muted-foreground" />
-            <Play className="w-5 h-5 text-muted-foreground" />
+            <button
+              onClick={() => {
+                setShowVideo(true);
+              }}
+              disabled={!videoUrl}
+              className={`p-2 rounded-full transition-all duration-200 
+    ${
+      !videoUrl
+        ? "opacity-30 cursor-not-allowed text-muted-foreground"
+        : "cursor-pointer hover:bg-secondary text-muted-foreground hover:text-foreground active:scale-95"
+    }`}
+            >
+              <Play className="w-5 h-5" />
+            </button>
+            {showVideo && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-[2px]">
+                <div className="relative w-full max-w-3xl bg-background rounded-lg p-6 shadow-lg border animate-in fade-in-50 duration-200">
+                  <button
+                    onClick={() => setShowVideo(false)}
+                    className="cursor-pointer absolute right-2 top-2 rounded-sm opacity-70 hover:opacity-100"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex items-center gap-1 text-sm mb-2">
+                    <h4 className="font-semibold">
+                      <span>{chapterIndex + 1}.</span>
+                      <span>{index + 1}:</span>
+                    </h4>
+                    <span> {title}</span>
+                  </div>
+
+                  <div className="aspect-video w-full rounded-md overflow-hidden">
+                    <video
+                      src={videoUrl as string}
+                      controls={true}
+                      preload="metadata"
+                      autoPlay={false}
+                      muted={true}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-1 text-sm">
                 <h4 className="font-semibold">

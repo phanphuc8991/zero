@@ -13,8 +13,12 @@ export default function EditCourse({ courseId }: { courseId: number }) {
           </div>
           <Tabs defaultValue="overview">
             <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="content">Course Content</TabsTrigger>
+              <TabsTrigger className="cursor-pointer" value="overview">
+                Overview
+              </TabsTrigger>
+              <TabsTrigger className="cursor-pointer" value="content">
+                Course Content
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">

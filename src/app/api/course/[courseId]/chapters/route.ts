@@ -18,7 +18,7 @@ export async function GET(
     if (!courseExists) return apiResponse.error("COURSE_NOT_FOUND", 404);
 
     const chapters = await db.chapter.findMany({
-      where: { courseId },
+      where: { courseId, deletedAt: null },
       orderBy: { sortOrder: "asc" },
       include: {
         lessons: {
@@ -221,3 +221,22 @@ export async function PUT(
     return apiResponse.error("SERVER_ERROR", 500);
   }
 }
+
+// create chapter
+// export async function POST(
+//   req: Request,
+//   { params }: { params: Promise<{ courseId: string }> },
+// ) {
+//   try {
+//      const a = new Promise((a,b) => {
+//         a('success');
+//      });
+//      a.
+//     const {courseId: rawCourseId} = await params;
+//     const courseId = Number(rawCourseId);
+//     if(isNaN(courseId)) return apiResponse.error("INVALID_COURSE_ID",400);
+
+//     const body = await req.json().
+
+//   } catch (error) {}
+// }

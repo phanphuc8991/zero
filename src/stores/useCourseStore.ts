@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Category, Instructor, LessonType } from "@/features/courses/contants";
+import { getCategories } from "@/features/courses/server-action";
 
 interface CourseStore {
   // --- State ---
@@ -108,19 +109,17 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
     if (get().categories.length > 0) return;
     set({ isCategoriesLoading: true });
     try {
-      const res = await fetch("/api/category/get-categories", {
-        cache: "no-store",
-      });
-      const data = await res.json();
-      if (res.ok && data?.categories) {
-        set({ categories: data.categories });
+      const categories = await getCategories();
+      if (categories) {
+        set({ categories });
       }
     } catch (error) {
-      console.error("Failed to fetch categories:", error);
+      console.error("Failed to fetch categories via Server Action:", error);
     } finally {
       set({ isCategoriesLoading: false });
     }
   },
+
   fetchInstructors: async () => {
     if (get().instructors.length > 0) return;
     set({ isInstructorsLoading: true });

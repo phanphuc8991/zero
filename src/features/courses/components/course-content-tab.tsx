@@ -63,6 +63,15 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
     setNewChapterTitle("");
     closeAllInputs();
   };
+
+  const onUpdateChapter = (chapterKey: string, newTitle: string) => {
+    setChapterDetails((prev) => ({
+      ...prev,
+      [chapterKey]: { ...prev[chapterKey], title: newTitle },
+    }));
+    closeAllInputs();
+  };
+
   const onDeleteChapter = (chapterKey: string) => {
     setChapterOrder((prev) => prev.filter((item) => item !== chapterKey));
     setListLesson((prev) => {
@@ -73,13 +82,6 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
       const { [chapterKey]: removed, ...rest } = prev;
       return rest;
     });
-  };
-  const onUpdateChapter = (chapterKey: string, newTitle: string) => {
-    setChapterDetails((prev) => ({
-      ...prev,
-      [chapterKey]: { ...prev[chapterKey], title: newTitle },
-    }));
-    closeAllInputs();
   };
 
   const onAddLesson = (
@@ -276,6 +278,7 @@ export function CourseContentTab({ courseId }: { courseId: number }) {
         };
       }),
     };
+    console.log("payload", payload);
     saveChapters(payload);
   };
 

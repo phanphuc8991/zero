@@ -13,18 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { CourseTable } from "@/features/courses/contants-1";
 
-export type Course = {
-  id: number;
-  title: string;
-  slug: string;
-  duration: number;
-  level: "beginner" | "intermediate" | "advanced" | "all";
-  isPublished: boolean;
-  instructorName: string;
-};
-
-export const courseColumns: ColumnDef<Course>[] = [
+export const courseColumns: ColumnDef<CourseTable>[] = [
   {
     id: "select",
     header: ({ table }) => (

@@ -38,6 +38,7 @@ export async function getCourseByIdService(courseId: number) {
     headers: { "Content-Type": "application/json" },
     cache: "no-store",
   });
+  console.log("res", res);
   return handleResponse(res);
 }
 

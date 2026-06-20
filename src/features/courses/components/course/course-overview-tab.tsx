@@ -14,8 +14,8 @@ import {
 } from "@/features/courses/contants";
 import { updateCourse } from "@/features/courses/server-action";
 import { MESSAGES_MAP } from "@/features/courses/contants-1";
-import { CourseFormFields } from "./course-form-fields";
 import { Badge } from "@/components/ui/badge";
+import { CourseFormFields } from "@/features/courses/components/course/course-form-fields";
 
 export function CourseOverviewTab({
   categories,

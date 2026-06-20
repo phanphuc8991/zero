@@ -15,7 +15,7 @@ import {
 } from "@/features/courses/contants";
 import { createCourse } from "@/features/courses/server-action";
 import { MESSAGES_MAP } from "@/features/courses/contants-1";
-import { CourseFormFields } from "@/features/courses/components/course-form-fields";
+import { CourseFormFields } from "@/features/courses/components/course/course-form-fields";
 
 export function CourseCreateForm({
   categories,

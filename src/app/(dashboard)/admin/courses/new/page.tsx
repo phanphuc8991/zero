@@ -1,4 +1,4 @@
-import { CreateCoursePage } from "@/features/courses/components/new-course";
+import { CreateCoursePage } from "@/features/courses/create-course";
 
 export default function Page() {
   return <CreateCoursePage />;

@@ -6,7 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { LessonForm } from "@/features/courses/components/lesson-form";
+import { LessonForm } from "@/features/courses/components/lesson/lesson-form";
 import { LessonType } from "@/features/courses/contants";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useShallow } from "zustand/react/shallow";

@@ -2,14 +2,14 @@
 
 import { useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CourseOverviewTab } from "@/features/courses/components/course-overview-tab";
-import { CourseContentTab } from "@/features/courses/components/course-content-tab";
+import { CourseContentTab } from "@/features/courses/components/course/course-content-tab";
 import { useState } from "react";
 import {
   Category,
   CreateCourseInput,
   Instructor,
 } from "@/features/courses/contants-1";
+import { CourseOverviewTab } from "@/features/courses/components/course/course-overview-tab";
 
 interface CourseEditFormProps {
   courseId: number;

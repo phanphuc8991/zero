@@ -1,4 +1,4 @@
-import EditCourse from "@/features/courses/components/edit-course";
+import EditCourse from "@/features/courses/edit-course";
 import { notFound } from "next/navigation";
 interface EditCoursePageProps {
   params: Promise<{ courseId: string }>;

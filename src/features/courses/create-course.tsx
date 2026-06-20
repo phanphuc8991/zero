@@ -1,5 +1,5 @@
-import { CourseCreateForm } from "@/features/courses/components/course-create-form";
-import { CourseFormSkeleton } from "@/features/courses/components/course-form-skeleton";
+import { CourseCreateForm } from "@/features/courses/components/course/course-create-form";
+import { CourseFormSkeleton } from "@/features/courses/components/course/course-form-skeleton";
 import {
   getCategories,
   getInstructors,

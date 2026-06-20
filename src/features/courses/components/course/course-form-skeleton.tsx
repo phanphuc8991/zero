@@ -1,108 +1,57 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function CourseFormSkeleton() {
   return (
-    <div className="mx-15 max-w-400 w-full animate-pulse">
-      <div className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-7 w-32" />
+    <div className="space-y-8 animate-pulse">
+      =
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-b pb-5">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <Skeleton className="h-10 w-32 rounded-md self-start md:self-center" />
+      </div>
+      <div className="flex gap-4 border-b pb-2">
+        <Skeleton className="h-8 w-28 rounded-sm" />
+        <Skeleton className="h-8 w-36 rounded-sm" />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="border rounded-xl p-6 space-y-4 bg-card/50">
+            <Skeleton className="h-5 w-40 mb-2" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full rounded-md" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-24 w-full rounded-md" />
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Skeleton className="h-9 w-24 rounded-md" />
-            <Skeleton className="h-9 w-28 rounded-md" />
-            <Skeleton className="h-9 w-24 rounded-md" />
+
+          <div className="border rounded-xl p-6 space-y-4 bg-card/50">
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-6 w-48 rounded-md" />
+              <Skeleton className="h-8 w-20 rounded-md" />
+            </div>
+            <Skeleton className="h-12 w-full rounded-lg" />
+            <Skeleton className="h-12 w-full rounded-lg" />
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 items-start">
-          <div className="grid gap-6 lg:col-span-2">
-            <Card className="bg-background border shadow-none">
-              <CardHeader>
-                <Skeleton className="h-5 w-40" />
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-36" />
-                  <Skeleton className="h-60 w-full rounded-md" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background border shadow-none">
-              <CardHeader>
-                <Skeleton className="h-5 w-36" />
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start pt-2">
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-10 w-full rounded-md" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-10 w-full rounded-md" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="space-y-6">
+          <div className="border rounded-xl p-6 space-y-4 bg-card/50">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-4 w-full" />
           </div>
 
-          <div className="grid gap-6 lg:col-span-1">
-            <Card className="bg-background border shadow-none">
-              <CardHeader>
-                <Skeleton className="h-5 w-28" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-40 w-full rounded-md" />
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background border shadow-none">
-              <CardHeader>
-                <Skeleton className="h-5 w-20" />
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-36" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background border shadow-none">
-              <CardHeader>
-                <Skeleton className="h-5 w-48" />
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-28" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-              </CardContent>
-            </Card>
+          <div className="border rounded-xl p-6 space-y-4 bg-card/50">
+            <Skeleton className="h-5 w-28" />
+            <div className="space-y-3">
+              <Skeleton className="h-9 w-full rounded-md" />
+              <Skeleton className="h-9 w-full rounded-md" />
+            </div>
           </div>
         </div>
       </div>

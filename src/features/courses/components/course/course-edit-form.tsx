@@ -6,6 +6,7 @@ import { CourseContentTab } from "@/features/courses/components/course/course-co
 import { useState } from "react";
 import {
   Category,
+  Chapter,
   CreateCourseInput,
   Instructor,
 } from "@/features/courses/contants-1";
@@ -16,6 +17,7 @@ interface CourseEditFormProps {
   categories: Category[];
   instructors: Instructor[];
   initialData: CreateCourseInput;
+  initialChapters: Chapter[];
 }
 
 export function CourseEditForm({
@@ -23,6 +25,7 @@ export function CourseEditForm({
   categories,
   instructors,
   initialData,
+  initialChapters,
 }: CourseEditFormProps) {
   const searchParams = useSearchParams();
 
@@ -62,7 +65,10 @@ export function CourseEditForm({
             </TabsContent>
 
             <TabsContent value="content" className="mt-4">
-              <CourseContentTab courseId={courseId} />
+              <CourseContentTab
+                courseId={courseId}
+                initialChapters={initialChapters}
+              />
             </TabsContent>
           </Tabs>
         </div>

@@ -13,7 +13,7 @@ import {
   courseFormSchema,
 } from "@/features/courses/contants";
 import { updateCourse } from "@/features/courses/server-action";
-import { MESSAGES_MAP } from "@/features/courses/contants-1";
+import { COURSE_MESSAGES_MAP } from "@/features/courses/contants-1";
 import { Badge } from "@/components/ui/badge";
 import { CourseFormFields } from "@/features/courses/components/course/course-form-fields";
 
@@ -70,7 +70,8 @@ export function CourseOverviewTab({
           ...data,
           thumbnailUrl,
         });
-        if (!result.success) return toast.error(MESSAGES_MAP[result.error]);
+        if (!result.success)
+          return toast.error(COURSE_MESSAGES_MAP[result.error]);
         toast.success("Course updated successfully!");
       } catch {
         toast.error("Failed to update course");

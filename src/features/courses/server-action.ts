@@ -2,9 +2,14 @@
 
 import {
   ActionResponse,
+  Chapter,
   courseFormSchema,
+  CreateChapterInput,
+  createChapterSchema,
   CreateCourseInput,
   formatCoursesTable,
+  UpdateChapterInput,
+  updateChapterSchema,
   UpdateCourseInput,
 } from "@/features/courses/contants-1";
 import { db } from "@/lib/db";
@@ -252,5 +257,238 @@ export async function uploadThumbnail(formData: FormData) {
     };
   } catch (error) {
     return { success: false, error: "UPLOAD_FAILED" };
+  }
+}
+
+export async function createChapter(
+  data: CreateChapterInput,
+): Promise<ActionResponse<{ message: string; chapter: { id: number } }>> {
+  try {
+    const parsed = createChapterSchema.safeParse(data);
+    if (!parsed.success) {
+      return {
+        success: false,
+        status: 400,
+        error: "CREATE_CHAPTER_INVALID_INPUT",
+      };
+    }
+    const { courseId, title } = parsed.data;
+    const existingCourse = await db.course.findUnique({
+      where: { id: courseId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!existingCourse) {
+      return {
+        success: false,
+        status: 404,
+        error: "COURSE_NOT_FOUND",
+      };
+    }
+    const maxSortOrderChapter = await db.chapter.aggregate({
+      where: {
+        courseId,
+        deletedAt: null,
+      },
+      _max: {
+        sortOrder: true,
+      },
+    });
+
+    const nextSortOrder = (maxSortOrderChapter._max.sortOrder ?? -1) + 1;
+    const chapter = await db.chapter.create({
+      data: {
+        courseId,
+        title,
+        sortOrder: nextSortOrder,
+      },
+    });
+    return {
+      success: true,
+      status: 201,
+      data: {
+        message: "CHAPTER_CREATED_SUCCESS",
+        chapter: { id: chapter.id },
+      },
+    };
+  } catch (error) {
+    console.error("Create chapter error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "CHAPTER_CREATION_FAILED",
+    };
+  }
+}
+
+export async function updateChapter(
+  data: UpdateChapterInput,
+): Promise<ActionResponse<{ message: string }>> {
+  try {
+    const parsed = updateChapterSchema.safeParse(data);
+    if (!parsed.success) {
+      return {
+        success: false,
+        status: 400,
+        error: "UPDATE_CHAPTER_INVALID_INPUT",
+      };
+    }
+
+    const { id, title } = parsed.data;
+    const existingChapter = await db.chapter.findUnique({
+      where: { id, deletedAt: null },
+      select: { id: true, courseId: true },
+    });
+
+    if (!existingChapter) {
+      return {
+        success: false,
+        status: 404,
+        error: "CHAPTER_NOT_FOUND",
+      };
+    }
+    await db.chapter.update({
+      where: { id },
+      data: { title },
+    });
+    return {
+      success: true,
+      status: 200,
+      data: {
+        message: "CHAPTER_UPDATED_SUCCESS",
+      },
+    };
+  } catch (error) {
+    console.error("Update chapter error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "SERVER_ERROR",
+    };
+  }
+}
+
+export async function getChaptersByCourseId(
+  courseId: number,
+): Promise<ActionResponse<{ chapters: Chapter[] }>> {
+  try {
+    if (isNaN(courseId)) {
+      return {
+        success: false,
+        status: 400,
+        error: "INVALID_COURSE_ID",
+      };
+    }
+    const courseExists = await db.course.findUnique({
+      where: { id: courseId, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!courseExists) {
+      return {
+        success: false,
+        status: 404,
+        error: "COURSE_NOT_FOUND",
+      };
+    }
+
+    const chapters = await db.chapter.findMany({
+      where: {
+        courseId,
+        deletedAt: null,
+      },
+      orderBy: { sortOrder: "asc" },
+      include: {
+        lessons: {
+          where: { deletedAt: null },
+          orderBy: { sortOrder: "asc" },
+        },
+      },
+    });
+    const formattedChapters = chapters.map((chapter) => ({
+      id: chapter.id,
+      title: chapter.title,
+      sortOrder: chapter.sortOrder,
+      lessons: chapter.lessons.map((lesson) => {
+        const totalSeconds = lesson.duration || 0;
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+
+        return {
+          id: lesson.id,
+          chapterId: lesson.chapterId,
+          title: lesson.title,
+          videoUrl: lesson.videoUrl,
+          duration: totalSeconds,
+          minutes: String(mins),
+          seconds: String(secs),
+          isPreview: lesson.isPreview,
+          sortOrder: lesson.sortOrder,
+        };
+      }),
+    }));
+    return {
+      success: true,
+      status: 200,
+      data: { chapters: formattedChapters },
+    };
+  } catch (error) {
+    console.error("Fetch chapters error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "SERVER_ERROR",
+    };
+  }
+}
+
+export async function deleteChapter(
+  id: number,
+): Promise<ActionResponse<{ message: string }>> {
+  try {
+    if (isNaN(id)) {
+      return {
+        success: false,
+        status: 400,
+        error: "INVALID_CHAPTER_ID",
+      };
+    }
+    const existingChapter = await db.chapter.findUnique({
+      where: { id, deletedAt: null },
+      select: { id: true, courseId: true },
+    });
+    if (!existingChapter) {
+      return {
+        success: false,
+        status: 404,
+        error: "CHAPTER_NOT_FOUND",
+      };
+    }
+    const now = new Date();
+    await db.$transaction([
+      db.chapter.update({
+        where: { id },
+        data: { deletedAt: now },
+      }),
+
+      db.lesson.updateMany({
+        where: { chapterId: id, deletedAt: null },
+        data: { deletedAt: now },
+      }),
+    ]);
+
+    return {
+      success: true,
+      status: 200,
+      data: {
+        message: "CHAPTER_DELETED_SUCCESS",
+      },
+    };
+  } catch (error) {
+    console.error("chapter delete error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "SERVER_ERROR",
+    };
   }
 }

@@ -3,7 +3,7 @@ export type ActionResponse<T> =
   | { success: true; status: number; data: T }
   | { success: false; status: number; error: string };
 
-export const MESSAGES_MAP: Record<string, string> = {
+export const COURSE_MESSAGES_MAP: Record<string, string> = {
   FETCH_COURSE_LIST_ERROR: "Failed to fetch the course list from the server.",
   FETCH_CATEGORY_LIST_ERROR:
     "Failed to fetch the category list from the server.",
@@ -20,6 +20,24 @@ export const MESSAGES_MAP: Record<string, string> = {
 
   COURSE_CREATION_FAILED:
     "An error occurred while creating the course on the server.",
+
+  CREATE_CHAPTER_INVALID_INPUT:
+    "The provided chapter data is invalid. Please check the input fields.",
+  COURSE_NOT_FOUND:
+    "The specified course could not be found or has been deleted.",
+  CHAPTER_NOT_FOUND: "The requested chapter could not be found.",
+
+  CHAPTER_CREATED_SUCCESS: "The chapter has been successfully created.",
+  CHAPTER_CREATION_FAILED:
+    "An error occurred while creating the chapter on the server.",
+  UPDATE_CHAPTER_INVALID_INPUT: "The chapter update data is invalid.",
+  CHAPTER_UPDATED_SUCCESS: "The chapter title has been successfully updated.",
+  CHAPTER_UPDATE_FAILED:
+    "An error occurred while updating the chapter on the server.",
+  CHAPTER_DELETED_SUCCESS:
+    "The chapter and its lessons have been successfully deleted.",
+  CHAPTER_DELETE_FAILED:
+    "An error occurred while deleting the chapter on the server.",
   SERVER_ERROR: "A critical server error occurred. Please try again later.",
 };
 export type CourseTable = {
@@ -118,3 +136,41 @@ export interface Category {
   slug: string;
   description?: string | null;
 }
+
+export const createChapterSchema = z.object({
+  courseId: z.number({ message: "Course ID is required" }),
+  title: z
+    .string()
+    .min(1, "Chapter title cannot be empty")
+    .max(255, "Chapter title is too long"),
+});
+
+export const updateChapterSchema = z.object({
+  id: z.number({ message: "Course ID is required" }),
+  title: z
+    .string()
+    .min(1, "Chapter title cannot be empty")
+    .max(255, "Chapter title is too long"),
+});
+export type CreateChapterInput = z.infer<typeof createChapterSchema>;
+export type UpdateChapterInput = z.infer<typeof updateChapterSchema>;
+
+export const lessonSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1),
+  videoUrl: z.string().nullable().optional(),
+  duration: z.number().default(0),
+  minutes: z.string().min(1),
+  seconds: z.string().min(1),
+  isPreview: z.boolean().default(false),
+  sortOrder: z.number(),
+});
+
+export const chapterSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1),
+  sortOrder: z.number(),
+  lessons: z.array(lessonSchema),
+});
+
+export type Chapter = z.infer<typeof chapterSchema>;

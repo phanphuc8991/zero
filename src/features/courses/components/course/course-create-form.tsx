@@ -14,7 +14,7 @@ import {
   Instructor,
 } from "@/features/courses/contants";
 import { createCourse } from "@/features/courses/server-action";
-import { MESSAGES_MAP } from "@/features/courses/contants-1";
+import { COURSE_MESSAGES_MAP } from "@/features/courses/contants-1";
 import { CourseFormFields } from "@/features/courses/components/course/course-form-fields";
 
 export function CourseCreateForm({
@@ -66,13 +66,13 @@ export function CourseCreateForm({
         }
         const result = await createCourse({ ...data, thumbnailUrl });
         if (!result.success)
-          return toast.error(MESSAGES_MAP[result.error], {
+          return toast.error(COURSE_MESSAGES_MAP[result.error], {
             duration: 5000,
           });
-        toast.success(MESSAGES_MAP[result.data.message]);
+        toast.success(COURSE_MESSAGES_MAP[result.data.message]);
         router.push("/admin/courses");
       } catch {
-        toast.error(MESSAGES_MAP["COURSE_CREATION_FAILED"]);
+        toast.error(COURSE_MESSAGES_MAP["COURSE_CREATION_FAILED"]);
       } finally {
         setIsSubmitting(false);
       }

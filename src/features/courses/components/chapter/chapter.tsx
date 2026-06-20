@@ -1,7 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { Card, CardContent } from "@/components/ui/card";
-import { Pencil, GripVertical, Trash2, Plus, Check, X } from "lucide-react";
+import {
+  Pencil,
+  GripVertical,
+  Trash2,
+  Plus,
+  Check,
+  X,
+  Loader2,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +34,7 @@ interface ChapterProps {
   onUpdateChapter?: (chapterKey: string, newTitle: string) => void;
   onAddLesson?: (chapterKey: string, lessonTitle: string) => void;
   onDeleteChapter?: (chapterKey: string) => void;
+  isPending: boolean;
 }
 
 export function ChapterColumn({
@@ -37,6 +46,7 @@ export function ChapterColumn({
   onUpdateChapter,
   onDeleteChapter,
   chapterId,
+  isPending,
 }: ChapterProps) {
   const {
     isSystemLocked,
@@ -114,10 +124,14 @@ export function ChapterColumn({
                     <Button
                       variant="outline"
                       className="h-8 w-8 p-0"
-                      disabled={!chapterTitle.trim()}
+                      disabled={!chapterTitle.trim() || isPending}
                       onClick={handleAddChapter}
                     >
-                      <Check size={15} />
+                      {isPending ? (
+                        <Loader2 className="animate-spin" size={15} />
+                      ) : (
+                        <Check size={15} />
+                      )}
                     </Button>
                     <Button
                       variant="outline"
@@ -151,7 +165,7 @@ export function ChapterColumn({
                   variant="outline"
                   className="gap-2"
                   onClick={() => openEditChapter(chapterId)}
-                  disabled={isSystemLocked}
+                  disabled={isSystemLocked || isPending}
                 >
                   <Pencil size={15} />
                   Edit
@@ -200,6 +214,7 @@ export function ChapterColumn({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <Button
+              disabled={isPending}
               variant="outline"
               onClick={() => setShowDialogConfirmDelete(false)}
             >
@@ -207,10 +222,12 @@ export function ChapterColumn({
             </Button>
             <Button
               variant="destructive"
+              disabled={isPending}
               onClick={() => {
                 handdleDeleteChapter();
               }}
             >
+              {isPending && <Loader2 className="animate-spin" size={15} />}
               Delete
             </Button>
           </AlertDialogFooter>

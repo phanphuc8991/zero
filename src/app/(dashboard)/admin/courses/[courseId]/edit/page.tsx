@@ -1,14 +1,19 @@
-"use client";
-
 import EditCourse from "@/features/courses/components/edit-course";
-import { useParams } from "next/navigation";
+import { notFound } from "next/navigation";
+interface EditCoursePageProps {
+  params: Promise<{ courseId: string }>;
+}
 
-export default function Page() {
-  const params = useParams();
-  const courseId = Number(params.courseId);
+export default async function Page({ params }: EditCoursePageProps) {
+  const { courseId } = await params;
+  const formatCourseId = parseInt(courseId, 10);
+
+  if (isNaN(formatCourseId)) {
+    notFound();
+  }
   return (
     <>
-      <EditCourse courseId={courseId} />
+      <EditCourse courseId={formatCourseId} />
     </>
   );
 }

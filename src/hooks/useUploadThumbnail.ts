@@ -1,4 +1,4 @@
-import { uploadThumbnailAction } from "@/features/courses/server-action";
+import { uploadThumbnail } from "@/features/courses/server-action";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -9,7 +9,7 @@ export function useUploadThumbnail() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const result = await uploadThumbnailAction(formData);
+      const result = await uploadThumbnail(formData);
       if (!result.success || !result.url) {
         toast.error(result.error || "Failed to upload thumbnail");
         return null;

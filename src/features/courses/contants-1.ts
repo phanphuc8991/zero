@@ -2,6 +2,7 @@ import * as z from "zod";
 export type ActionResponse<T> =
   | { success: true; status: number; data: T }
   | { success: false; status: number; error: string };
+
 export const ERROR_MESSAGES_MAP: Record<string, string> = {
   FETCH_COURSE_LIST_ERROR: "Failed to fetch the course list from the server.",
   FETCH_CATEGORY_LIST_ERROR:
@@ -101,3 +102,4 @@ export const courseFormSchema = z.object({
 });
 
 export type CreateCourseInput = z.infer<typeof courseFormSchema>;
+export type UpdateCourseInput = z.infer<typeof courseFormSchema>;

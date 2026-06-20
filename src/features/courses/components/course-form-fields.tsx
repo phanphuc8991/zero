@@ -164,10 +164,18 @@ export function CourseFormFields({
           </CardHeader>
           <CardContent>
             <FieldSet>
-              <ThumbnailUpload
-                onChange={(file) => {
-                  thumbnailFileRef.current = file;
-                }}
+              <Controller
+                control={control}
+                name="thumbnailUrl"
+                render={({ field }) => (
+                  <ThumbnailUpload
+                    value={field.value ? field.value : null}
+                    onChange={(file) => {
+                      thumbnailFileRef.current = file;
+                      field.onChange(file ? file : null);
+                    }}
+                  />
+                )}
               />
             </FieldSet>
           </CardContent>

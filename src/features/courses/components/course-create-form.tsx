@@ -11,7 +11,7 @@ import {
   type CourseFormInput,
   courseFormSchema,
 } from "@/features/courses/contants";
-import { createCourseAction } from "@/features/courses/server-action";
+import { createCourse } from "@/features/courses/server-action";
 import { ERROR_MESSAGES_MAP } from "@/features/courses/contants-1";
 import { CourseFormFields } from "@/features/courses/components/course-form-fields";
 
@@ -56,7 +56,7 @@ export function CourseCreateForm({ categories, instructors }: any) {
           if (!thumbnailUrl)
             return toast.error("Failed to upload course thumbnail.");
         }
-        const result = await createCourseAction({ ...data, thumbnailUrl });
+        const result = await createCourse({ ...data, thumbnailUrl });
         if (!result.success)
           return toast.error(ERROR_MESSAGES_MAP[result.error], {
             duration: 5000,

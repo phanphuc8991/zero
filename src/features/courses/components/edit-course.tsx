@@ -1,36 +1,35 @@
-"use client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CourseOverviewTab } from "@/features/courses/components/course-overview-tab";
-import { CourseContentTab } from "@/features/courses/components/course-content-tab";
+import { CourseEditForm } from "@/features/courses/components/course-edit-form";
+import { CourseFormSkeleton } from "@/features/courses/components/course-form-skeleton";
+import {
+  getCategories,
+  getInstructors,
+  getCourseById,
+} from "@/features/courses/server-action";
+import { Suspense } from "react";
 
 export default function EditCourse({ courseId }: { courseId: number }) {
   return (
-    <div className="mx-15 max-w-400">
-      <div className="w-full">
-        <div className="flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold tracking-tight">Update Course</h1>
-          </div>
-          <Tabs defaultValue="overview">
-            <TabsList>
-              <TabsTrigger className="cursor-pointer" value="overview">
-                Overview
-              </TabsTrigger>
-              <TabsTrigger className="cursor-pointer" value="content">
-                Course Content
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview">
-              <CourseOverviewTab courseId={courseId} />
-            </TabsContent>
-
-            <TabsContent value="content">
-              <CourseContentTab courseId={courseId} />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+    <div className="p-6">
+      <Suspense fallback={<CourseFormSkeleton />}>
+        <EditCourseFormWrapper courseId={courseId} />
+      </Suspense>
     </div>
+  );
+}
+
+async function EditCourseFormWrapper({ courseId }: { courseId: number }) {
+  const [categories, instructors, courseResult] = await Promise.all([
+    getCategories(),
+    getInstructors(),
+    getCourseById(courseId),
+  ]);
+
+  return (
+    <CourseEditForm
+      courseId={courseId}
+      categories={categories}
+      instructors={instructors}
+      initialData={courseResult.data}
+    />
   );
 }

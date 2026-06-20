@@ -1,39 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Save, Loader2 } from "lucide-react";
-import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
   InstructorFormInput,
   instructorFormSchema,
 } from "@/features/courses/contants";
-import { newInstructorAction } from "@/features/courses/actions";
+import { createInstructor } from "@/features/instructor/actions";
+import { INSTRUCTOR_MESSAGES_MAP } from "@/features/instructor/contants";
+import { VisuallyHidden } from "radix-ui";
 
-interface AddInstructorProps {
-  onSuccess: () => void;
-}
-
-export function AddInstructor({ onSuccess }: AddInstructorProps) {
+export function AddInstructor() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [serverError, setServerError] = useState("");
+  const [isPending, startTransition] = useTransition();
 
   const {
     handleSubmit,
@@ -45,49 +43,46 @@ export function AddInstructor({ onSuccess }: AddInstructorProps) {
     defaultValues: { name: "", title: "", avatarUrl: "", bio: "" },
   });
 
-  const { execute, isExecuting } = useAction(newInstructorAction, {
-    onError: ({ error }) => {
-      setServerError(error?.serverError as string);
-    },
-    onSuccess: () => {
-      setServerError("");
+  const onSubmit = (data: InstructorFormInput) => {
+    startTransition(async () => {
+      const res = await createInstructor(data);
+      if (!res.success) {
+        toast.error(INSTRUCTOR_MESSAGES_MAP[res.error]);
+        return;
+      }
       setIsModalOpen(false);
       reset();
-      toast.success("Instructor created successfully");
-      onSuccess();
-    },
-  });
+      toast.success(INSTRUCTOR_MESSAGES_MAP[res.data.message]);
+    });
+  };
 
   return (
-    <Dialog
+    <AlertDialog
       open={isModalOpen}
       onOpenChange={(open) => {
         setIsModalOpen(open);
         if (!open) {
           reset();
-          setServerError("");
         }
       }}
     >
-      <DialogTrigger asChild>
+      <AlertDialogTrigger asChild>
         <Button className="gap-2 cursor-pointer">
           <Plus size={16} /> Add New
         </Button>
-      </DialogTrigger>
-      <DialogContent
+      </AlertDialogTrigger>
+      <AlertDialogContent
         className="sm:max-w-120"
-        onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <DialogTitle>New Instructor</DialogTitle>
-          <DialogDescription className="sr-only"></DialogDescription>
-        </DialogHeader>
+        <AlertDialogTitle className="sr-only"></AlertDialogTitle>
 
-        <form
-          onSubmit={handleSubmit((data) => execute(data))}
-          className="space-y-4 pt-2"
-        >
+        <AlertDialogHeader>
+          <AlertDialogTitle>New Instructor</AlertDialogTitle>
+          <AlertDialogDescription className="sr-only"></AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
           <Field>
             <FieldLabel htmlFor="modal-ins-name">Instructor Name</FieldLabel>
             <div>
@@ -104,11 +99,7 @@ export function AddInstructor({ onSuccess }: AddInstructorProps) {
                 )}
               />
               {errors.name && (
-                <p
-                  aria-live="polite"
-                  role="alert"
-                  className="text-destructive text-xs mt-2"
-                >
+                <p role="alert" className="text-destructive text-xs mt-2">
                   {errors.name.message}
                 </p>
               )}
@@ -133,11 +124,7 @@ export function AddInstructor({ onSuccess }: AddInstructorProps) {
                 )}
               />
               {errors.title && (
-                <p
-                  aria-live="polite"
-                  role="alert"
-                  className="text-destructive text-xs mt-2"
-                >
+                <p role="alert" className="text-destructive text-xs mt-2">
                   {errors.title.message}
                 </p>
               )}
@@ -160,11 +147,7 @@ export function AddInstructor({ onSuccess }: AddInstructorProps) {
                 )}
               />
               {errors.avatarUrl && (
-                <p
-                  aria-live="polite"
-                  role="alert"
-                  className="text-destructive text-xs mt-2"
-                >
+                <p role="alert" className="text-destructive text-xs mt-2">
                   {errors.avatarUrl.message}
                 </p>
               )}
@@ -187,33 +170,23 @@ export function AddInstructor({ onSuccess }: AddInstructorProps) {
             />
           </Field>
 
-          {serverError && (
-            <div
-              role="alert"
-              aria-live="assertive"
-              className="p-3 bg-destructive/10 border border-destructive text-destructive rounded-md text-xs font-medium"
-            >
-              Error: {serverError}
-            </div>
-          )}
-
-          <DialogFooter className="py-4">
-            <DialogClose asChild>
-              <Button type="button" variant="outline">
+          <AlertDialogFooter className="py-4">
+            <AlertDialogCancel asChild>
+              <Button type="button" variant="outline" disabled={isPending}>
                 Cancel
               </Button>
-            </DialogClose>
-            <Button type="submit" disabled={isExecuting} className="gap-2">
-              {isExecuting ? (
+            </AlertDialogCancel>
+            <Button type="submit" disabled={isPending} className="gap-2">
+              {isPending ? (
                 <Loader2 className="animate-spin" size={15} />
               ) : (
                 <Save size={15} />
               )}
               Save
             </Button>
-          </DialogFooter>
+          </AlertDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

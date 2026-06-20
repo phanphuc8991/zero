@@ -8,14 +8,22 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useUploadThumbnail } from "@/hooks/useUploadThumbnail";
 import {
+  Category,
   type CourseFormInput,
   courseFormSchema,
+  Instructor,
 } from "@/features/courses/contants";
 import { createCourse } from "@/features/courses/server-action";
-import { ERROR_MESSAGES_MAP } from "@/features/courses/contants-1";
+import { MESSAGES_MAP } from "@/features/courses/contants-1";
 import { CourseFormFields } from "@/features/courses/components/course-form-fields";
 
-export function CourseCreateForm({ categories, instructors }: any) {
+export function CourseCreateForm({
+  categories,
+  instructors,
+}: {
+  categories: Category[];
+  instructors: Instructor[];
+}) {
   const router = useRouter();
   const thumbnailFileRef = useRef<File | null>(null);
   const { upload, isUploading } = useUploadThumbnail();
@@ -58,13 +66,13 @@ export function CourseCreateForm({ categories, instructors }: any) {
         }
         const result = await createCourse({ ...data, thumbnailUrl });
         if (!result.success)
-          return toast.error(ERROR_MESSAGES_MAP[result.error], {
+          return toast.error(MESSAGES_MAP[result.error], {
             duration: 5000,
           });
-        toast.success(ERROR_MESSAGES_MAP[result.data.message]);
+        toast.success(MESSAGES_MAP[result.data.message]);
         router.push("/admin/courses");
       } catch {
-        toast.error(ERROR_MESSAGES_MAP["COURSE_CREATION_FAILED"]);
+        toast.error(MESSAGES_MAP["COURSE_CREATION_FAILED"]);
       } finally {
         setIsSubmitting(false);
       }

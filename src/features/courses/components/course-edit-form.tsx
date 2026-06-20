@@ -5,12 +5,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CourseOverviewTab } from "@/features/courses/components/course-overview-tab";
 import { CourseContentTab } from "@/features/courses/components/course-content-tab";
 import { useState } from "react";
+import {
+  Category,
+  CreateCourseInput,
+  Instructor,
+} from "@/features/courses/contants-1";
 
 interface CourseEditFormProps {
   courseId: number;
-  categories: any[];
-  instructors: any[];
-  initialData: any;
+  categories: Category[];
+  instructors: Instructor[];
+  initialData: CreateCourseInput;
 }
 
 export function CourseEditForm({

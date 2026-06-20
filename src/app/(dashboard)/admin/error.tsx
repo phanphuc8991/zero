@@ -1,6 +1,6 @@
 "use client";
 
-import { ERROR_MESSAGES_MAP } from "@/features/courses/contants-1";
+import { MESSAGES_MAP } from "@/features/courses/contants-1";
 import { useEffect } from "react";
 
 interface ErrorProps {
@@ -10,7 +10,7 @@ interface ErrorProps {
 
 export default function GlobalError({ error, reset }: ErrorProps) {
   useEffect(() => {
-    console.log("Error", ERROR_MESSAGES_MAP[error.message]);
+    console.log("Error", MESSAGES_MAP[error.message]);
   }, [error]);
 
   return (

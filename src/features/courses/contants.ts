@@ -162,6 +162,7 @@ export const categoryFormSchema = z.object({
 export const editCategorySchema = categoryFormSchema.extend({
   id: z.number().min(1, "Category ID is required"),
 });
+
 export const deleteCategorySchema = z.object({
   id: z.number().min(1, "Category ID is required"),
 });

@@ -13,7 +13,7 @@ import {
   courseFormSchema,
 } from "@/features/courses/contants";
 import { updateCourse } from "@/features/courses/server-action";
-import { ERROR_MESSAGES_MAP } from "@/features/courses/contants-1";
+import { MESSAGES_MAP } from "@/features/courses/contants-1";
 import { CourseFormFields } from "./course-form-fields";
 import { Badge } from "@/components/ui/badge";
 
@@ -70,8 +70,7 @@ export function CourseOverviewTab({
           ...data,
           thumbnailUrl,
         });
-        if (!result.success)
-          return toast.error(ERROR_MESSAGES_MAP[result.error]);
+        if (!result.success) return toast.error(MESSAGES_MAP[result.error]);
         toast.success("Course updated successfully!");
       } catch {
         toast.error("Failed to update course");
@@ -110,6 +109,9 @@ export function CourseOverviewTab({
 
   return (
     <div className="relative">
+      {isLoading && (
+        <div className="absolute inset-0 z-50 bg-red cursor-wait" />
+      )}
       <form
         className="flex flex-col gap-6"
         onSubmit={(e) => e.preventDefault()}

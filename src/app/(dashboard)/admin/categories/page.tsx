@@ -1,11 +1,5 @@
-"use client";
-
-import Categories from "@/features/courses/components/category/categories";
+import Categories from "@/features/category/categories";
 
 export default function Page() {
-  return (
-    <>
-      <Categories />
-    </>
-  );
+  return <Categories />;
 }

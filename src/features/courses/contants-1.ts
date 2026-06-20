@@ -3,7 +3,7 @@ export type ActionResponse<T> =
   | { success: true; status: number; data: T }
   | { success: false; status: number; error: string };
 
-export const ERROR_MESSAGES_MAP: Record<string, string> = {
+export const MESSAGES_MAP: Record<string, string> = {
   FETCH_COURSE_LIST_ERROR: "Failed to fetch the course list from the server.",
   FETCH_CATEGORY_LIST_ERROR:
     "Failed to fetch the category list from the server.",
@@ -103,3 +103,18 @@ export const courseFormSchema = z.object({
 
 export type CreateCourseInput = z.infer<typeof courseFormSchema>;
 export type UpdateCourseInput = z.infer<typeof courseFormSchema>;
+
+export interface Instructor {
+  id: number;
+  name: string;
+  title: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+}

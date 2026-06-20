@@ -187,11 +187,16 @@ export function CourseFormFields({
           </CardHeader>
           <CardContent>
             <FieldSet>
-              <InstructorSelect
-                control={control}
-                errors={errors}
-                instructors={instructors}
-              />
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="instructorId">Instructor</FieldLabel>
+                  <InstructorSelect
+                    control={control}
+                    errors={errors}
+                    instructors={instructors}
+                  />
+                </Field>
+              </FieldGroup>
             </FieldSet>
           </CardContent>
         </Card>

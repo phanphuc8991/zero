@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Loader2, Plus, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,64 +12,73 @@ import { PointerSensor, KeyboardSensor } from "@dnd-kit/dom";
 import { move } from "@dnd-kit/helpers";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { LessonDrawer } from "@/features/courses/components/lesson/lesson-drawer";
-import { ChapterType, LessonType } from "@/features/courses/contants";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { useAction } from "next-safe-action/hooks";
-import {
-  getChaptersByCourseIdAction,
-  saveChaptersAction,
-} from "@/features/courses/actions";
 import {
   createChapter,
+  createLesson,
   deleteChapter,
   updateChapter,
+  updateLesson,
 } from "@/features/courses/server-action";
-import { Chapter, COURSE_MESSAGES_MAP } from "@/features/courses/contants-1";
+import {
+  ChapterResponseType,
+  ChapterType,
+  COURSE_MESSAGES_MAP,
+  LessonFormType,
+  LessonType,
+} from "@/features/courses/contants-1";
 
 export function CourseContentTab({
   courseId,
   initialChapters,
 }: {
   courseId: number;
-  initialChapters: Chapter[];
+  initialChapters: ChapterResponseType[];
 }) {
   const [isPending, startTransition] = useTransition();
-
-  const { isSystemLocked, openAddChapter, isAddingChapter, closeAllInputs } =
-    useCourseStore(
-      useShallow((state) => ({
-        isSystemLocked: state.isSystemLocked(),
-        openAddChapter: state.openAddChapter,
-        isAddingChapter: state.isAddingChapter,
-        closeAllInputs: state.closeAllInputs,
-      })),
-    );
-
-  const [newChapterTitle, setNewChapterTitle] = useState("");
-
-  const [listLesson, setListLesson] = useState<{ [key: string]: LessonType[] }>(
-    () => {
-      const lessons: { [key: string]: LessonType[] } = {};
-      initialChapters.forEach((chapter) => {
-        lessons[`chapter-key-${chapter.id}`] = (chapter.lessons || []).map(
-          (lesson: any) => ({
-            id: lesson.id,
-            chapterId: lesson.chapterId,
-            title: lesson.title,
-            videoUrl: lesson.videoUrl,
-            minutes: lesson.minutes,
-            seconds: lesson.seconds,
-            isPreview: lesson.isPreview,
-            isNew: false,
-            sortOrder: lesson.sortOrder,
-          }),
-        );
-      });
-      return lessons;
-    },
+  const {
+    isSystemLocked,
+    openAddChapter,
+    isAddingChapter,
+    closeAllInputs,
+    activeChapterKey,
+    activeChapterId,
+    closeLessonDrawer,
+    editingLessonData,
+  } = useCourseStore(
+    useShallow((state) => ({
+      isSystemLocked: state.isSystemLocked(),
+      openAddChapter: state.openAddChapter,
+      isAddingChapter: state.isAddingChapter,
+      closeAllInputs: state.closeAllInputs,
+      activeChapterKey: state.activeChapterKey,
+      activeChapterId: state.activeChapterId,
+      closeLessonDrawer: state.closeLessonDrawer,
+      lessonDrawerMode: state.lessonDrawerMode,
+      editingLessonData: state.editingLessonData,
+    })),
   );
-
+  const [newChapterTitle, setNewChapterTitle] = useState("");
+  const [listLesson, setListLesson] = useState<{
+    [key: string]: LessonType[];
+  }>(() => {
+    const lessons: { [key: string]: LessonType[] } = {};
+    initialChapters.forEach((chapter) => {
+      lessons[`chapter-key-${chapter.id}`] = (chapter.lessons || []).map(
+        (lesson) => ({
+          id: lesson.id,
+          chapterId: chapter.id,
+          title: lesson.title,
+          videoUrl: lesson.videoUrl,
+          minutes: lesson.minutes,
+          seconds: lesson.seconds,
+          isPreview: lesson.isPreview,
+          sortOrder: lesson.sortOrder,
+        }),
+      );
+    });
+    return lessons;
+  });
   const [chapterDetails, setChapterDetails] = useState<{
     [key: string]: ChapterType;
   }>(() => {
@@ -77,9 +86,9 @@ export function CourseContentTab({
     initialChapters.forEach((chapter) => {
       details[`chapter-key-${chapter.id}`] = {
         id: chapter.id,
+        courseId: courseId,
         title: chapter.title,
         sortOrder: chapter.sortOrder,
-        isNew: false,
       };
     });
     return details;
@@ -88,26 +97,6 @@ export function CourseContentTab({
   const [chapterOrder, setChapterOrder] = useState<string[]>(() =>
     initialChapters.map((chapter) => `chapter-key-${chapter.id}`),
   );
-
-  // const [isPageLoading, setIsPageLoading] = useState(true);
-
-  // const onAddChapter = () => {
-  //   const newChapterKey = `chapter-key-${Date.now()}`;
-  //   const newChapterId = Math.floor(Math.random() * 10000);
-  //   setChapterDetails((prev) => ({
-  //     ...prev,
-  //     [newChapterKey]: {
-  //       id: newChapterId,
-  //       title: newChapterTitle.trim(),
-  //       sortOrder: Object.keys(prev).length,
-  //       isNew: true,
-  //     },
-  //   }));
-  //   setListLesson((prev) => ({ ...prev, [newChapterKey]: [] }));
-  //   setChapterOrder((prev) => [...prev, newChapterKey]);
-  //   setNewChapterTitle("");
-  //   closeAllInputs();
-  // };
 
   const onAddChapter = () => {
     startTransition(async () => {
@@ -126,9 +115,9 @@ export function CourseContentTab({
           ...prev,
           [newChapterKey]: {
             id: realChapterId,
+            courseId: courseId,
             title: newChapterTitle,
             sortOrder: Object.keys(prev).length,
-            isNew: false,
           },
         }));
         setListLesson((prev) => ({ ...prev, [newChapterKey]: [] }));
@@ -142,14 +131,6 @@ export function CourseContentTab({
       }
     });
   };
-
-  // const onUpdateChapter = (chapterKey: string, newTitle: string) => {
-  //   setChapterDetails((prev) => ({
-  //     ...prev,
-  //     [chapterKey]: { ...prev[chapterKey], title: newTitle },
-  //   }));
-  //   closeAllInputs();
-  // };
 
   const onUpdateChapter = (chapterKey: string, newTitle: string) => {
     const chapter = chapterDetails[chapterKey];
@@ -175,6 +156,7 @@ export function CourseContentTab({
       }
     });
   };
+
   const onDeleteChapter = (chapterKey: string) => {
     const chapter = chapterDetails[chapterKey];
     startTransition(async () => {
@@ -201,221 +183,77 @@ export function CourseContentTab({
     });
   };
 
-  const onAddLesson = (
-    chapterKey: string,
-    chapterId: number,
-    formData: {
-      title: string;
-      videoUrl: string | null;
-      minutes: string;
-      seconds: string;
-      isPreview: boolean;
-    },
-  ) => {
-    const newLessonId = Math.floor(Math.random() * 100000);
-    const currentLessons = listLesson[chapterKey] || [];
+  // console.log("chapterDetails", chapterDetails);
+  // console.log("listLesson", listLesson);
+  // console.log("chapterOrder", chapterOrder);
 
-    const newLesson: LessonType = {
-      id: newLessonId,
-      isNew: true,
-      chapterId: chapterId,
-      sortOrder: currentLessons.length,
-      ...formData,
-    };
-
-    setListLesson((prev) => ({
-      ...prev,
-      [chapterKey]: [...currentLessons, newLesson],
-    }));
-  };
-  const onUpdateLesson = (
-    chapterKey: string,
-    lessonId: number,
-    formData: {
-      title: string;
-      videoUrl: string | null;
-      duration: number;
-      isPreview: boolean;
-    },
-  ) => {
-    setListLesson((prevItems) => {
-      const currentLessons = prevItems[chapterKey] || [];
-
-      const updatedLessons = currentLessons.map((lesson) =>
-        lesson.id === lessonId ? { ...lesson, ...formData } : lesson,
-      );
-
-      return { ...prevItems, [chapterKey]: updatedLessons };
+  const onAddLesson = (formData: LessonFormType) => {
+    startTransition(async () => {
+      try {
+        if (!activeChapterKey || !activeChapterId) {
+          throw new Error("LESSON_CREATION_FAILED");
+        }
+        const currentLessons = listLesson[activeChapterKey] || [];
+        const data = {
+          ...formData,
+          id: 0,
+          chapterId: activeChapterId,
+          sortOrder: currentLessons.length,
+        };
+        const result = await createLesson(data);
+        if (!result.success) {
+          toast.error(COURSE_MESSAGES_MAP[result.error]);
+          return;
+        }
+        const serverLesson = result.data.lesson as LessonType;
+        setListLesson((prev) => ({
+          ...prev,
+          [activeChapterKey]: [...currentLessons, { ...serverLesson }],
+        }));
+        closeLessonDrawer();
+        toast.success(COURSE_MESSAGES_MAP[result.data.message]);
+      } catch (error) {
+        console.error("Lesson creation failed:", error);
+        toast.error(COURSE_MESSAGES_MAP["LESSON_CREATION_FAILED"]);
+      }
     });
   };
 
-  const handleSaveLesson = (
-    mode: "CREATE" | "EDIT",
-    context: {
-      chapterKey: string | null;
-      chapterId: number | null;
-      lessonId: number | null;
-    },
-    formData: any,
-  ) => {
-    console.log("mode", mode);
-    console.log("formData", formData);
-
-    const { chapterKey, chapterId, lessonId } = context;
-    if (!chapterKey) return;
-    if (mode === "CREATE") {
-      if (!chapterId) return;
-      onAddLesson(chapterKey, chapterId, formData);
-    } else if (mode === "EDIT") {
-      if (!lessonId) return;
-      onUpdateLesson(chapterKey, lessonId, formData);
-    }
-  };
-
-  const { execute: fetchChapters } = useAction(getChaptersByCourseIdAction, {
-    onSuccess: ({ data }) => {
-      // setIsPageLoading(false);
-      if (data?.chapters) {
-        const dbChapters = data.chapters;
-
-        const details: { [key: string]: ChapterType } = {};
-        const lessons: { [key: string]: LessonType[] } = {};
-        const order: string[] = [];
-
-        dbChapters.forEach((chapter: any) => {
-          const chapterKey = `chapter-key-${chapter.id}`;
-          order.push(chapterKey);
-
-          details[chapterKey] = {
-            id: chapter.id,
-            title: chapter.title,
-            sortOrder: chapter.sortOrder,
-            isNew: false,
-          };
-
-          lessons[chapterKey] = (chapter.lessons || []).map((lesson: any) => {
-            const totalSeconds = lesson.duration || 0;
-            const mins = Math.floor(totalSeconds / 60);
-            const secs = totalSeconds % 60;
-            return {
-              id: lesson.id,
-              chapterId: lesson.chapterId,
-              title: lesson.title,
-              videoUrl: lesson.videoUrl,
-              minutes: String(mins),
-              seconds: String(secs),
-              isPreview: lesson.isPreview,
-              isNew: false,
-            };
-          });
-        });
-
-        setChapterDetails(details);
-        setListLesson(lessons);
-        setChapterOrder(order);
+  const onUpdateLesson = (data: LessonFormType) => {
+    console.log("onUpdateLesson");
+    startTransition(async () => {
+      if (!activeChapterId || !editingLessonData?.id || !activeChapterKey) {
+        throw new Error("LESSON_CREATION_FAILED");
       }
-    },
-    onError: ({ error }: { error: any }) => {
-      console.error("Fetch chapters failed", error);
-      // setIsPageLoading(false);
-      toast.error("Failed to load course content");
-    },
-  });
-
-  const { execute: saveChapters, isExecuting: isSaving } = useAction(
-    saveChaptersAction,
-    {
-      onSuccess: ({ data }: { data: any }) => {
-        toast.success("Course content saved successfully");
-        if (data?.chapters) {
-          const dbChapters = data.chapters;
-          const details: { [key: string]: ChapterType } = {};
-          const lessons: { [key: string]: LessonType[] } = {};
-          const order: string[] = [];
-
-          dbChapters.forEach((chapter: any) => {
-            const chapterKey = `chapter-key-${chapter.id}`;
-            order.push(chapterKey);
-            details[chapterKey] = {
-              id: chapter.id,
-              title: chapter.title,
-              sortOrder: chapter.sortOrder,
-              isNew: false,
-            };
-
-            lessons[chapterKey] = (chapter.lessons || []).map((lesson: any) => {
-              const totalSeconds = lesson.duration || 0;
-              const mins = Math.floor(totalSeconds / 60);
-              const secs = totalSeconds % 60;
-
-              return {
-                id: lesson.id,
-                chapterId: lesson.chapterId,
-                title: lesson.title,
-                videoUrl: lesson.videoUrl,
-                minutes: String(mins),
-                seconds: String(secs),
-                isPreview: lesson.isPreview,
-                isNew: false,
-              };
-            });
-          });
-
-          setChapterDetails(details);
-          setListLesson(lessons);
-          setChapterOrder(order);
+      try {
+        const result = await updateLesson({
+          ...data,
+          id: editingLessonData.id,
+          chapterId: activeChapterId,
+        });
+        if (!result.success) {
+          toast.error(COURSE_MESSAGES_MAP[result.error]);
+          return;
         }
-      },
-      onError: ({ error }) => {
-        console.log("Save chapters failed", error);
-        toast.error("Failed to save course content");
-      },
-    },
-  );
+        const serverLesson = result.data.lesson;
+        setListLesson((prevItems) => {
+          const currentLessons = prevItems[activeChapterKey] || [];
 
-  const handleBulkSave = () => {
-    const payload = {
-      courseId,
-      chapters: chapterOrder.map((chapterKey, chapterIndex) => {
-        const chapter = chapterDetails[chapterKey];
-        const lessonsForChapter = listLesson[chapterKey] || [];
-        return {
-          id: chapter.isNew ? null : chapter.id,
-          title: chapter.title,
-          sortOrder: chapterIndex,
-          lessons: lessonsForChapter.map((lesson, lessonIndex) => ({
-            id: lesson.isNew ? null : lesson.id,
-            title: lesson.title,
-            videoUrl: lesson.videoUrl || null,
-            minutes: lesson.minutes,
-            seconds: lesson.seconds,
-            isPreview: lesson.isPreview,
-            sortOrder: lessonIndex,
-          })),
-        };
-      }),
-    };
-    console.log("payload", payload);
-    saveChapters(payload);
+          const updatedLessons = currentLessons.map((lesson) =>
+            lesson.id === editingLessonData?.id
+              ? { ...serverLesson, isNew: false }
+              : lesson,
+          );
+          return { ...prevItems, [activeChapterKey]: updatedLessons };
+        });
+        toast.success(COURSE_MESSAGES_MAP[result.data.message]);
+        closeLessonDrawer();
+      } catch (error) {
+        console.error("Update lesson failed:", error);
+        toast.error(COURSE_MESSAGES_MAP["LESSON_UPDATE_FAILED"]);
+      }
+    });
   };
-
-  // useEffect(() => {
-  //   if (courseId) {
-  //     fetchChapters({ courseId });
-  //   }
-  // }, [courseId]);
-  // if (isPageLoading) {
-  //   return (
-  //     <div className="space-y-6 pt-4">
-  //       <div className="flex justify-between items-center">
-  //         <Skeleton className="h-6 w-48" />
-  //         <Skeleton className="h-9 w-32" />
-  //       </div>
-  //       <Skeleton className="h-32 w-full" />
-  //       <Skeleton className="h-32 w-full" />
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="relative">
@@ -478,7 +316,7 @@ export function CourseContentTab({
                   <LessonItem
                     key={lesson.id}
                     lessonId={lesson.id}
-                    chapterId={chapter.id}
+                    chapterId={lesson.chapterId}
                     chapterKey={chapterKey}
                     title={lesson.title}
                     index={lessonIndex}
@@ -487,7 +325,6 @@ export function CourseContentTab({
                     minutes={lesson.minutes}
                     seconds={lesson.seconds}
                     isPreview={lesson.isPreview}
-                    isNew={lesson.isNew}
                     sortOrder={lesson.sortOrder}
                   />
                 ))}
@@ -541,22 +378,7 @@ export function CourseContentTab({
           </Button>
         )}
       </DragDropProvider>
-      <LessonDrawer handleSaveLesson={handleSaveLesson} />
-      {/* <div className="absolute -top-15 right-0 flex justify-end items-center gap-2 pt-4">
-        <Button
-          className="cursor-pointer gap-2"
-          type="button"
-          disabled={isSaving}
-          onClick={handleBulkSave}
-        >
-          {isSaving ? (
-            <Loader2 className="animate-spin" size={15} />
-          ) : (
-            <Save size={15} />
-          )}
-          Save
-        </Button>
-      </div> */}
+      <LessonDrawer onAddLesson={onAddLesson} onUpdateLesson={onUpdateLesson} />
     </div>
   );
 }

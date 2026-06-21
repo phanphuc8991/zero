@@ -6,7 +6,7 @@ import { CourseContentTab } from "@/features/courses/components/course/course-co
 import { useState } from "react";
 import {
   Category,
-  Chapter,
+  ChapterResponseType,
   CreateCourseInput,
   Instructor,
 } from "@/features/courses/contants-1";
@@ -17,7 +17,7 @@ interface CourseEditFormProps {
   categories: Category[];
   instructors: Instructor[];
   initialData: CreateCourseInput;
-  initialChapters: Chapter[];
+  initialChapters: ChapterResponseType[];
 }
 
 export function CourseEditForm({

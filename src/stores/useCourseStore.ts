@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { Category, Instructor, LessonType } from "@/features/courses/contants";
+import { Category, Instructor } from "@/features/courses/contants";
 import { getCategories } from "@/features/courses/server-action";
+import { LessonFormType, LessonType } from "@/features/courses/contants-1";
 
 interface CourseStore {
   // --- State ---
@@ -13,21 +14,19 @@ interface CourseStore {
   isAddingChapter: boolean;
   openEditChapter: (chapterId: number) => void;
 
-  isLessonDrawerOpen: boolean;
   lessonDrawerMode: "CREATE" | "EDIT" | null;
   activeChapterId: number | null;
-  activeChapterIndex: number | null;
   editingLessonData: LessonType | null;
   activeChapterKey: string | null;
 
   isSystemLocked: () => boolean;
 
-  openAddLessonDrawer: (
+  openAddLessonDrawer: (chapterId: number, chapterKey: string) => void;
+  openEditLessonDrawer: (
     chapterId: number,
-    chapterIndex: number,
     chapterKey: string,
+    lesson: LessonType,
   ) => void;
-  openEditLessonDrawer: (chapterKey: string, lesson: LessonType) => void;
   closeLessonDrawer: () => void;
 
   openAddChapter: () => void;
@@ -47,10 +46,8 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
   isInstructorsLoading: false,
 
   // lesson
-  isLessonDrawerOpen: false,
   lessonDrawerMode: null,
   activeChapterId: null,
-  activeChapterIndex: null,
   editingLessonData: null,
   activeChapterKey: null,
 
@@ -63,32 +60,25 @@ export const useCourseStore = create<CourseStore>((set, get) => ({
   openAddChapter: () => set({ isAddingChapter: true }),
 
   // lesson action
-  openAddLessonDrawer: (chapterId, chapterIndex, chapterKey) =>
+  openAddLessonDrawer: (chapterId, chapterKey) =>
     set({
-      isLessonDrawerOpen: true,
       lessonDrawerMode: "CREATE",
       activeChapterId: chapterId,
-      activeChapterIndex: chapterIndex,
       activeChapterKey: chapterKey,
-      editingLessonData: null,
     }),
 
-  openEditLessonDrawer: (chapterKey, lesson) =>
+  openEditLessonDrawer: (chapterId, chapterKey, lesson) =>
     set({
-      isLessonDrawerOpen: true,
       lessonDrawerMode: "EDIT",
       editingLessonData: lesson,
-      activeChapterId: null,
+      activeChapterId: chapterId,
       activeChapterKey: chapterKey,
-      activeChapterIndex: null,
     }),
 
   closeLessonDrawer: () =>
     set({
-      isLessonDrawerOpen: false,
       lessonDrawerMode: null,
       activeChapterId: null,
-      activeChapterIndex: null,
       editingLessonData: null,
     }),
 

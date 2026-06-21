@@ -7,6 +7,7 @@ import { useSortable } from "@dnd-kit/react/sortable";
 import { Pencil, GripVertical, Play, Trash2, X } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import { useState } from "react";
+
 interface Lesson {
   id: number;
   chapterId: number;
@@ -26,11 +27,10 @@ interface LessonProps {
   chapterId: number;
   chapterKey: string;
   chapterIndex: number;
-  videoUrl: string | null;
+  videoUrl: string | null | undefined;
   minutes: string;
   seconds: string;
   isPreview: boolean;
-  isNew: boolean;
   sortOrder: number;
   onUpdateLesson?: (
     columnKey: string,
@@ -41,16 +41,15 @@ interface LessonProps {
 
 export function LessonItem({
   lessonId,
+  chapterId,
   title,
   index,
-  chapterId,
   chapterKey,
   chapterIndex,
   videoUrl,
   minutes,
   seconds,
   isPreview,
-  isNew,
   sortOrder,
 }: LessonProps) {
   const [showVideo, setShowVideo] = useState(false);
@@ -86,17 +85,16 @@ export function LessonItem({
 
   const openEditLesson = () => {
     const lessson = {
+      title,
       id: lessonId,
       chapterId,
-      title,
       videoUrl,
       minutes,
       seconds,
       isPreview,
-      isNew,
       sortOrder,
     };
-    openEditLessonDrawer(chapterKey, lessson);
+    openEditLessonDrawer(chapterId, chapterKey, lessson);
   };
 
   return (

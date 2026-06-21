@@ -7,67 +7,39 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { LessonForm } from "@/features/courses/components/lesson/lesson-form";
-import { LessonType } from "@/features/courses/contants";
+import { LessonFormType, LessonType } from "@/features/courses/contants-1";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useShallow } from "zustand/react/shallow";
 
 interface LessonDrawerProps {
-  handleSaveLesson: (
-    mode: "CREATE" | "EDIT",
-    context: {
-      chapterId: number | null;
-      lessonId: number | null;
-      chapterKey: string | null;
-    },
-    formData: any,
-  ) => void;
+  onAddLesson: (formData: LessonFormType) => void;
+  onUpdateLesson: (formData: LessonFormType) => void;
 }
 
-export function LessonDrawer({ handleSaveLesson }: LessonDrawerProps) {
-  const {
-    isLessonDrawerOpen,
-    lessonDrawerMode,
-    activeChapterIndex,
-    activeChapterId,
-    editingLessonData,
-    closeLessonDrawer,
-    activeChapterKey,
-  } = useCourseStore(
-    useShallow((state) => ({
-      isLessonDrawerOpen: state.isLessonDrawerOpen,
-      lessonDrawerMode: state.lessonDrawerMode,
-      activeChapterIndex: state.activeChapterIndex,
-      activeChapterId: state.activeChapterId,
-      editingLessonData: state.editingLessonData,
-      closeLessonDrawer: state.closeLessonDrawer,
-      activeChapterKey: state.activeChapterKey,
-    })),
-  );
+export function LessonDrawer({
+  onAddLesson,
+  onUpdateLesson,
+}: LessonDrawerProps) {
+  const { lessonDrawerMode, activeChapterId, closeLessonDrawer } =
+    useCourseStore(
+      useShallow((state) => ({
+        lessonDrawerMode: state.lessonDrawerMode,
+        activeChapterId: state.activeChapterId,
+        closeLessonDrawer: state.closeLessonDrawer,
+      })),
+    );
 
-  const handleFormSubmit = (formData: {
-    title: string;
-    videoUrl: string | null;
-    minutes: string;
-    seconds: string;
-    isPreview: boolean;
-  }) => {
-    if (lessonDrawerMode) {
-      handleSaveLesson(
-        lessonDrawerMode,
-        {
-          chapterId: activeChapterId,
-          lessonId: editingLessonData?.id || null,
-          chapterKey: activeChapterKey,
-        },
-        formData,
-      );
-      closeLessonDrawer();
+  const handleFormSubmit = (data: LessonFormType) => {
+    if (lessonDrawerMode === "CREATE") {
+      onAddLesson(data);
+    } else {
+      onUpdateLesson(data);
     }
   };
 
   return (
     <Sheet
-      open={isLessonDrawerOpen}
+      open={!!activeChapterId}
       onOpenChange={(open) => !open && closeLessonDrawer()}
     >
       <SheetContent
@@ -79,15 +51,9 @@ export function LessonDrawer({ handleSaveLesson }: LessonDrawerProps) {
       >
         <SheetHeader className="">
           <SheetTitle className="text-xl font-bold">
-            {lessonDrawerMode === "CREATE"
-              ? `Add Lesson (Ch. ${(activeChapterIndex ?? 0) + 1})`
-              : "Edit Lesson"}
+            {lessonDrawerMode === "CREATE" ? "Add Lesson" : "Edit Lesson"}
           </SheetTitle>
-          <SheetDescription>
-            {lessonDrawerMode === "CREATE"
-              ? "Enter lesson details below."
-              : `Modifying: "${editingLessonData?.title}"`}
-          </SheetDescription>
+          <SheetDescription className="sr-only"></SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 min-h-0 px-4">

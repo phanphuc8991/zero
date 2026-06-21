@@ -2,13 +2,13 @@
 
 import {
   ActionResponse,
-  Chapter,
+  ChapterResponseType,
   courseFormSchema,
-  CreateChapterInput,
   createChapterSchema,
   CreateCourseInput,
   formatCoursesTable,
-  UpdateChapterInput,
+  lessonSchema,
+  LessonType,
   updateChapterSchema,
   UpdateCourseInput,
 } from "@/features/courses/contants-1";
@@ -260,9 +260,83 @@ export async function uploadThumbnail(formData: FormData) {
   }
 }
 
-export async function createChapter(
-  data: CreateChapterInput,
-): Promise<ActionResponse<{ message: string; chapter: { id: number } }>> {
+export async function getChaptersByCourseId(
+  courseId: number,
+): Promise<ActionResponse<{ chapters: ChapterResponseType[] }>> {
+  try {
+    if (isNaN(courseId)) {
+      return {
+        success: false,
+        status: 400,
+        error: "INVALID_COURSE_ID",
+      };
+    }
+    const courseExists = await db.course.findUnique({
+      where: { id: courseId, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!courseExists) {
+      return {
+        success: false,
+        status: 404,
+        error: "COURSE_NOT_FOUND",
+      };
+    }
+
+    const chapters = await db.chapter.findMany({
+      where: {
+        courseId,
+        deletedAt: null,
+      },
+      orderBy: { sortOrder: "asc" },
+      include: {
+        lessons: {
+          where: { deletedAt: null },
+          orderBy: { sortOrder: "asc" },
+        },
+      },
+    });
+    const formattedChapters = chapters.map((chapter) => ({
+      id: chapter.id,
+      courseId: courseId,
+      title: chapter.title,
+      sortOrder: chapter.sortOrder,
+      lessons: chapter.lessons.map((lesson) => {
+        const totalSeconds = lesson.duration || 0;
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return {
+          id: lesson.id,
+          chapterId: lesson.chapterId,
+          title: lesson.title,
+          videoUrl: lesson.videoUrl,
+          minutes: String(mins),
+          seconds: String(secs),
+          isPreview: lesson.isPreview,
+          sortOrder: lesson.sortOrder,
+        };
+      }),
+    }));
+    return {
+      success: true,
+      status: 200,
+      data: { chapters: formattedChapters },
+    };
+  } catch (error) {
+    console.error("Fetch chapters error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "SERVER_ERROR",
+    };
+  }
+}
+
+export async function createChapter(data: {
+  title: string;
+  courseId: number;
+}): Promise<ActionResponse<{ message: string; chapter: { id: number } }>> {
   try {
     const parsed = createChapterSchema.safeParse(data);
     if (!parsed.success) {
@@ -302,6 +376,7 @@ export async function createChapter(
         sortOrder: nextSortOrder,
       },
     });
+    revalidatePath(`/admin/courses/${courseId}/edit`);
     return {
       success: true,
       status: 201,
@@ -320,9 +395,10 @@ export async function createChapter(
   }
 }
 
-export async function updateChapter(
-  data: UpdateChapterInput,
-): Promise<ActionResponse<{ message: string }>> {
+export async function updateChapter(data: {
+  id: number;
+  title: string;
+}): Promise<ActionResponse<{ message: string }>> {
   try {
     const parsed = updateChapterSchema.safeParse(data);
     if (!parsed.success) {
@@ -332,7 +408,6 @@ export async function updateChapter(
         error: "UPDATE_CHAPTER_INVALID_INPUT",
       };
     }
-
     const { id, title } = parsed.data;
     const existingChapter = await db.chapter.findUnique({
       where: { id, deletedAt: null },
@@ -346,10 +421,12 @@ export async function updateChapter(
         error: "CHAPTER_NOT_FOUND",
       };
     }
+    const courseId = existingChapter.courseId;
     await db.chapter.update({
       where: { id },
       data: { title },
     });
+    revalidatePath(`/admin/courses/${courseId}/edit`);
     return {
       success: true,
       status: 200,
@@ -359,80 +436,6 @@ export async function updateChapter(
     };
   } catch (error) {
     console.error("Update chapter error:", error);
-    return {
-      success: false,
-      status: 500,
-      error: "SERVER_ERROR",
-    };
-  }
-}
-
-export async function getChaptersByCourseId(
-  courseId: number,
-): Promise<ActionResponse<{ chapters: Chapter[] }>> {
-  try {
-    if (isNaN(courseId)) {
-      return {
-        success: false,
-        status: 400,
-        error: "INVALID_COURSE_ID",
-      };
-    }
-    const courseExists = await db.course.findUnique({
-      where: { id: courseId, deletedAt: null },
-      select: { id: true },
-    });
-
-    if (!courseExists) {
-      return {
-        success: false,
-        status: 404,
-        error: "COURSE_NOT_FOUND",
-      };
-    }
-
-    const chapters = await db.chapter.findMany({
-      where: {
-        courseId,
-        deletedAt: null,
-      },
-      orderBy: { sortOrder: "asc" },
-      include: {
-        lessons: {
-          where: { deletedAt: null },
-          orderBy: { sortOrder: "asc" },
-        },
-      },
-    });
-    const formattedChapters = chapters.map((chapter) => ({
-      id: chapter.id,
-      title: chapter.title,
-      sortOrder: chapter.sortOrder,
-      lessons: chapter.lessons.map((lesson) => {
-        const totalSeconds = lesson.duration || 0;
-        const mins = Math.floor(totalSeconds / 60);
-        const secs = totalSeconds % 60;
-
-        return {
-          id: lesson.id,
-          chapterId: lesson.chapterId,
-          title: lesson.title,
-          videoUrl: lesson.videoUrl,
-          duration: totalSeconds,
-          minutes: String(mins),
-          seconds: String(secs),
-          isPreview: lesson.isPreview,
-          sortOrder: lesson.sortOrder,
-        };
-      }),
-    }));
-    return {
-      success: true,
-      status: 200,
-      data: { chapters: formattedChapters },
-    };
-  } catch (error) {
-    console.error("Fetch chapters error:", error);
     return {
       success: false,
       status: 500,
@@ -464,18 +467,39 @@ export async function deleteChapter(
       };
     }
     const now = new Date();
-    await db.$transaction([
-      db.chapter.update({
+    const courseId = existingChapter.courseId;
+    await db.$transaction(async (tx) => {
+      await tx.chapter.update({
         where: { id },
         data: { deletedAt: now },
-      }),
+      });
 
-      db.lesson.updateMany({
+      await tx.lesson.updateMany({
         where: { chapterId: id, deletedAt: null },
         data: { deletedAt: now },
-      }),
-    ]);
+      });
 
+      const courseLessonsAggregate = await tx.lesson.aggregate({
+        where: {
+          chapter: {
+            courseId: courseId,
+            deletedAt: null,
+          },
+          deletedAt: null,
+        },
+        _sum: {
+          duration: true,
+        },
+      });
+
+      const totalCourseDuration = courseLessonsAggregate._sum.duration || 0;
+
+      await tx.course.update({
+        where: { id: courseId },
+        data: { duration: totalCourseDuration },
+      });
+    });
+    revalidatePath(`/admin/courses/${courseId}/edit`);
     return {
       success: true,
       status: 200,
@@ -485,6 +509,202 @@ export async function deleteChapter(
     };
   } catch (error) {
     console.error("chapter delete error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "SERVER_ERROR",
+    };
+  }
+}
+
+export async function createLesson(
+  data: LessonType,
+): Promise<ActionResponse<{ lesson: LessonType; message: string }>> {
+  try {
+    const parsed = lessonSchema.safeParse(data);
+    if (!parsed.success) {
+      return {
+        success: false,
+        status: 400,
+        error: "CREATE_LESSON_INVALID_INPUT",
+      };
+    }
+    const {
+      title,
+      videoUrl,
+      isPreview,
+      sortOrder,
+      minutes,
+      seconds,
+      chapterId,
+    } = parsed.data;
+    const chapterExists = await db.chapter.findUnique({
+      where: { id: chapterId, deletedAt: null },
+      select: { id: true, courseId: true },
+    });
+
+    if (!chapterExists) {
+      return {
+        success: false,
+        status: 404,
+        error: "CHAPTER_NOT_FOUND",
+      };
+    }
+    const courseId = chapterExists.courseId;
+    const mins = parseInt(minutes || "0", 10);
+    const secs = parseInt(seconds || "0", 10);
+    const totalSeconds = mins * 60 + secs;
+    const newLesson = await db.$transaction(async (tx) => {
+      const lesson = await tx.lesson.create({
+        data: {
+          chapterId,
+          title: title.trim(),
+          videoUrl: videoUrl || null,
+          duration: totalSeconds,
+          isPreview,
+          sortOrder,
+        },
+      });
+      const courseLessonsAggregate = await tx.lesson.aggregate({
+        where: {
+          chapter: {
+            courseId: chapterExists.courseId,
+            deletedAt: null,
+          },
+          deletedAt: null,
+        },
+        _sum: {
+          duration: true,
+        },
+      });
+
+      const totalCourseDuration = courseLessonsAggregate._sum.duration || 0;
+      await tx.course.update({
+        where: { id: chapterExists.courseId },
+        data: { duration: totalCourseDuration },
+      });
+
+      return lesson;
+    });
+    revalidatePath(`/admin/courses/${courseId}/edit`);
+    return {
+      success: true,
+      status: 201,
+      data: {
+        lesson: {
+          id: newLesson.id,
+          title: newLesson.title,
+          videoUrl: newLesson.videoUrl,
+          chapterId,
+          minutes,
+          seconds,
+          isPreview: newLesson.isPreview,
+          sortOrder: newLesson.sortOrder,
+        },
+        message: "LESSON_CREATED_SUCCESS",
+      },
+    };
+  } catch (error) {
+    console.error("Create lesson error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "SERVER_ERROR",
+    };
+  }
+}
+
+export async function updateLesson(
+  data: LessonType,
+): Promise<ActionResponse<{ lesson: LessonType; message: string }>> {
+  try {
+    const parsed = lessonSchema.safeParse(data);
+    if (!parsed.success) {
+      return {
+        success: false,
+        status: 400,
+        error: "UPDATE_LESSON_INVALID_INPUT",
+      };
+    }
+    const {
+      title,
+      videoUrl,
+      isPreview,
+      sortOrder,
+      minutes,
+      seconds,
+      id: lessonId,
+    } = parsed.data;
+    const existingLesson = await db.lesson.findUnique({
+      where: { id: lessonId, deletedAt: null },
+      include: { chapter: true },
+    });
+    if (!existingLesson || existingLesson.chapter.deletedAt !== null) {
+      return {
+        success: false,
+        status: 404,
+        error: "LESSON_NOT_FOUND",
+      };
+    }
+    const mins = parseInt(minutes || "0", 10);
+    const secs = parseInt(seconds || "0", 10);
+    const totalSeconds = mins * 60 + secs;
+    const courseId = existingLesson.chapter.courseId;
+
+    const updatedDbLesson = await db.$transaction(async (tx) => {
+      const lesson = await tx.lesson.update({
+        where: { id: lessonId },
+        data: {
+          title: title,
+          videoUrl: videoUrl || null,
+          duration: totalSeconds,
+          isPreview,
+          sortOrder,
+        },
+      });
+
+      const courseLessonsAggregate = await tx.lesson.aggregate({
+        where: {
+          chapter: {
+            courseId: courseId,
+            deletedAt: null,
+          },
+          deletedAt: null,
+        },
+        _sum: {
+          duration: true,
+        },
+      });
+
+      const totalCourseDuration = courseLessonsAggregate._sum.duration || 0;
+
+      await tx.course.update({
+        where: { id: courseId },
+        data: { duration: totalCourseDuration },
+      });
+
+      return lesson;
+    });
+    revalidatePath(`/admin/courses/${courseId}/edit`);
+    return {
+      success: true,
+      status: 200,
+      data: {
+        lesson: {
+          id: updatedDbLesson.id,
+          chapterId: updatedDbLesson.chapterId,
+          title: updatedDbLesson.title,
+          videoUrl: updatedDbLesson.videoUrl,
+          minutes,
+          seconds,
+          isPreview: updatedDbLesson.isPreview,
+          sortOrder: updatedDbLesson.sortOrder,
+        },
+        message: "LESSON_UPDATED_SUCCESS",
+      },
+    };
+  } catch (error) {
+    console.error("Update lesson error:", error);
     return {
       success: false,
       status: 500,

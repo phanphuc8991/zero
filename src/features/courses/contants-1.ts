@@ -4,41 +4,41 @@ export type ActionResponse<T> =
   | { success: false; status: number; error: string };
 
 export const COURSE_MESSAGES_MAP: Record<string, string> = {
-  FETCH_COURSE_LIST_ERROR: "Failed to fetch the course list from the server.",
-  FETCH_CATEGORY_LIST_ERROR:
-    "Failed to fetch the category list from the server.",
-  FETCH_INSTRUCTOR_LIST_ERROR:
-    "Failed to fetch the instructor list from the server.",
+  // --- Fetch ---
+  FETCH_COURSE_LIST_ERROR: "Failed to load courses.",
+  FETCH_CATEGORY_LIST_ERROR: "Failed to load categories.",
+  FETCH_INSTRUCTOR_LIST_ERROR: "Failed to load instructors.",
 
-  CREATE_COURSE_INVALID_INPUT:
-    "The provided input data is invalid. Please check the form fields.",
-  CATEGORY_NOT_FOUND: "The selected category does not exist in the system.",
-  INSTRUCTOR_NOT_FOUND: "The assigned instructor could not be found.",
-  COURSE_CREATED_SUCCESS: "The course has been successfully created and saved.",
-  SLUG_ALREADY_EXISTS:
-    "This slug URL is already taken. Please change the title or edit the slug.",
+  // --- Course ---
+  CREATE_COURSE_INVALID_INPUT: "Invalid course details.",
+  CATEGORY_NOT_FOUND: "Category not found.",
+  INSTRUCTOR_NOT_FOUND: "Instructor not found.",
+  COURSE_CREATED_SUCCESS: "Course created successfully.",
+  SLUG_ALREADY_EXISTS: "Slug URL already taken.",
+  COURSE_CREATION_FAILED: "Failed to create course.",
 
-  COURSE_CREATION_FAILED:
-    "An error occurred while creating the course on the server.",
+  // --- Chapter ---
+  CREATE_CHAPTER_INVALID_INPUT: "Invalid chapter data.",
+  COURSE_NOT_FOUND: "Course not found.",
+  CHAPTER_NOT_FOUND: "Chapter not found.",
+  CHAPTER_CREATED_SUCCESS: "Chapter created successfully.",
+  CHAPTER_CREATION_FAILED: "Failed to create chapter.",
+  UPDATE_CHAPTER_INVALID_INPUT: "Invalid chapter update data.",
+  CHAPTER_UPDATED_SUCCESS: "Chapter updated successfully.",
+  CHAPTER_UPDATE_FAILED: "Failed to update chapter.",
+  CHAPTER_DELETED_SUCCESS: "Chapter deleted successfully.",
+  CHAPTER_DELETE_FAILED: "Failed to delete chapter.",
 
-  CREATE_CHAPTER_INVALID_INPUT:
-    "The provided chapter data is invalid. Please check the input fields.",
-  COURSE_NOT_FOUND:
-    "The specified course could not be found or has been deleted.",
-  CHAPTER_NOT_FOUND: "The requested chapter could not be found.",
+  // --- Lesson ---
+  CREATE_LESSON_INVALID_INPUT: "Invalid lesson data.",
+  LESSON_CREATED_SUCCESS: "Lesson created successfully.",
+  LESSON_CREATION_FAILED: "Failed to create lesson.",
+  UPDATE_LESSON_INVALID_INPUT: "Invalid lesson data.",
+  LESSON_UPDATED_SUCCESS: "Lesson updated successfully.",
+  LESSON_UPDATE_FAILED: "Failed to update lesson.",
 
-  CHAPTER_CREATED_SUCCESS: "The chapter has been successfully created.",
-  CHAPTER_CREATION_FAILED:
-    "An error occurred while creating the chapter on the server.",
-  UPDATE_CHAPTER_INVALID_INPUT: "The chapter update data is invalid.",
-  CHAPTER_UPDATED_SUCCESS: "The chapter title has been successfully updated.",
-  CHAPTER_UPDATE_FAILED:
-    "An error occurred while updating the chapter on the server.",
-  CHAPTER_DELETED_SUCCESS:
-    "The chapter and its lessons have been successfully deleted.",
-  CHAPTER_DELETE_FAILED:
-    "An error occurred while deleting the chapter on the server.",
-  SERVER_ERROR: "A critical server error occurred. Please try again later.",
+  // --- System ---
+  SERVER_ERROR: "Server error. Please try again.",
 };
 export type CourseTable = {
   id: number;
@@ -137,32 +137,62 @@ export interface Category {
   description?: string | null;
 }
 
-export const createChapterSchema = z.object({
-  courseId: z.number({ message: "Course ID is required" }),
-  title: z
-    .string()
-    .min(1, "Chapter title cannot be empty")
-    .max(255, "Chapter title is too long"),
-});
+// export const createChapterSchema = z.object({
+//   courseId: z.number({ message: "Course ID is required" }),
+//   title: z
+//     .string()
+//     .min(1, "Chapter title cannot be empty")
+//     .max(255, "Chapter title is too long"),
+// });
 
-export const updateChapterSchema = z.object({
-  id: z.number({ message: "Course ID is required" }),
-  title: z
-    .string()
-    .min(1, "Chapter title cannot be empty")
-    .max(255, "Chapter title is too long"),
-});
-export type CreateChapterInput = z.infer<typeof createChapterSchema>;
-export type UpdateChapterInput = z.infer<typeof updateChapterSchema>;
+// export const updateChapterSchema = z.object({
+//   id: z.number({ message: "Course ID is required" }),
+//   title: z
+//     .string()
+//     .min(1, "Chapter title cannot be empty")
+//     .max(255, "Chapter title is too long"),
+// });
+// export type CreateChapterInput = z.infer<typeof createChapterSchema>;
+// export type UpdateChapterInput = z.infer<typeof updateChapterSchema>;
 
 export const lessonSchema = z.object({
   id: z.number(),
+  chapterId: z.number(),
   title: z.string().min(1),
-  videoUrl: z.string().nullable().optional(),
-  duration: z.number().default(0),
+  videoUrl: z.string().nullish(),
   minutes: z.string().min(1),
   seconds: z.string().min(1),
   isPreview: z.boolean().default(false),
+  sortOrder: z.number(),
+});
+
+export const lessonFormSchema = z.object({
+  title: z.string().trim().min(1, "Lesson title cannot be empty"),
+  videoUrl: z
+    .string()
+    .trim()
+    .nullish()
+    .or(
+      z
+        .url("Invalid video URL (must start with http:// or https://)")
+        .max(0)
+        .or(z.string()),
+    ),
+  minutes: z
+    .string()
+    .trim()
+    .min(1, "Minutes cannot be empty")
+    .regex(/^\d+$/, "Must be a positive integer"),
+
+  seconds: z
+    .string()
+    .trim()
+    .min(1, "Seconds cannot be empty")
+    .regex(/^\d+$/, "Must be a positive integer")
+    .refine((val) => parseInt(val, 10) <= 59, {
+      message: "Seconds must be less than 60",
+    }),
+  isPreview: z.boolean(),
   sortOrder: z.number(),
 });
 
@@ -170,7 +200,24 @@ export const chapterSchema = z.object({
   id: z.number(),
   title: z.string().min(1),
   sortOrder: z.number(),
+  courseId: z.number(),
+});
+
+export const createChapterSchema = chapterSchema.omit({
+  id: true,
+  sortOrder: true,
+});
+export const updateChapterSchema = chapterSchema.omit({
+  courseId: true,
+  sortOrder: true,
+});
+
+const chapterResponseSchema = chapterSchema.extend({
   lessons: z.array(lessonSchema),
 });
 
-export type Chapter = z.infer<typeof chapterSchema>;
+export type LessonType = z.infer<typeof lessonSchema>;
+export type LessonFormType = z.infer<typeof lessonFormSchema>;
+
+export type ChapterType = z.infer<typeof chapterSchema>;
+export type ChapterResponseType = z.infer<typeof chapterResponseSchema>;

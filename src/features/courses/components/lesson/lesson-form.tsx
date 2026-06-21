@@ -7,19 +7,22 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useShallow } from "zustand/react/shallow";
-import { LessonFormInput, lessonFormSchema } from "@/features/courses/contants";
+import {
+  lessonFormSchema,
+  LessonFormType,
+} from "@/features/courses/contants-1";
 
 interface LessonFormProps {
-  handleFormSubmit: (data: LessonFormInput) => void;
+  handleFormSubmit: (data: LessonFormType) => void;
 }
 
 export function LessonForm({ handleFormSubmit }: LessonFormProps) {
-  const { lessonDrawerMode, editingLessonData, closeLessonDrawer } =
+  const { lessonDrawerMode, closeLessonDrawer, editingLessonData } =
     useCourseStore(
       useShallow((state) => ({
         lessonDrawerMode: state.lessonDrawerMode,
-        editingLessonData: state.editingLessonData,
         closeLessonDrawer: state.closeLessonDrawer,
+        editingLessonData: state.editingLessonData,
       })),
     );
 
@@ -27,10 +30,9 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<LessonFormInput>({
+  } = useForm<LessonFormType>({
     resolver: zodResolver(lessonFormSchema),
     mode: "onChange",
-
     defaultValues:
       lessonDrawerMode === "EDIT" && editingLessonData
         ? {
@@ -39,6 +41,7 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
             minutes: editingLessonData.minutes,
             seconds: editingLessonData.seconds,
             isPreview: !!editingLessonData.isPreview,
+            sortOrder: editingLessonData.sortOrder,
           }
         : {
             title: "",
@@ -46,9 +49,9 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
             minutes: "",
             seconds: "",
             isPreview: false,
+            sortOrder: 0,
           },
   });
-
   return (
     <form
       onSubmit={handleSubmit(handleFormSubmit)}
@@ -187,7 +190,7 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
 
       <div className="flex flex-col items-center gap-2 w-full mb-4">
         <Button className="w-full" type="submit">
-          {lessonDrawerMode === "CREATE" ? "Create Lesson" : "Save Changes"}
+          {lessonDrawerMode === "CREATE" ? "Create" : "Update"}
         </Button>
         <Button
           className="w-full"

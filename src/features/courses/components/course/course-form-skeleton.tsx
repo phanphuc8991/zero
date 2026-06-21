@@ -3,7 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function CourseFormSkeleton() {
   return (
     <div className="space-y-8 animate-pulse">
-      =
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between border-b pb-5">
         <div className="space-y-2">
           <Skeleton className="h-8 w-64" />

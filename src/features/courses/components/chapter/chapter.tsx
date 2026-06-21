@@ -65,6 +65,7 @@ export function ChapterColumn({
   );
 
   const isEditingThisChapter = editingChapterId === chapterId;
+
   const [chapterTitle, setChapterTitle] = useState(title);
   const [showDialogConfirmDelete, setShowDialogConfirmDelete] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -76,9 +77,9 @@ export function ChapterColumn({
     disabled: isEditingThisChapter,
   });
 
-  const handleAddChapter = () => {
+  const handleUpdateChapter = () => {
     if (onUpdateChapter) {
-      onUpdateChapter(chapterKey, chapterTitle.trim());
+      onUpdateChapter(chapterKey, chapterTitle);
     }
   };
 
@@ -88,12 +89,12 @@ export function ChapterColumn({
     }
   };
 
-  useEffect(() => {
-    if (isEditingThisChapter && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditingThisChapter]);
+  // useEffect(() => {
+  //   if (isEditingThisChapter && inputRef.current) {
+  //     inputRef.current.focus();
+  //     inputRef.current.select();
+  //   }
+  // }, [isEditingThisChapter]);
 
   return (
     <Card
@@ -125,7 +126,7 @@ export function ChapterColumn({
                       variant="outline"
                       className="h-8 w-8 p-0"
                       disabled={!chapterTitle.trim() || isPending}
-                      onClick={handleAddChapter}
+                      onClick={handleUpdateChapter}
                     >
                       {isPending ? (
                         <Loader2 className="animate-spin" size={15} />
@@ -190,7 +191,7 @@ export function ChapterColumn({
           <Button
             variant="outline"
             className="gap-2 w-full h-12 cursor-pointer text-sm mb-6"
-            onClick={() => openAddLessonDrawer(chapterId, index, chapterKey)}
+            onClick={() => openAddLessonDrawer(chapterId, chapterKey)}
             disabled={isSystemLocked}
           >
             <Plus size={15} />

@@ -11,12 +11,14 @@ import {
   lessonFormSchema,
   LessonFormType,
 } from "@/features/courses/contants-1";
+import { Loader2 } from "lucide-react";
 
 interface LessonFormProps {
   handleFormSubmit: (data: LessonFormType) => void;
+  isPending: boolean;
 }
 
-export function LessonForm({ handleFormSubmit }: LessonFormProps) {
+export function LessonForm({ handleFormSubmit, isPending }: LessonFormProps) {
   const { lessonDrawerMode, closeLessonDrawer, editingLessonData } =
     useCourseStore(
       useShallow((state) => ({
@@ -190,13 +192,15 @@ export function LessonForm({ handleFormSubmit }: LessonFormProps) {
 
       <div className="flex flex-col items-center gap-2 w-full mb-4">
         <Button className="w-full" type="submit">
-          {lessonDrawerMode === "CREATE" ? "Create" : "Update"}
+          {isPending && <Loader2 className="animate-spin" size={15} />}
+          Save
         </Button>
         <Button
           className="w-full"
           type="button"
           variant="outline"
           onClick={closeLessonDrawer}
+          disabled={isPending}
         >
           Cancel
         </Button>

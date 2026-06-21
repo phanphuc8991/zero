@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useRef, useState, useTransition } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Loader2, Plus, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,9 @@ import {
   createChapter,
   createLesson,
   deleteChapter,
+  deleteLesson,
+  reorderChapters,
+  reorderLessons,
   updateChapter,
   updateLesson,
 } from "@/features/courses/server-action";
@@ -59,6 +62,8 @@ export function CourseContentTab({
     })),
   );
   const [newChapterTitle, setNewChapterTitle] = useState("");
+  const backupLessonsRef = useRef<LessonType[] | null>(null);
+
   const [listLesson, setListLesson] = useState<{
     [key: string]: LessonType[];
   }>(() => {
@@ -97,7 +102,7 @@ export function CourseContentTab({
   const [chapterOrder, setChapterOrder] = useState<string[]>(() =>
     initialChapters.map((chapter) => `chapter-key-${chapter.id}`),
   );
-
+  console.log("chapterOrder", chapterOrder);
   const onAddChapter = () => {
     startTransition(async () => {
       try {
@@ -183,10 +188,6 @@ export function CourseContentTab({
     });
   };
 
-  // console.log("chapterDetails", chapterDetails);
-  // console.log("listLesson", listLesson);
-  // console.log("chapterOrder", chapterOrder);
-
   const onAddLesson = (formData: LessonFormType) => {
     startTransition(async () => {
       try {
@@ -255,6 +256,173 @@ export function CourseContentTab({
     });
   };
 
+  const onDeleteLesson = (chapterKey: string, lessonId: number) => {
+    startTransition(async () => {
+      try {
+        const result = await deleteLesson(lessonId);
+
+        if (!result.success) {
+          toast.error(COURSE_MESSAGES_MAP[result.error]);
+          return;
+        }
+
+        setListLesson((prevItems) => {
+          const currentLessons = prevItems[chapterKey] || [];
+          const filteredLessons = currentLessons.filter(
+            (lesson) => lesson.id !== lessonId,
+          );
+
+          return {
+            ...prevItems,
+            [chapterKey]: filteredLessons,
+          };
+        });
+
+        toast.success(COURSE_MESSAGES_MAP[result.data.message]);
+      } catch (error) {
+        console.error("Lesson delete failed", error);
+        toast.error(COURSE_MESSAGES_MAP["LESSON_DELETE_FAILED"]);
+      }
+    });
+  };
+
+  // console.log("chapterDetails", chapterDetails);
+  // console.log("listLesson", listLesson);
+  // console.log("chapterOrder", chapterOrder);
+
+  const onDragStart = useCallback(
+    (event: any) => {
+      const { source } = event.operation;
+      if (!source || source.type === "column") return;
+
+      const targetChapterKey = Object.keys(listLesson).find((key) =>
+        listLesson[key].some((lesson) => lesson.id === source.id),
+      );
+
+      if (targetChapterKey) {
+        backupLessonsRef.current = [...(listLesson[targetChapterKey] || [])];
+      }
+    },
+    [listLesson],
+  );
+
+  const onDragOver = useCallback(
+    (event: any) => {
+      const { source, target } = event.operation;
+      if (source?.type === "column" || target?.type === "column") return;
+
+      if (source && target) {
+        const sourceChapterKey = Object.keys(listLesson).find((key) =>
+          listLesson[key].some((lesson) => lesson.id === source.id),
+        );
+        const targetChapterKey = Object.keys(listLesson).find((key) =>
+          listLesson[key].some((lesson) => lesson.id === target.id),
+        );
+        if (sourceChapterKey !== targetChapterKey) return;
+      }
+
+      setListLesson((prevItems) => move(prevItems, event));
+    },
+    [listLesson],
+  );
+
+  const onDragEnd = useCallback(
+    (event: any) => {
+      const { source, target } = event.operation;
+      if (event.canceled) {
+        backupLessonsRef.current = null;
+        return;
+      }
+
+      if (source?.type === "column") {
+        const backupOrder = [...chapterOrder];
+        const nextOrder = move(chapterOrder, event);
+        setChapterOrder(nextOrder);
+
+        const reorderPayload = nextOrder.map((chapterKey, index) => {
+          const chapter = chapterDetails[chapterKey];
+          return {
+            id: chapter.id,
+            sortOrder: index,
+          };
+        });
+
+        startTransition(async () => {
+          try {
+            const result = await reorderChapters(courseId, reorderPayload);
+            if (!result.success) {
+              toast.error(COURSE_MESSAGES_MAP[result.error]);
+              setChapterOrder(backupOrder);
+              return;
+            }
+            toast.success(COURSE_MESSAGES_MAP[result.data.message]);
+          } catch (error) {
+            console.error("Reorder chapters failed:", error);
+            toast.error(COURSE_MESSAGES_MAP["SERVER_ERROR"]);
+            setChapterOrder(backupOrder);
+          }
+        });
+        return;
+      }
+
+      if (source && target) {
+        const targetChapterKey = Object.keys(listLesson).find((key) =>
+          listLesson[key].some((lesson) => lesson.id === source.id),
+        );
+        if (!targetChapterKey) {
+          backupLessonsRef.current = null;
+          return;
+        }
+
+        const targetChapterId = chapterDetails[targetChapterKey]?.id;
+        if (!targetChapterId) {
+          backupLessonsRef.current = null;
+          return;
+        }
+
+        const updatedLessons = listLesson[targetChapterKey] || [];
+        const reorderPayload = updatedLessons.map((lesson, index) => ({
+          id: lesson.id,
+          sortOrder: index,
+        }));
+
+        startTransition(async () => {
+          try {
+            const result = await reorderLessons(
+              courseId,
+              targetChapterId,
+              reorderPayload,
+            );
+
+            if (!result.success) {
+              toast.error(COURSE_MESSAGES_MAP[result.error]);
+              if (backupLessonsRef.current) {
+                setListLesson((prev) => ({
+                  ...prev,
+                  [targetChapterKey]: backupLessonsRef.current!,
+                }));
+              }
+              return;
+            }
+            toast.success(COURSE_MESSAGES_MAP[result.data.message]);
+          } catch (error) {
+            console.error("Reorder lessons failed:", error);
+            toast.error(COURSE_MESSAGES_MAP["SERVER_ERROR"]);
+            if (backupLessonsRef.current) {
+              setListLesson((prev) => ({
+                ...prev,
+                [targetChapterKey]: backupLessonsRef.current!,
+              }));
+            }
+          } finally {
+            backupLessonsRef.current = null;
+          }
+        });
+      }
+    },
+    [chapterOrder, chapterDetails, listLesson, courseId],
+  );
+
   return (
     <div className="relative">
       {isPending && (
@@ -263,25 +431,9 @@ export function CourseContentTab({
 
       <DragDropProvider
         sensors={[PointerSensor, KeyboardSensor]}
-        onDragOver={(event) => {
-          const { source, target } = event.operation;
-          if (source?.type === "column" || target?.type === "column") return;
-          if (source && target) {
-            const sourceChapterKey = Object.keys(listLesson).find((key) =>
-              listLesson[key].some((lesson) => lesson.id === source.id),
-            );
-            const targetChapterKey = Object.keys(listLesson).find((key) =>
-              listLesson[key].some((lesson) => lesson.id === target.id),
-            );
-            if (sourceChapterKey !== targetChapterKey) return;
-          }
-          setListLesson((prevItems) => move(prevItems, event));
-        }}
-        onDragEnd={(event) => {
-          const { source } = event.operation;
-          if (event.canceled || source?.type !== "column") return;
-          setChapterOrder((columns) => move(columns, event));
-        }}
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDragEnd={onDragEnd}
       >
         <div className="flex flex-col gap-4 pt-4">
           {chapterOrder.length === 0 && (
@@ -326,6 +478,8 @@ export function CourseContentTab({
                     seconds={lesson.seconds}
                     isPreview={lesson.isPreview}
                     sortOrder={lesson.sortOrder}
+                    isPending={isPending}
+                    onDeleteLesson={onDeleteLesson}
                   />
                 ))}
               </ChapterColumn>
@@ -378,7 +532,11 @@ export function CourseContentTab({
           </Button>
         )}
       </DragDropProvider>
-      <LessonDrawer onAddLesson={onAddLesson} onUpdateLesson={onUpdateLesson} />
+      <LessonDrawer
+        isPending={isPending}
+        onAddLesson={onAddLesson}
+        onUpdateLesson={onUpdateLesson}
+      />
     </div>
   );
 }

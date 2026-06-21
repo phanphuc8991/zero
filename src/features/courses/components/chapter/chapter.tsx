@@ -89,13 +89,6 @@ export function ChapterColumn({
     }
   };
 
-  // useEffect(() => {
-  //   if (isEditingThisChapter && inputRef.current) {
-  //     inputRef.current.focus();
-  //     inputRef.current.select();
-  //   }
-  // }, [isEditingThisChapter]);
-
   return (
     <Card
       className={`px-4 pt-0 py-0 bg-background border shadow-none transition-all ${

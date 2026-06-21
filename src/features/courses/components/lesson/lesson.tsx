@@ -4,9 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCourseStore } from "@/stores/useCourseStore";
 import { useSortable } from "@dnd-kit/react/sortable";
-import { Pencil, GripVertical, Play, Trash2, X } from "lucide-react";
+import { Pencil, GripVertical, Play, Trash2, X, Loader2 } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Lesson {
   id: number;
@@ -32,11 +40,8 @@ interface LessonProps {
   seconds: string;
   isPreview: boolean;
   sortOrder: number;
-  onUpdateLesson?: (
-    columnKey: string,
-    lessonId: number,
-    fields: Partial<Lesson>,
-  ) => void;
+  isPending: boolean;
+  onDeleteLesson?: (chapterKey: string, lessonId: number) => void;
 }
 
 export function LessonItem({
@@ -51,8 +56,11 @@ export function LessonItem({
   seconds,
   isPreview,
   sortOrder,
+  isPending,
+  onDeleteLesson,
 }: LessonProps) {
   const [showVideo, setShowVideo] = useState(false);
+  const [showDialogConfirmDelete, setShowDialogConfirmDelete] = useState(false);
   const { isSystemLocked, openEditLessonDrawer } = useCourseStore(
     useShallow((state) => ({
       isSystemLocked: state.isSystemLocked(),
@@ -95,6 +103,12 @@ export function LessonItem({
       sortOrder,
     };
     openEditLessonDrawer(chapterId, chapterKey, lessson);
+  };
+
+  const handdleDeleteLesson = () => {
+    if (onDeleteLesson) {
+      onDeleteLesson(chapterKey, lessonId);
+    }
   };
 
   return (
@@ -186,12 +200,50 @@ export function LessonItem({
               className="gap-2"
               type="button"
               disabled={isSystemLocked}
+              onClick={() => {
+                setShowDialogConfirmDelete(true);
+              }}
             >
               <Trash2 size={15} className="text-[#E9122B]" />
             </Button>
           </div>
         </div>
       </CardContent>
+      <AlertDialog
+        open={showDialogConfirmDelete}
+        onOpenChange={setShowDialogConfirmDelete}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-normal">
+              Delete Item
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this item? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              disabled={isPending}
+              variant="outline"
+              onClick={() => setShowDialogConfirmDelete(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={isPending}
+              onClick={() => {
+                handdleDeleteLesson();
+              }}
+            >
+              {isPending && <Loader2 className="animate-spin" size={15} />}
+              Delete
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

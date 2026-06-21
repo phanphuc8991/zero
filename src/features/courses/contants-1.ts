@@ -36,7 +36,10 @@ export const COURSE_MESSAGES_MAP: Record<string, string> = {
   UPDATE_LESSON_INVALID_INPUT: "Invalid lesson data.",
   LESSON_UPDATED_SUCCESS: "Lesson updated successfully.",
   LESSON_UPDATE_FAILED: "Failed to update lesson.",
-
+  LESSON_DELETED_SUCCESS: "Lesson deleted successfully.",
+  LESSON_DELETE_FAILED: "Failed to delete lesson.",
+  CHAPTER_REORDERED_SUCCESS: "Chapters reordered.",
+  LESSON_REORDERED_SUCCESS: "Lessons reordered.",
   // --- System ---
   SERVER_ERROR: "Server error. Please try again.",
 };

@@ -14,11 +14,13 @@ import { useShallow } from "zustand/react/shallow";
 interface LessonDrawerProps {
   onAddLesson: (formData: LessonFormType) => void;
   onUpdateLesson: (formData: LessonFormType) => void;
+  isPending: boolean;
 }
 
 export function LessonDrawer({
   onAddLesson,
   onUpdateLesson,
+  isPending,
 }: LessonDrawerProps) {
   const { lessonDrawerMode, activeChapterId, closeLessonDrawer } =
     useCourseStore(
@@ -57,7 +59,10 @@ export function LessonDrawer({
         </SheetHeader>
 
         <div className="flex-1 min-h-0 px-4">
-          <LessonForm handleFormSubmit={handleFormSubmit} />
+          <LessonForm
+            isPending={isPending}
+            handleFormSubmit={handleFormSubmit}
+          />
         </div>
       </SheetContent>
     </Sheet>

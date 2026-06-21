@@ -712,3 +712,147 @@ export async function updateLesson(
     };
   }
 }
+
+export async function deleteLesson(
+  id: number,
+): Promise<ActionResponse<{ message: string }>> {
+  try {
+    if (isNaN(id)) {
+      return {
+        success: false,
+        status: 400,
+        error: "INVALID_LESSON_ID",
+      };
+    }
+    const existingLesson = await db.lesson.findUnique({
+      where: { id, deletedAt: null },
+      include: {
+        chapter: {
+          select: { courseId: true },
+        },
+      },
+    });
+    if (!existingLesson || existingLesson.deletedAt !== null) {
+      return {
+        success: false,
+        status: 404,
+        error: "LESSON_NOT_FOUND",
+      };
+    }
+    const courseId = existingLesson.chapter.courseId;
+    const now = new Date();
+
+    await db.$transaction(async (tx) => {
+      await tx.lesson.update({
+        where: { id },
+        data: { deletedAt: now },
+      });
+      const courseLessonsAggregate = await tx.lesson.aggregate({
+        where: {
+          chapter: {
+            courseId: courseId,
+            deletedAt: null,
+          },
+          deletedAt: null,
+        },
+        _sum: {
+          duration: true,
+        },
+      });
+
+      const totalCourseDuration = courseLessonsAggregate._sum.duration || 0;
+      await tx.course.update({
+        where: { id: courseId },
+        data: { duration: totalCourseDuration },
+      });
+    });
+    revalidatePath(`/admin/courses/${courseId}/edit`);
+    return {
+      success: true,
+      status: 200,
+      data: {
+        message: "LESSON_DELETED_SUCCESS",
+      },
+    };
+  } catch (error) {
+    console.error("Delete lesson error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "SERVER_ERROR",
+    };
+  }
+}
+
+export async function reorderChapters(
+  courseId: number,
+  list: { id: number; sortOrder: number }[],
+): Promise<ActionResponse<{ message: string }>> {
+  try {
+    if (isNaN(courseId)) {
+      return { success: false, status: 400, error: "COURSE_NOT_FOUND" };
+    }
+    await db.$transaction(
+      list.map((item) =>
+        db.chapter.update({
+          where: {
+            id: item.id,
+            courseId,
+            deletedAt: null,
+          },
+          data: { sortOrder: item.sortOrder },
+        }),
+      ),
+    );
+    revalidatePath(`/admin/courses/${courseId}/edit`);
+    return {
+      success: true,
+      status: 200,
+      data: { message: "CHAPTER_REORDERED_SUCCESS" },
+    };
+  } catch (error) {
+    console.error("Reorder chapters error:", error);
+    return { success: false, status: 500, error: "SERVER_ERROR" };
+  }
+}
+
+export async function reorderLessons(
+  courseId: number,
+  chapterId: number,
+  list: { id: number; sortOrder: number }[],
+): Promise<ActionResponse<{ message: string }>> {
+  try {
+    if (isNaN(courseId) || isNaN(chapterId)) {
+      return {
+        success: false,
+        status: 400,
+        error: "INVALID_INPUT",
+      };
+    }
+    await db.$transaction(
+      list.map((item) =>
+        db.lesson.update({
+          where: {
+            id: item.id,
+            chapterId: chapterId,
+            deletedAt: null,
+          },
+          data: { sortOrder: item.sortOrder },
+        }),
+      ),
+    );
+    revalidatePath(`/admin/courses/${courseId}/edit`);
+    return {
+      success: true,
+      status: 200,
+      data: { message: "LESSON_REORDERED_SUCCESS" },
+    };
+  } catch (error) {
+    console.error("Reorder lessons error:", error);
+    return {
+      success: false,
+      status: 500,
+      error: "SERVER_ERROR",
+    };
+  }
+}

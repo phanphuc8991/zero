@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         source: "/admin",
         destination: "/admin/dashboard",
       },
+      {
+        source: "/user",
+        destination: "/user/dashboard",
+      },
     ];
   },
   /* config options here */

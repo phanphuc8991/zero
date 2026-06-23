@@ -100,7 +100,7 @@ export default function Courses() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
             {[...listCourse, ...listCourse].map((data, index) => (
-              <CardCourse data={data} key={index} />
+              <CardCourse data={data} key={index} index={index} />
             ))}
           </div>
         </div>

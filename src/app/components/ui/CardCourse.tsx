@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 export function CardCourse(props: any) {
-  const { data } = props;
+  const { data, index } = props;
   return (
     <div className="group border-primary/20 dark:border-creamwhite/20 border rounded-2xl flex flex-col overflow-hidden">
       <div className="overflow-hidden">
@@ -21,7 +21,7 @@ export function CardCourse(props: any) {
       </div>
       <div className="p-6 flex flex-col justify-center flex-1">
         <div className="flex flex-col justify-center gap-4">
-          <Link href="">
+          <Link href={`/courses/${index}`}>
             <h5 className="max-w-72 group-hover:text-secondary">
               {data.title}
             </h5>

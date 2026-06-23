@@ -39,10 +39,10 @@ const navItem = [
     href: "/blog",
     text: "Blog",
   },
-  {
-    href: "/docs",
-    text: "Docs",
-  },
+  // {
+  //   href: "/docs",
+  //   text: "Docs",
+  // },
 ];
 export function Navbar() {
   const { data: session, status } = useSession();
@@ -52,7 +52,6 @@ export function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
-        // Cuộn xuống quá 50px thì kích hoạt
         setIsScrolled(true);
       } else {
         setIsScrolled(false);

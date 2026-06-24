@@ -1,5 +1,33 @@
-import { Card } from "@/components/ui/card";
-import { Award, CheckCircle2, Clock, PlayCircle } from "lucide-react";
+import { NavButton } from "@/app/components/client/nav-button";
+import PaginationComponent from "@/components/pagination6";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Award,
+  CheckCircle2,
+  Clock,
+  Play,
+  PlayCircle,
+  Search,
+} from "lucide-react";
+import Image from "next/image";
+
 export default function Page() {
   return (
     <div className="text-base">
@@ -10,8 +38,8 @@ export default function Page() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className=" flex flex-row items-center gap-4 p-6 bg-white rounded-2xl border border-gray-100 shadow-none transition-all duration-200 hover:shadow-md hover:cursor-pointer">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+        <Card className=" flex flex-row items-center gap-4 p-6  shadow-none transition-all duration-200 hover:shadow-md hover:cursor-pointer">
           <div className="flex items-center justify-center w-14 h-14 rounded-full bg-amber-500/10 text-amber-500">
             <Clock className="w-6 h-6" />
           </div>
@@ -25,7 +53,7 @@ export default function Page() {
           </div>
         </Card>
 
-        <Card className="transition-all duration-200 hover:shadow-md hover:cursor-pointer flex flex-row items-center gap-4 p-6 bg-white rounded-2xl border border-gray-100 shadow-none">
+        <Card className="transition-all duration-200 hover:shadow-md hover:cursor-pointer flex flex-row items-center gap-4 p-6 shadow-none">
           <div className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-500/10 text-blue-600 shrink-0">
             <PlayCircle className="w-6 h-6" />
           </div>
@@ -38,7 +66,7 @@ export default function Page() {
           </div>
         </Card>
 
-        <Card className="transition-all duration-200 hover:shadow-md hover:cursor-pointer flex flex-row items-center gap-4 p-6 bg-white rounded-2xl border border-gray-100 shadow-none ">
+        <Card className="transition-all duration-200 hover:shadow-md hover:cursor-pointer flex flex-row items-center gap-4 p-6  shadow-none ">
           <div className="flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-600 shrink-0">
             <CheckCircle2 className="w-6 h-6" />
           </div>
@@ -51,7 +79,7 @@ export default function Page() {
           </div>
         </Card>
 
-        <Card className=" transition-all duration-200 hover:shadow-md hover:cursor-pointerflex flex-row items-center gap-4 p-6 bg-white rounded-2xl border border-gray-100 shadow-none">
+        <Card className=" transition-all duration-200 hover:shadow-md hover:cursor-pointerflex flex-row items-center gap-4 p-6 shadow-none">
           <div className="flex items-center justify-center w-14 h-14 rounded-full bg-purple-500/10 text-purple-600 shrink-0">
             <Award className="w-6 h-6" />
           </div>
@@ -64,6 +92,150 @@ export default function Page() {
           </div>
         </Card>
       </div>
+
+      <Card className="shadow-none relative px-4">
+        <div className="absolute left-0 right-0 border border-b top-18.25 w-full bg-muted"></div>
+        <div className="absolute right-4 top-5">
+          <InputGroup className="max-w-sm">
+            <InputGroupInput className="w-200" placeholder="Search..." />
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
+        <Tabs defaultValue="all">
+          <TabsList variant="line">
+            <TabsTrigger className="p-7 hover:cursor-pointer" value="all">
+              All
+            </TabsTrigger>
+            <TabsTrigger
+              className="p-7 hover:cursor-pointer"
+              value="not-started"
+            >
+              Not Started
+            </TabsTrigger>
+            <TabsTrigger
+              className="p-7 hover:cursor-pointer"
+              value="in-progress"
+            >
+              In Progress
+            </TabsTrigger>
+            <TabsTrigger
+              className="p-7  hover:cursor-pointer"
+              value="completed"
+            >
+              Completed
+            </TabsTrigger>
+          </TabsList>
+
+          <div className="my-7 min-h-100 flex flex-col gap-10">
+            <div>
+              <TabsContent value="all">
+                <div className="grid grid-cols-4 gap-4">
+                  {[1, 2, 3, 4, 4, 5, 6, 7, 8].map((data, index) => {
+                    return (
+                      <Card
+                        key={index}
+                        className="relative py-6 max-w-sm shadow-none pt-0 overflow-hidden"
+                      >
+                        <div className="left-2 top-2 absolute">
+                          {/* <Badge className="bg-[#f1f5f9] text-[#475569] hover:bg-[#e2e8f0] rounded px-2.5 py-0.5 text-[11px] font-semibold border-none shadow-none">
+                          Not Started
+                        </Badge> */}
+                          {/* <Badge className="bg-[#e0f2fe] text-[#0369a1] hover:bg-[#bae6fd] rounded px-2.5 py-0.5 text-[11px] font-semibold border-none shadow-none">
+                          In Progress
+                        </Badge> */}
+                          {/* <Badge className="bg-[#dcfce7] text-[#15803d] hover:bg-[#bbf7d0] rounded px-2.5 py-0.5 text-[11px] font-semibold border-none shadow-none">
+                          Completed
+                        </Badge> */}
+
+                          <Badge className="bg-[#fef3c7] text-[#b45309] hover:bg-[#fde68a] rounded px-2.5 py-0.5 text-[11px] font-semibold border-none shadow-none">
+                            Premium
+                          </Badge>
+                        </div>
+                        <CardContent className="px-0">
+                          <div className="w-full h-45">
+                            <img
+                              src="https://images.unsplash.com/photo-1743105351262-3f9e6944920a?q=80&w=500&auto=format&fit=crop&ixlib=rb-4.1.0"
+                              alt="Blog banner"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </CardContent>
+                        <CardHeader>
+                          <CardTitle className="leading-snug">
+                            How to Create Stunning
+                          </CardTitle>
+                          <CardDescription>
+                            <div className="flex items-center gap-3">
+                              <Avatar>
+                                <AvatarImage
+                                  src="https://github.com/shadcn.png"
+                                  alt="@shadcn"
+                                />
+                                <AvatarFallback>CN</AvatarFallback>
+                              </Avatar>
+                              <div>your name</div>
+                            </div>
+                          </CardDescription>
+                        </CardHeader>
+                        <CardFooter className="flex flex-col gap-6">
+                          <div className="flex w-full max-w-sm items-center gap-2">
+                            <Progress
+                              value={75}
+                              className="bg-green-500/20 [&>div]:bg-green-500"
+                            />
+                            <span className="text-muted-foreground text-sm">
+                              75%
+                            </span>
+                          </div>
+                          {/* <Button
+                          className="aspect-square w-full"
+                          variant="outline"
+
+                        >
+                          <Play
+                            aria-hidden="true"
+                            className="opacity-60 sm:-ms-1"
+                            size={16}
+                          />
+                          <span className="max-sm:sr-only">
+                            Continue Learning
+                          </span>
+                        </Button> */}
+
+                          <NavButton
+                            className="aspect-square w-full"
+                            to={`/user/courses/${1}`}
+                          >
+                            <Play
+                              aria-hidden="true"
+                              className="opacity-60 sm:-ms-1"
+                              size={16}
+                            />
+                            Continue Learning
+                          </NavButton>
+                        </CardFooter>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+              <TabsContent value="not-started">
+                <p className="text-xs">Content for Tab 2</p>
+              </TabsContent>
+              <TabsContent value="in-progress">
+                <p className="text-xs">Content for Tab 3</p>
+              </TabsContent>
+              <TabsContent value="completed">
+                <p className="text-xs">Content for Tab 4</p>
+              </TabsContent>
+            </div>
+
+            <PaginationComponent />
+          </div>
+        </Tabs>
+      </Card>
     </div>
   );
 }

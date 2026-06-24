@@ -60,64 +60,15 @@ const data = {
       items: [
         {
           title: "Dashboard",
-          url: "/admin/dashboard",
+          url: "/user/dashboard",
         },
         {
-          title: "User Courses",
+          title: "List Course",
           url: "/user/courses",
         },
-        {
-          title: "Instructors",
-          url: "/admin/instructors ",
-        },
-        {
-          title: "Reviews & Ratings",
-          url: "#",
-        },
       ],
     },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
+
     {
       title: "Settings",
       url: "#",
@@ -169,12 +120,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <NavUser user={data.user} />
-      </SidebarFooter>
-      <SidebarRail />
+      </SidebarFooter> */}
+      {/* <SidebarRail /> */}
     </Sidebar>
   );
 }

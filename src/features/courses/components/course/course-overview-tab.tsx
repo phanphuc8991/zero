@@ -51,6 +51,7 @@ export function CourseOverviewTab({
       targetAudience: initialData.targetAudience ?? [],
       skillsGained: initialData.skillsGained ?? [],
       features: initialData.features ?? [],
+      price: initialData.price ?? 0,
     },
   });
 

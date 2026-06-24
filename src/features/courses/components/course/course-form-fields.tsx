@@ -14,6 +14,12 @@ import { CourseLevelSelect } from "@/features/courses/components/course/course-l
 import { Control, FieldErrors, UseFormSetValue } from "react-hook-form";
 import { type CourseFormInput } from "@/features/courses/contants";
 import { RefObject, useId } from "react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+} from "@/components/ui/input-group";
 
 const convertToSlug = (text: string): string => {
   return text
@@ -195,6 +201,43 @@ export function CourseFormFields({
                     errors={errors}
                     instructors={instructors}
                   />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="course-price">Price</FieldLabel>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="price"
+                      render={({ field }) => (
+                        <InputGroup>
+                          <InputGroupAddon>
+                            <InputGroupText>$</InputGroupText>
+                          </InputGroupAddon>
+                          <InputGroupInput
+                            {...field}
+                            value={field.value ?? ""}
+                            id="course-price"
+                            placeholder="0.00"
+                            onChange={(e) => {
+                              field.onChange(
+                                e.target.value === ""
+                                  ? ""
+                                  : Number(e.target.value),
+                              );
+                            }}
+                          />
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupText>USD</InputGroupText>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      )}
+                    />
+                    {errors.price && (
+                      <p className="text-destructive text-xs mt-2">
+                        {errors.price.message}
+                      </p>
+                    )}
+                  </div>
                 </Field>
               </FieldGroup>
             </FieldSet>

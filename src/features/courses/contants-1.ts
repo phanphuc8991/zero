@@ -120,6 +120,10 @@ export const courseFormSchema = z.object({
     .array(z.string())
     .min(1, "Please select at least one course feature")
     .max(3, "You can select a maximum of 3 features"),
+
+  price: z
+    .number({ message: "Price must be a valid number" })
+    .min(0, { message: "Price must be greater than or equal to 0" }),
 });
 
 export type CreateCourseInput = z.infer<typeof courseFormSchema>;

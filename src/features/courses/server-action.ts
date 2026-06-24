@@ -48,7 +48,14 @@ export async function getCourseById(courseId: number): Promise<{ data: any }> {
     if (!course) {
       throw new Error("COURSE_NOT_FOUND");
     }
-    return { data: course };
+    console.log("course", course);
+    console.log("course.price.toNumber() ", course.price.toNumber());
+    return {
+      data: {
+        ...course,
+        price: course.price ? course.price.toNumber() : 0,
+      },
+    };
   } catch (error: any) {
     console.error("Get course by id error:", error);
     throw new Error(error.message || "FETCH_COURSE_BY_ID_ERROR");
@@ -98,6 +105,7 @@ export async function createCourse(
         skillsGained: rawData.skillsGained || [],
         targetAudience: rawData.targetAudience || [],
         features: rawData.features || [],
+        price: rawData.price || 0,
       },
     });
     revalidatePath("/admin/courses");
@@ -178,6 +186,7 @@ export async function updateCourse(
         skillsGained: rawData.skillsGained || [],
         targetAudience: rawData.targetAudience || [],
         features: rawData.features || [],
+        price: rawData.price || 0,
       },
     });
 

@@ -20,6 +20,10 @@ export const courseFormSchema = z.object({
     .string()
     .min(1, { message: "Please assign an instructor to this course" }),
 
+  price: z
+    .number({ message: "Price must be a valid number" })
+    .min(0, { message: "Price must be greater than or equal to 0" }),
+
   status: z.string().optional(),
   thumbnailUrl: z.any().optional().nullable(),
 

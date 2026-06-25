@@ -5,6 +5,9 @@ import {
   type RegisterForm,
   type SignInForm,
 } from "@/features/auth/constants";
+const getBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+};
 
 export async function signInService(data: SignInForm) {
   try {
@@ -36,7 +39,8 @@ async function handleResponse(res: Response) {
 }
 
 export async function registerService(data: RegisterForm) {
-  const res = await fetch("/api/auth/register", {
+  console.log("data", data);
+  const res = await fetch(`${getBaseUrl()}/api/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -46,7 +50,7 @@ export async function registerService(data: RegisterForm) {
 }
 
 export async function resendVerifyEmailService(data: { email: string }) {
-  const res = await fetch("/api/auth/resend-verify", {
+  const res = await fetch(`${getBaseUrl()}/api/auth/resend-verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -56,7 +60,7 @@ export async function resendVerifyEmailService(data: { email: string }) {
 }
 
 export async function forgotPasswordService(data: { email: string }) {
-  const res = await fetch("/api/auth/forgot-password", {
+  const res = await fetch(`${getBaseUrl()}/api/auth/forgot-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -70,7 +74,7 @@ export async function resetPasswordService(data: {
   confirmPassword: string;
   token: string;
 }) {
-  const res = await fetch("/api/auth/reset-password", {
+  const res = await fetch(`${getBaseUrl()}/api/auth/reset-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

@@ -102,6 +102,16 @@ export const resetPasswordActionSchema = resetPasswordSchema.extend({
   token: z.string().trim().length(36, { message: "INVALID_TOKEN" }),
 });
 
+export const tokenSchema = z.object({
+  token: z
+    .string()
+    .trim()
+    .regex(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      "INVALID_TOKEN",
+    ),
+});
+
 export type RegisterForm = z.infer<typeof registerSchema>;
 export type SignInForm = z.infer<typeof signInSchema>;
 

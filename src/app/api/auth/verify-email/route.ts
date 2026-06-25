@@ -1,23 +1,28 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { resetPasswordActionSchema } from "@/features/auth/constants";
+import { tokenSchema } from "@/features/auth/constants";
 
 export async function GET(req: Request) {
-  console.log("run....");
   const url = new URL(req.url);
-  const rawToken = url.searchParams.get("token");
 
+  const rawToken = url.searchParams.get("token");
   const redirect = (path: string) => {
     return NextResponse.redirect(new URL(path, req.url));
   };
-
+  console.log("rawToken", rawToken);
   try {
-    const tokenParsed = resetPasswordActionSchema.safeParse(rawToken);
+    const tokenParsed = tokenSchema.safeParse({
+      token: rawToken,
+    });
+
     console.log("tokenParsed", tokenParsed);
+
     if (!tokenParsed.success) {
       return redirect("/verify-email/result?status=invalid");
     }
-    const token = tokenParsed.data;
+
+    const token = tokenParsed?.data?.token;
+    console.log("token", token);
     const result = await db.$transaction(async (tx: any) => {
       const verificationToken = await tx.verificationToken.findUnique({
         where: { token },

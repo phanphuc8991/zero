@@ -19,10 +19,10 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle2, Clock, Play, PlayCircle, Search } from "lucide-react";
-import { EnrolledCourseDTO } from "@/features/user/course/contants";
+import { EnrollmentCourseDTO } from "@/features/user/course/contants";
 
 interface EnrolledCoursesListProps {
-  initialCourses: EnrolledCourseDTO[];
+  initialCourses: EnrollmentCourseDTO[];
 }
 
 export function ListCourse({ initialCourses }: EnrolledCoursesListProps) {
@@ -240,7 +240,13 @@ export function ListCourse({ initialCourses }: EnrolledCoursesListProps) {
                               className="opacity-60 sm:-ms-1"
                               size={16}
                             />
-                            Continue Learning
+
+                            {course.progressStatus === "not-started" &&
+                              "Start Course"}
+                            {course.progressStatus === "in-progress" &&
+                              "Continue Learning"}
+                            {course.progressStatus === "completed" &&
+                              "Completed"}
                           </NavButton>
                         </CardFooter>
                       </Card>

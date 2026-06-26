@@ -2,12 +2,14 @@
 
 import { auth } from "@/auth";
 import {
-  EnrolledCourseDTO,
-  EnrollmentWithCourse,
+  EnrollmentCourseDTO,
+  EnrollmentWithCoursePrisma,
+  DetailCoursePrisma,
   FilterParams,
+  CompletedProgressPrisma,
+  DetailCourseDto,
 } from "@/features/user/course/contants";
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function getEnrolledCourses(filters?: FilterParams): Promise<any> {
@@ -19,22 +21,44 @@ export async function getEnrolledCourses(filters?: FilterParams): Promise<any> {
       return { success: false, error: "UNAUTHORIZED_ERROR" };
     }
 
-    const enrollments: EnrollmentWithCourse[] = await db.enrollment.findMany({
-      where: { userId },
-      include: {
-        course: {
-          include: {
-            instructor: true,
-            category: true,
-            chapters: {
-              include: {
-                lessons: { select: { id: true } },
+    const enrollments: EnrollmentWithCoursePrisma[] =
+      await db.enrollment.findMany({
+        where: { userId },
+        select: {
+          courseId: true,
+          id: true,
+          user: true,
+          course: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              thumbnailUrl: true,
+              description: true,
+              duration: true,
+              instructor: {
+                select: {
+                  id: true,
+                  name: true,
+                  avatarUrl: true,
+                },
+              },
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              chapters: {
+                select: {
+                  id: true,
+                  lessons: { select: { id: true } },
+                },
               },
             },
           },
         },
-      },
-    });
+      });
 
     const completedProgress = await db.userProgress.findMany({
       where: {
@@ -47,9 +71,8 @@ export async function getEnrolledCourses(filters?: FilterParams): Promise<any> {
     const completedLessonIds = new Set(
       completedProgress.map((p) => p.lessonId),
     );
-    console.log("completedLessonIds", completedLessonIds);
 
-    const courses: EnrolledCourseDTO[] = enrollments.map((enrollment) => {
+    const courses: EnrollmentCourseDTO[] = enrollments.map((enrollment) => {
       const course = enrollment.course;
 
       const allLessons = course.chapters.flatMap((ch) => ch.lessons);
@@ -64,7 +87,7 @@ export async function getEnrolledCourses(filters?: FilterParams): Promise<any> {
           ? Math.round((completedLessonCount / totalLessonCount) * 100)
           : 0;
 
-      let progressStatus: EnrolledCourseDTO["progressStatus"] = "not-started";
+      let progressStatus: EnrollmentCourseDTO["progressStatus"] = "not-started";
 
       if (totalLessonCount > 0) {
         if (completedLessonCount === totalLessonCount)
@@ -74,25 +97,15 @@ export async function getEnrolledCourses(filters?: FilterParams): Promise<any> {
 
       return {
         enrollmentId: enrollment.id,
-        pricePaid: Number(enrollment.pricePaid),
-        enrolledAt: enrollment.createdAt.toISOString(),
-
         progressStatus,
         progressPercentage,
         totalLessonCount,
         completedLessonCount,
-
         id: course.id,
         title: course.title,
         slug: course.slug,
         thumbnailUrl: course.thumbnailUrl,
         description: course.description,
-        price: Number(course.price),
-        level: course.level,
-
-        createdAt: course.createdAt.toISOString(),
-        updatedAt: course.updatedAt.toISOString(),
-
         instructor: course.instructor
           ? {
               id: course.instructor.id,
@@ -109,14 +122,11 @@ export async function getEnrolledCourses(filters?: FilterParams): Promise<any> {
       };
     });
 
-    console.log("courses", courses);
-
     const filteredCourses =
       filters?.status && filters.status !== "all"
         ? courses.filter((c) => c.progressStatus === filters.status)
         : courses;
 
-    console.log("courses", courses);
     return { success: true, data: filteredCourses };
   } catch (error) {
     console.error("Error in get list course user:", error);
@@ -130,15 +140,30 @@ export async function getCourseDetail(slug: string) {
     const userId = session?.user?.id;
 
     if (!userId) {
-      return { success: false, error: "Unauthorized." };
+      return { success: false, error: "UNAUTHORIZED_ERROR" };
     }
 
-    const course = await db.course.findUnique({
-      where: { slug: slug },
-      include: {
+    const course: DetailCoursePrisma | null = await db.course.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        thumbnailUrl: true,
+        description: true,
+        duration: true,
+        level: true,
+        skillsGained: true,
+        targetAudience: true,
+        features: true,
         chapters: {
           orderBy: { sortOrder: "asc" },
-          include: {
+          select: {
+            id: true,
+            courseId: true,
+            title: true,
+            sortOrder: true,
+
             lessons: {
               orderBy: { sortOrder: "asc" },
               select: {
@@ -154,29 +179,29 @@ export async function getCourseDetail(slug: string) {
     });
 
     if (!course) {
-      return { success: false, error: "Course not found." };
+      return { success: false, error: "COURSE_NOT_FOUND" };
     }
-    const completedProgress = await db.userProgress.findMany({
-      where: {
-        userId: userId,
-        isCompleted: true,
-        lesson: {
-          chapter: { courseId: course.id },
+
+    const completedProgress: CompletedProgressPrisma[] =
+      await db.userProgress.findMany({
+        where: {
+          userId: userId,
+          isCompleted: true,
+          lesson: {
+            chapter: { courseId: course.id },
+          },
         },
-      },
-      select: { lessonId: true },
-    });
+        select: { lessonId: true },
+      });
 
-    const completedLessonIds = completedProgress.map((p: any) => p.lessonId);
-
-    const serializedData = JSON.parse(
-      JSON.stringify({
-        ...course,
-        completedLessonIds,
-      }),
+    const completedLessonIds = completedProgress.map(
+      (p: CompletedProgressPrisma) => p.lessonId,
     );
-
-    return { success: true, data: serializedData };
+    const courseDto: DetailCourseDto = {
+      ...course,
+      completedLessonIds,
+    };
+    return { success: true, data: courseDto };
   } catch (error) {
     console.error("Error in getCourseDetail:", error);
     return { success: false, error: "Internal server error." };

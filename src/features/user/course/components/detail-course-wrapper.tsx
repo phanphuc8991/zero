@@ -1,14 +1,24 @@
 import DetailCourse from "@/features/user/course/components/detail-course";
+import DetailCourseSkeleton from "@/features/user/course/components/detail-course-skeleton";
 import { getCourseDetail } from "@/features/user/course/server-action";
-import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
-export default async function CourseDetailPage({ slug }: any) {
+export default function CourseDetailUser({ slug }: { slug: string }) {
+  return (
+    <div className="p-6">
+      <Suspense fallback={<DetailCourseSkeleton />}>
+        <CourseDetailPageWrapper slug={slug} />
+      </Suspense>
+    </div>
+  );
+}
+
+export async function CourseDetailPageWrapper({ slug }: { slug: string }) {
   const result = await getCourseDetail(slug);
-
-  if (!result.success || !result.data) {
-    return notFound();
+  if (!result.data) {
+    return;
   }
-
+  console.log("result", result);
   return (
     <div className="">
       <DetailCourse course={result.data} />

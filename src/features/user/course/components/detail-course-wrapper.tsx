@@ -1,5 +1,4 @@
 import DetailCourseSkeleton from "@/features/user/course/components/detail-course-skeleton";
-// import { DetailCourse } from "@/features/user/course/components/detail-course1";
 import { DetailCourse } from "@/features/user/course/components/detail-course";
 import { getCourseDetail } from "@/features/user/course/server-action";
 import { Suspense } from "react";

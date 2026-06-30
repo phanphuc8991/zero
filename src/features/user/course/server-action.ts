@@ -8,6 +8,7 @@ import {
   FilterParams,
   CompletedProgressPrisma,
   DetailCourseDto,
+  transformCourseData,
 } from "@/features/user/course/contants";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
@@ -110,6 +111,7 @@ export async function getEnrolledCourses(filters?: FilterParams): Promise<any> {
           ? {
               id: course.instructor.id,
               name: course.instructor.name,
+              avatarUrl: course.instructor.avatarUrl,
             }
           : null,
 
@@ -193,15 +195,12 @@ export async function getCourseDetail(slug: string) {
         },
         select: { lessonId: true },
       });
-
     const completedLessonIds = completedProgress.map(
       (p: CompletedProgressPrisma) => p.lessonId,
     );
-    const courseDto: DetailCourseDto = {
-      ...course,
-      completedLessonIds,
-    };
-    return { success: true, data: courseDto };
+
+    const transformData = transformCourseData(course, completedLessonIds);
+    return { success: true, data: transformData };
   } catch (error) {
     console.error("Error in getCourseDetail:", error);
     return { success: false, error: "Internal server error." };
@@ -232,9 +231,7 @@ export async function markLessonCompleted(lessonId: number) {
         isCompleted: true,
       },
     });
-
-    revalidatePath(`/course/[courseId]`);
-
+    revalidatePath("/user/courses/new-course");
     return { success: true };
   } catch (error) {
     console.error("Lỗi server:", error);

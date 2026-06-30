@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { AnyARecord } from "node:dns";
 
 export const USER_COURSE_MESSAGES_MAP: Record<string, string> = {
   // --- Auth ---
@@ -74,7 +75,7 @@ export type EnrollmentCourseDTO = {
   instructor: {
     id: number;
     name: string;
-    avatarUrl: string;
+    avatarUrl: string | null;
   } | null;
 
   category: {
@@ -125,4 +126,54 @@ export type CompletedProgressPrisma = Prisma.UserProgressGetPayload<{
 
 export type DetailCourseDto = DetailCoursePrisma & {
   completedLessonIds: number[];
+};
+
+export const transformCourseData = (course: any, completedLessonIds: any) => {
+  const completedSet = new Set(completedLessonIds);
+  const allLessons = course.chapters.flatMap((ch: any) => ch.lessons);
+  const firstUnfinishedIndex = allLessons.findIndex(
+    (l: any) => !completedSet.has(l.id),
+  );
+  const firstLesson =
+    firstUnfinishedIndex !== -1
+      ? allLessons[firstUnfinishedIndex]
+      : allLessons[allLessons.length - 1];
+
+  const chapters = course.chapters.map((chapter: any) => {
+    const totalLessons = chapter.lessons.length;
+    const completedLessons = chapter.lessons.filter((l: any) =>
+      completedSet.has(l.id),
+    ).length;
+
+    const lessons = chapter.lessons.map((lesson: any) => {
+      const currentIndex = allLessons.findIndex((l: any) => l.id === lesson.id);
+      let status = "locked";
+      if (completedSet.has(lesson.id)) {
+        console.log("lesson.id", lesson);
+        status = "done";
+      } else if (currentIndex === firstUnfinishedIndex) {
+        status = "available";
+      } else if (currentIndex < firstUnfinishedIndex) {
+        status = "done";
+      }
+      return { ...lesson, status };
+    });
+
+    return { ...chapter, totalLessons, completedLessons, lessons };
+  });
+
+  const totalLessons = allLessons.length;
+  const progress =
+    totalLessons > 0
+      ? Math.round((completedLessonIds.length / totalLessons) * 100)
+      : 0;
+
+  return {
+    ...course,
+    chapters,
+    totalLessons,
+    completedLessons: completedLessonIds.length,
+    progress,
+    firstLesson,
+  };
 };
